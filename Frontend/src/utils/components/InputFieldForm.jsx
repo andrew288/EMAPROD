@@ -10,14 +10,12 @@ export const InputFieldForm = ({onNewInput, nameInput, typeInput}) => {
     }
 
     return (
-        <div className="col-md-2">
-            <input
-                onChange={onChangeInputValue}
-                value={value}
-                type={typeInput}
-                name={nameInput}
-                className="form-control"
-            />
-        </div>
-  )
+        <input
+            onChange={onChangeInputValue}
+            value={value}
+            type={typeInput}
+            name={nameInput}
+            className="form-control"
+        />
+    )
 }

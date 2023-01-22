@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { InputFieldForm } from "../../../utils/components/InputFieldForm";
 import FechaPicker from "../../components/FechaPicker";
+import {FormatDateTimeMYSQLNow} from '../../../utils/functions/FormatDate';
 
 const AgregarEntradaStock = () => {
   const [entrada, setEntrada] = useState({
@@ -23,7 +24,7 @@ const AgregarEntradaStock = () => {
 
   // SETTEAR VALOR DE FECHA DE ENTRADA
   const onAddFechaEntrada = (newFechaEntrada) => {
-    setEntrada({ ...entrada, fechaEntrada: newFechaEntrada.toJSON() });
+    setEntrada({ ...entrada, fechaEntrada: newFechaEntrada});
   };
 
   // INPUT DOCUMENTO ENTRADA
@@ -38,21 +39,24 @@ const AgregarEntradaStock = () => {
     setEntrada({ ...entrada, cantidadEntrada: newCantidadEntrada})
   }
 
-  // FECHA PARA MYSQL 2014-10-25 20:00:00
-
-
-
-
   // SUBMIT DE UNA ENTRADA COMUNICACION CON BACKEND
   const onAddEntrada = (event) => {
     event.preventDefault();
-    let ResponseJSON = {...entrada};
-    if(entrada.fechaEntrada.length == 0){
-        // onAddFechaEntrada(new Date().toLocaleString());
-        ResponseJSON = {...ResponseJSON, fechaEntrada: new Date().toISOString()};
+
+    const {codigoMateriaPrima, codigoProveedor, documentoEntrada} = entrada;
+
+    // VERIFICAMOS SI SE INGRESARON LOS CAMPOS REQUERIDOS
+    if(codigoMateriaPrima.length != 0 && codigoProveedor.length != 0 && documentoEntrada.length != 0 ){
+      let ResponseJSON = {...entrada};
+      // VERIFICAMOS SI SE INGRESO UNA FECHA DE ENTRADA
+      if(entrada.fechaEntrada.length == 0){
+        ResponseJSON = {...ResponseJSON, fechaEntrada: FormatDateTimeMYSQLNow()};
+      }
+      console.log(ResponseJSON);
+    } else {
+      console.log("Complete todos los campos");
     }
-    
-    console.log(ResponseJSON);
+
   };
 
   return (
@@ -60,24 +64,24 @@ const AgregarEntradaStock = () => {
       <div className="container">
         <h1 className="mt-4 text-center">Registrar entrada</h1>
         <form className="mt-4">
+          {/* CODIGO MATERIA PRIMA */}
           <div className="mb-3 row">
             <label htmlFor={"codigo-materia-prima"} className="col-sm-2 col-form-label">
               Código de la materia prima
             </label>
-
-            {/* CODIGO MATERIA PRIMA */}
-            <InputFieldForm 
-                onNewInput={onAddCodigoEntrada}
-                nameInput={"codMateriaPrima"}
-                typeInput={"text"}
-            />
-            {/* Componente SEARCH NAME MATERIA PRIMA */}
+            <div className="col-md-2">
+              <InputFieldForm 
+                  onNewInput={onAddCodigoEntrada}
+                  nameInput={"codMateriaPrima"}
+                  typeInput={"text"}
+              />
+            </div>
+            {/* SEARCH NAME MATERIA PRIMA */}
             <div className="col-md-4">
               <div className="input-group">
                 <input
                   type="text"
                   name="nombreMateriaPrima"
-                  readOnly = {true}
                   className="form-control"
                   id="nombre-materia-prima"
                 />
@@ -102,16 +106,19 @@ const AgregarEntradaStock = () => {
               </div>
             </div>
           </div>
+
+          {/* CODIGO PROVEEDOR*/}
           <div className="mb-3 row">
             <label htmlFor={"codigo-proveedor"} className="col-sm-2 col-form-label">
               Código de proveedor
             </label>
-            {/* CODIGO PROVEEDOR*/}
-            <InputFieldForm 
-                onNewInput={onAddCodigoProveedor}
-                nameInput={"codProveedor"}
-                typeInput={"text"}
-            />
+            <div className="col-md-2">
+              <InputFieldForm 
+                  onNewInput={onAddCodigoProveedor}
+                  nameInput={"codProveedor"}
+                  typeInput={"text"}
+              />
+            </div>
             {/* SEARCH NAME PROVEEDOR */}
             <div className="col-md-4">
               <div className="input-group">
@@ -149,34 +156,40 @@ const AgregarEntradaStock = () => {
             <label htlmfor={"fecha-entrada-stock"} className="col-sm-2 col-form-label">
               Fecha de entrada
             </label>
-            <div className="col-md-3">
+            <div className="col-md-4">
               <FechaPicker onNewFechaEntrada={onAddFechaEntrada} />
             </div>
           </div>
 
+          {/* INPUT DOCUMENTO ENTRADA */}
           <div className="mb-3 row">
             <label htlmfor={"documento-entrada"} className="col-sm-2 col-form-label">
               Documento
             </label>
-            {/* INPUT DOCUMENTO ENTRADA */}
-            <InputFieldForm 
-                onNewInput={onAddDocumentoEntrada}
-                nameInput={"documentoEntrada"}
-                typeInput={"text"}
-            />
+            <div className="col-md-4">
+              <InputFieldForm 
+                  onNewInput={onAddDocumentoEntrada}
+                  nameInput={"documentoEntrada"}
+                  typeInput={"text"}
+              />
+            </div>
           </div>
 
+          {/* INPUT CANTIDAD ENTRADA */}
           <div className="mb-3 row">
             <label htlmfor={"cantidad-ingresada"} className="col-sm-2 col-form-label">
               Cantidad ingresada
             </label>
-            {/* INPUT CANTIDAD ENTRADA */}
-            <InputFieldForm
-                onNewInput={onAddCantidadEntrada}
-                nameInput={"cantidadEntrada"}
-                typeInput={"number"}
-            />
+            <div className="col-md-3">
+              <InputFieldForm
+                  onNewInput={onAddCantidadEntrada}
+                  nameInput={"cantidadEntrada"}
+                  typeInput={"number"}
+              />
+            </div>
           </div>
+
+          {/*   BUTTON SUBMIT */}
           <div className="d-flex justify-content-end">
             <button
               type="submit"
@@ -186,6 +199,7 @@ const AgregarEntradaStock = () => {
               Guardar
             </button>
           </div>
+
         </form>
       </div>
     </>
