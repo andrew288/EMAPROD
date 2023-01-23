@@ -1,20 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { InputFieldForm } from "../../../utils/components/InputFieldForm";
 import FechaPicker from "../../components/FechaPicker";
-import {FormatDateTimeMYSQLNow} from '../../../utils/functions/FormatDate';
+import {DiaJuliano, FormatDateTimeMYSQLNow} from '../../../utils/functions/FormatDate';
+import { FilterMateriaPrima } from "../../components/FilterMateriaPrima";
+import { FilterProveedor } from "../../components/FilterProveedor";
 
-const AgregarEntradaStock = () => {
+const AgregarEntradaStock = () => { 
+  
   const [entrada, setEntrada] = useState({
-    codigoMateriaPrima: "",
-    codigoProveedor: "",
-    fechaEntrada: "",
-    documentoEntrada: "",
+    codigoMateriaPrima: '',
+    codigoProveedor: '',
+    fechaEntrada: '',
+    documentoEntrada: '',
     cantidadEntrada: 0,
   });
 
+  const {codigoMateriaPrima, codigoProveedor, fechaEntrada, documentoEntrada, cantidadEntrada} = entrada;
+
+  // MANEJADOR DE FORMUALARIO
+
+  const handledForm = ({target}) => {
+    const {name, value} = target;
+    setEntrada({
+      ...entrada,
+      [name]: value
+    }) 
+    
+  }
+  
   // INPUT CODIGO MATERIA PRIMA
   const onAddCodigoEntrada = (newCodMateriaPrima) => {
-    setEntrada({ ...entrada, codigoMateriaPrima:newCodMateriaPrima});
+    setEntrada({ ...entrada, codigoMateriaPrima : newCodMateriaPrima});
   }
 
   // INPUT CODIGO PROVEEDOR
@@ -26,18 +42,6 @@ const AgregarEntradaStock = () => {
   const onAddFechaEntrada = (newFechaEntrada) => {
     setEntrada({ ...entrada, fechaEntrada: newFechaEntrada});
   };
-
-  // INPUT DOCUMENTO ENTRADA
-
-  const onAddDocumentoEntrada = (newDocumentoEntrada) => {
-    setEntrada({ ...entrada, documentoEntrada: newDocumentoEntrada })
-  }
-
-  // INPUT CANTIDAD ENTRADA
-  
-  const onAddCantidadEntrada = (newCantidadEntrada) => {
-    setEntrada({ ...entrada, cantidadEntrada: newCantidadEntrada})
-  }
 
   // SUBMIT DE UNA ENTRADA COMUNICACION CON BACKEND
   const onAddEntrada = (event) => {
@@ -52,12 +56,28 @@ const AgregarEntradaStock = () => {
       if(entrada.fechaEntrada.length == 0){
         ResponseJSON = {...ResponseJSON, fechaEntrada: FormatDateTimeMYSQLNow()};
       }
+
+      //Formamos el codigo de entrada
+      /*
+        1-5: codigo de materia prima
+        6-7: codigo de proveedor
+        8: letra correspondiente al año
+        9-11: dia juliano
+        12-13: num. ingreso de la misma materia prima
+      */
+     const codEntrada = `${codigoMateriaPrima}${codigoProveedor}C${DiaJuliano(ResponseJSON.fechaEntrada)}01`;
+
       console.log(ResponseJSON);
+      console.log(codEntrada);
     } else {
       console.log("Complete todos los campos");
     }
 
   };
+
+  // useEffect(() => {
+  // }, [codigoMateriaPrima]);
+  
 
   return (
     <>
@@ -70,39 +90,20 @@ const AgregarEntradaStock = () => {
               Código de la materia prima
             </label>
             <div className="col-md-2">
-              <InputFieldForm 
-                  onNewInput={onAddCodigoEntrada}
-                  nameInput={"codMateriaPrima"}
-                  typeInput={"text"}
+              <input
+                onChange={handledForm}
+                value={codigoMateriaPrima}
+                type="text"
+                name="codigoMateriaPrima"
+                className="form-control"
               />
             </div>
             {/* SEARCH NAME MATERIA PRIMA */}
             <div className="col-md-4">
               <div className="input-group">
-                <input
-                  type="text"
-                  name="nombreMateriaPrima"
-                  className="form-control"
-                  id="nombre-materia-prima"
+                <FilterMateriaPrima 
+                  onNewInput={onAddCodigoEntrada}
                 />
-                <div className="input-group-append">
-                  <button
-                    className="btn btn-outline-secondary"
-                    type="button"
-                    id="agregarCodigoMateriaPrima"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      className="bi bi-search"
-                      viewBox="0 0 16 16"
-                    >
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                    </svg>
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -113,40 +114,20 @@ const AgregarEntradaStock = () => {
               Código de proveedor
             </label>
             <div className="col-md-2">
-              <InputFieldForm 
-                  onNewInput={onAddCodigoProveedor}
-                  nameInput={"codProveedor"}
-                  typeInput={"text"}
+              <input
+                onChange={handledForm}
+                value={codigoProveedor}
+                type="text"
+                name="codigoProveedor"
+                className="form-control"
               />
             </div>
             {/* SEARCH NAME PROVEEDOR */}
             <div className="col-md-4">
               <div className="input-group">
-                <input
-                  type="text"
-                  name="nombreProveedor"
-                  readOnly = {true}
-                  className="form-control"
-                  id="nombre-proveedor"
+                <FilterProveedor 
+                  onNewInput={onAddCodigoProveedor}
                 />
-                <div className="input-group-append">
-                  <button
-                    className="btn btn-outline-secondary"
-                    type="button"
-                    id="agregarCodigoProveedor"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      className="bi bi-search"
-                      viewBox="0 0 16 16"
-                    >
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                    </svg>
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -167,10 +148,12 @@ const AgregarEntradaStock = () => {
               Documento
             </label>
             <div className="col-md-4">
-              <InputFieldForm 
-                  onNewInput={onAddDocumentoEntrada}
-                  nameInput={"documentoEntrada"}
-                  typeInput={"text"}
+              <input
+                onChange={handledForm}
+                value={documentoEntrada}
+                type="text"
+                name="documentoEntrada"
+                className="form-control"
               />
             </div>
           </div>
@@ -181,10 +164,12 @@ const AgregarEntradaStock = () => {
               Cantidad ingresada
             </label>
             <div className="col-md-3">
-              <InputFieldForm
-                  onNewInput={onAddCantidadEntrada}
-                  nameInput={"cantidadEntrada"}
-                  typeInput={"number"}
+              <input
+                onChange={handledForm}
+                value={cantidadEntrada}
+                type="number"
+                name="cantidadEntrada"
+                className="form-control"
               />
             </div>
           </div>

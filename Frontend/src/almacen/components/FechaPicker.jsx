@@ -21,7 +21,7 @@ const FechaPicker = ( {onNewFechaEntrada} ) => {
         value={value}
         inputFormat="DD/MM/YYYY HH:mm:ss"
         onChange={formatFechaMYSQL}
-        renderInput={(params) => <TextField {...params} />}
+        renderInput={(params) => <TextField disabled={false} {...params} />}
       />
     </LocalizationProvider>
   );

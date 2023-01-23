@@ -1,20 +1,24 @@
 <?php
-$password = obtenerVariableDelEntorno("MYSQL_PASSWORD");
-$user = obtenerVariableDelEntorno("MYSQL_USER");
-$dbName = obtenerVariableDelEntorno("MYSQL_DATABASE_NAME");
-$database = new PDO('mysql:host=45.77.80.71;dbname=' . $dbName, $user, $password);
-$database->query("set names utf8;");
-$database->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
-$database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$database->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-return $database;
+
+function getPDO(){
+    $password = obtenerVariableDelEntorno("MYSQL_PASSWORD");
+    $user = obtenerVariableDelEntorno("MYSQL_USER");
+    $dbName = obtenerVariableDelEntorno("MYSQL_DATABASE_NAME");
+    //$database = new PDO('mysql:host=45.77.80.71;dbname=' . $dbName, $user, $password);
+    $database = new PDO('mysql:host=localhost;dbname=' . $dbName, $user, $password);
+    $database->query("set names utf8;");
+    $database->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
+    $database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $database->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+    return $database;
+}
 
 function obtenerVariableDelEntorno($key)
 {
     if (defined("_ENV_CACHE")) {
         $vars = _ENV_CACHE;
     } else {
-        $file = "../env.php";
+        $file = "../../env.php";
         if (!file_exists($file)) {
             throw new Exception("El archivo de las variables de entorno ($file) no existe. Favor de crearlo");
         }
