@@ -44,7 +44,7 @@ const DiaJuliano = (fecha) => {
     const diaJulianoToString = diaJuliano.toString();
     
     return (
-        (diaJulianoToString.length == 1) 
+        (diaJulianoToString.length == 1)
         ? `00${diaJulianoToString}` 
         : (diaJulianoToString.length == 2) 
             ? `0${diaJulianoToString}`

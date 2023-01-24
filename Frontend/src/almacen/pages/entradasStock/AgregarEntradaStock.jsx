@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { InputFieldForm } from "../../../utils/components/InputFieldForm";
+import React, { useState} from "react";
 import FechaPicker from "../../components/FechaPicker";
 import {DiaJuliano, FormatDateTimeMYSQLNow} from '../../../utils/functions/FormatDate';
 import { FilterMateriaPrima } from "../../components/FilterMateriaPrima";
@@ -74,11 +73,7 @@ const AgregarEntradaStock = () => {
     }
 
   };
-
-  // useEffect(() => {
-  // }, [codigoMateriaPrima]);
   
-
   return (
     <>
       <div className="container">
@@ -163,7 +158,7 @@ const AgregarEntradaStock = () => {
             <label htlmfor={"cantidad-ingresada"} className="col-sm-2 col-form-label">
               Cantidad ingresada
             </label>
-            <div className="col-md-3">
+            <div className="col-md-2">
               <input
                 onChange={handledForm}
                 value={cantidadEntrada}

@@ -10,19 +10,7 @@ $description_error = "";
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     if($pdo){
-        $sql = 
-        "SELECT
-        M.refCodMatPri, 
-        M.idMatPriCat,
-        C.desMatPriCat,
-        M.idMed,
-        ME.simMed,
-        M.nomMatPri,
-        M.stoMatPri
-        FROM materia_prima M
-        LEFT JOIN materia_prima_categoria C ON M.idMatPriCat = C.id
-        LEFT JOIN medida ME ON M.idMed = ME.id
-        ";
+        $sql = "SELECT * FROM medida";
         // Preparamos la consulta
         $stmt = $pdo->prepare($sql);
         // Ejecutamos la consulta
