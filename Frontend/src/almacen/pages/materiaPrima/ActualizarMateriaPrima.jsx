@@ -23,10 +23,10 @@ const ActualizarMateriaPrima = () => {
     });
   };
 
-  const onAddCategoriaMateriaPrima = (newValue) => {
+  const onAddCategoriaMateriaPrima = ({value}) => {
     setmateriaPrima({
       ...materiaPrima,
-      idMatPriCat: newValue,
+      idMatPriCat: value,
     });
   };
 

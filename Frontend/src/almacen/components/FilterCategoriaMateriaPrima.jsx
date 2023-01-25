@@ -20,8 +20,8 @@ export const FilterCategoriaMateriaPrima = ({onNewInput}) => {
         obtenerDataCategoriaMateriaPrima();
     }, [])
 
-    const handledChange = ({value}) => {
-        onNewInput(value);
+    const handledChange = ({value, label}) => {
+        onNewInput({value,label});
     }
 
   return (
