@@ -18,6 +18,24 @@ const ActualizarMateriaPrima = () => {
 
   const { refCodMatPri, idMatPriCat, idMed, nomMatPri, desMatPri, stoMatPri } =
     materiaPrima;
+  
+    // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
+  const obtenerDataMateriPrimaById = async () => {
+    const resultPeticion = await getMateriaPrimaById(id);
+    setmateriaPrima({
+      ...materiaPrima,
+      refCodMatPri: resultPeticion[0].refCodMatPri,
+      idMatPriCat: resultPeticion[0].idMatPriCat,
+      idMed: resultPeticion[0].idMed,
+      nomMatPri: resultPeticion[0].nomMatPri,
+      desMatPri: resultPeticion[0].desMatPri,
+      stoMatPri: resultPeticion[0].stoMatPri,
+    });
+  };
+
+  useEffect(() => {
+    obtenerDataMateriPrimaById();
+  }, []);
 
   const handledForm = ({ target }) => {
     const { name, value } = target;
@@ -54,24 +72,6 @@ const ActualizarMateriaPrima = () => {
       console.log(materiaPrima);
     }
   };
-
-  // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
-  const obtenerDataMateriPrimaById = async () => {
-    const resultPeticion = await getMateriaPrimaById(id);
-    setmateriaPrima({
-      ...materiaPrima,
-      refCodMatPri: resultPeticion.refCodMatPri,
-      idMatPriCat: resultPeticion.idMatPriCat,
-      idMed: resultPeticion.idMed,
-      nomMatPri: resultPeticion.nomMatPri,
-      desMatPri: resultPeticion.desMatPri,
-      stoMatPri: resultPeticion.stoMatPri,
-    });
-  };
-
-  useEffect(() => {
-    obtenerDataMateriPrimaById();
-  }, []);
 
   return (
     <>

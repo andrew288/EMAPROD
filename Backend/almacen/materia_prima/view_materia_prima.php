@@ -1,5 +1,6 @@
 <?php
 include_once "../../common/cors.php";
+header('Content-Type: application/json; charset=utf-8');
 require('../../common/conexion.php');
 
 $pdo = getPDO();
@@ -20,6 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             M.id,
             M.refCodMatPri, 
             M.idMatPriCat,
+            M.desMatPri,
             C.desMatPriCat,
             M.idMed,
             ME.simMed,
