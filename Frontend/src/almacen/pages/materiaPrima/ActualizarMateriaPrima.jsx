@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
 import { FilterMedidas } from "./../../components/FilterMedidas";
+import { getMateriaPrimaById } from "./../../helpers/getMateriaPrimaById";
 
 const ActualizarMateriaPrima = () => {
+  const { id } = useParams();
+
   const [materiaPrima, setmateriaPrima] = useState({
     refCodMatPri: "",
     idMatPriCat: 0,
@@ -23,7 +27,7 @@ const ActualizarMateriaPrima = () => {
     });
   };
 
-  const onAddCategoriaMateriaPrima = ({value}) => {
+  const onAddCategoriaMateriaPrima = ({ value }) => {
     setmateriaPrima({
       ...materiaPrima,
       idMatPriCat: value,
@@ -50,6 +54,25 @@ const ActualizarMateriaPrima = () => {
       console.log(materiaPrima);
     }
   };
+
+  // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
+  const obtenerDataMateriPrimaById = async () => {
+    const resultPeticion = await getMateriaPrimaById(id);
+    setmateriaPrima({
+      ...materiaPrima,
+      refCodMatPri: resultPeticion.refCodMatPri,
+      idMatPriCat: resultPeticion.idMatPriCat,
+      idMed: resultPeticion.idMed,
+      nomMatPri: resultPeticion.nomMatPri,
+      desMatPri: resultPeticion.desMatPri,
+      stoMatPri: resultPeticion.stoMatPri,
+    });
+  };
+
+  useEffect(() => {
+    obtenerDataMateriPrimaById();
+  }, []);
+
   return (
     <>
       <div className="container">

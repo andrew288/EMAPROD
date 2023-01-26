@@ -1,34 +1,33 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
-import Select from 'react-select';
-import { getProveedor } from './../helpers/getProveedor';
+import React from "react";
+import { useState, useEffect } from "react";
+import Select from "react-select";
+import { getProveedor } from "../helpers/getProveedores";
 
-export const FilterProveedor = ({onNewInput}) => {
-    
-    const [result, setResult] = useState([]);
+export const FilterProveedor = ({ onNewInput }) => {
+  const [result, setResult] = useState([]);
 
-    const obtenerDataMateriPrima = async() => {
-        const resultPeticion = await getProveedor();
-        const formatSelect = resultPeticion.map((element) => {
-            return {
-                value: element.refCodPro,
-                label: `${element.nomPro} ${element.apePro}`,
-            }
-        })
-        setResult(formatSelect);
-    }
+  const obtenerDataMateriPrima = async () => {
+    const resultPeticion = await getProveedor();
+    const formatSelect = resultPeticion.map((element) => {
+      return {
+        value: element.refCodPro,
+        label: `${element.nomPro} ${element.apePro}`,
+      };
+    });
+    setResult(formatSelect);
+  };
 
-    useEffect(() => {
-      obtenerDataMateriPrima();
-    }, [])
+  useEffect(() => {
+    obtenerDataMateriPrima();
+  }, []);
 
-    const handledChange = ({value}) => {
-        onNewInput(value);
-    }
+  const handledChange = ({ value }) => {
+    onNewInput(value);
+  };
 
   return (
     <>
-        <Select options={result} onChange={handledChange} />
+      <Select options={result} onChange={handledChange} />
     </>
-  )
-}
+  );
+};
