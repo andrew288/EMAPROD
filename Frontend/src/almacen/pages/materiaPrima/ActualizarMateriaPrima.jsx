@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
 import { FilterMedidas } from "./../../components/FilterMedidas";
 import { getMateriaPrimaById } from "./../../helpers/getMateriaPrimaById";
+import { updateMateriaPrima } from "./../../helpers/updateMateriaPrima";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 const ActualizarMateriaPrima = () => {
+  // RECIBIMOS LOS PARAMETROS DE LA URL
   const { id } = useParams();
 
+  // ESTADOS PARA LA NAVEGACION
+  const navigate = useNavigate();
+  const onNavigateBack = () => {
+    navigate(-1);
+  };
+
+  // ESTADOS DE LA MATERIA PRIMA
   const [materiaPrima, setmateriaPrima] = useState({
     refCodMatPri: "",
     idMatPriCat: 0,
@@ -18,8 +33,18 @@ const ActualizarMateriaPrima = () => {
 
   const { refCodMatPri, idMatPriCat, idMed, nomMatPri, desMatPri, stoMatPri } =
     materiaPrima;
-  
-    // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
+
+  // ESTADOS DE ERRORES DE ACTUALIZACION
+  const [messageError, setmessageError] = useState({
+    message_error: "",
+    description_error: "",
+  });
+
+  const { message_error, description_error } = messageError;
+
+  const [open, setOpen] = React.useState(false);
+
+  // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
   const obtenerDataMateriPrimaById = async () => {
     const resultPeticion = await getMateriaPrimaById(id);
     setmateriaPrima({
@@ -59,18 +84,49 @@ const ActualizarMateriaPrima = () => {
     });
   };
 
+  const actualizarMateriaPrima = async (idMatPri, data) => {
+    const { message_error, description_error } = await updateMateriaPrima(
+      idMatPri,
+      data
+    );
+
+    if (message_error.length === 0) {
+      console.log("Se actualizo correctamente");
+      // REDIRECCIONAMOS
+      onNavigateBack();
+    } else {
+      setmessageError({
+        ...messageError,
+        message_error: message_error,
+        description_error: description_error,
+      });
+      handleOn();
+    }
+  };
+
   const handleSubmitMateriPrima = (e) => {
     e.preventDefault();
     if (
       refCodMatPri.length === 0 ||
       nomMatPri.length === 0 ||
       idMatPriCat === 0 ||
-      idMed === 0
+      idMed === 0 ||
+      stoMatPri <= 0
     ) {
       console.log("Asegurese de completar los campos requeridos");
     } else {
-      console.log(materiaPrima);
+      // EJECUTAMOS LA ACTUALIZACION
+      actualizarMateriaPrima(id, materiaPrima);
     }
+  };
+
+  // MANEJADORES DE CUADRO DE DIALOGO
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOn = () => {
+    setOpen(true);
   };
 
   return (
@@ -157,15 +213,53 @@ const ActualizarMateriaPrima = () => {
               />
             </div>
           </div>
-          <button
-            type="submit"
-            onClick={handleSubmitMateriPrima}
-            class="btn btn-primary"
-          >
-            Guardar
-          </button>
+          <div className="btn-toolbar">
+            <button
+              type="button"
+              onClick={onNavigateBack}
+              class="btn btn-secondary me-2"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              onClick={handleSubmitMateriPrima}
+              class="btn btn-primary"
+            >
+              Guardar
+            </button>
+          </div>
         </form>
       </div>
+
+      {/* DIALOG DE ERRORES DE ACTUALIZACION */}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          <p className="fs-3 text-danger">No se ha podido actualizar</p>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            <div>
+              <p>
+                <b className="text-danger">Error: </b>
+                {message_error}
+              </p>
+              <p>
+                <b className="text-danger">Descripcion: </b>
+                {description_error}
+              </p>
+            </div>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Aceptar</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
