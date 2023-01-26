@@ -12,6 +12,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if($pdo){
         $sql = 
         "SELECT
+        M.id,
         M.refCodMatPri, 
         M.idMatPriCat,
         C.desMatPriCat,
