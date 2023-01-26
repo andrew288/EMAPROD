@@ -22,6 +22,7 @@ const ActualizarMateriaPrima = () => {
     // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
   const obtenerDataMateriPrimaById = async () => {
     const resultPeticion = await getMateriaPrimaById(id);
+    console.log(resultPeticion[0]);
     setmateriaPrima({
       ...materiaPrima,
       refCodMatPri: resultPeticion[0].refCodMatPri,
