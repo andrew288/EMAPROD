@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
 import { FilterMedidas } from './../../components/FilterMedidas';
 
 const AgregarMateriaPrima = () => {
+
+  // ESTADOS PARA EL CONTROL DEL FORMULARIO MATERIA PRIMA
   const [materiaPrima, setmateriaPrima] = useState({
     refCodMatPri: "",
     idMatPriCat: 0,
@@ -14,7 +17,14 @@ const AgregarMateriaPrima = () => {
 
   const { refCodMatPri, idMatPriCat, idMed, nomMatPri, desMatPri, stoMatPri } =
     materiaPrima;
+
+  // ESTADOS PARA LA NAVEGACION
+  const navigate = useNavigate();
+  const onNavigateBack = () => {
+    navigate(-1);
+  };
   
+  // CONTROLADOR DE FORMULARIO
   const handledForm = ({target}) => {
     const {name, value} = target;
     setmateriaPrima({
@@ -23,6 +33,7 @@ const AgregarMateriaPrima = () => {
     })
   }
 
+  // CONTROLADOR DE CATEGORIA
   const onAddCategoriaMateriaPrima = ({value}) => {
     setmateriaPrima({
       ...materiaPrima,
@@ -30,6 +41,7 @@ const AgregarMateriaPrima = () => {
     })
   }
 
+  // CONTROLADOR DE MEDIDA
   const onAddMedida = (newValue) => {
     setmateriaPrima({
       ...materiaPrima,
@@ -37,6 +49,7 @@ const AgregarMateriaPrima = () => {
     })
   }
 
+  // CONTROLADOR DE SUBMIT
   const handleSubmitMateriPrima = (e) => {
     e.preventDefault();
     if(refCodMatPri.length === 0 || nomMatPri.length === 0 || 
@@ -53,6 +66,7 @@ const AgregarMateriaPrima = () => {
       <div className="container">
         <h1 className="mt-4 text-center">Agregar materia prima</h1>
         <form className="mt-4">
+          {/* CODIGO DE REFERENCIA */}
           <div class="mb-3 row">
             <label for="codigo_referencia" class="col-sm-2 col-form-label">
               Codigo de referencia
@@ -67,6 +81,7 @@ const AgregarMateriaPrima = () => {
               />
             </div>
           </div>
+          {/* NOMBRE */}
           <div class="mb-3 row">
             <label for="nombre" class="col-sm-2 col-form-label">
               Nombre
@@ -81,6 +96,7 @@ const AgregarMateriaPrima = () => {
               />
             </div>
           </div>
+          {/* CATEGORIA */}
           <div class="mb-3 row">
             <label for="categoria" class="col-sm-2 col-form-label">
               Categoria
@@ -91,7 +107,7 @@ const AgregarMateriaPrima = () => {
               />
             </div>
           </div>
-
+          {/* MEDIDA */}
           <div class="mb-3 row">
             <label for="medida" class="col-sm-2 col-form-label">
               Medida
@@ -102,7 +118,7 @@ const AgregarMateriaPrima = () => {
               />
             </div>
           </div>
-
+          {/* DESCRIPCION */}
           <div class="mb-3 row">
             <label for="descripcion" class="col-sm-2 col-form-label">
               Descripción
@@ -119,7 +135,7 @@ const AgregarMateriaPrima = () => {
               </div>
             </div>
           </div>
-
+          {/* CANTIDAD STOCK */}
           <div class="mb-3 row">
             <label for="stock" class="col-sm-2 col-form-label">
               Cantidad en Stock
@@ -134,9 +150,19 @@ const AgregarMateriaPrima = () => {
               />
             </div>
           </div>
-          <button type="submit" onClick={handleSubmitMateriPrima} class="btn btn-primary">
-            Guardar
-          </button>
+          {/* BOTONES DE CANCELAR Y GUARDAR */}
+          <div className="btn-toolbar">
+            <button
+                type="button"
+                onClick={onNavigateBack}
+                className="btn btn-secondary me-2"
+              >
+                Cancelar
+              </button>
+            <button type="submit" onClick={handleSubmitMateriPrima} className="btn btn-primary">
+              Guardar
+            </button>
+          </div>
         </form>
       </div>
     </>

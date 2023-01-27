@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
-// import { ItemMateriPrima } from "../../components/ItemMateriPrima";
 import { getMateriaPrima } from "../../helpers/getMateriasPrimas";
 
 // IMPORTACIONES PARA TABLE MUI
@@ -32,8 +31,7 @@ const ListMateriaPrima = () => {
     filterCatMatPri: 0,
     filterNomMatPri: "",
   });
-
-  const { filterCodMatPri, filterCatMatPri, filterNomMatPri } = filters;
+  const { filterCodMatPri, filterNomMatPri } = filters;
 
   // ESTADOS PARA LA PAGINACIÓN
   const [page, setPage] = useState(0);
@@ -65,8 +63,9 @@ const ListMateriaPrima = () => {
     filter(value, name);
   };
 
+  // FUNCION PARA FILTRAR LA DATA
   const filter = (terminoBusqueda, name) => {
-    if (name == "filterCodMatPri") {
+    if (name === "filterCodMatPri") {
       let resultadoBusqueda = dataMatPri.filter((element) => {
         if (
           element.refCodMatPri
@@ -75,6 +74,8 @@ const ListMateriaPrima = () => {
             .includes(terminoBusqueda.toLowerCase())
         ) {
           return element;
+        } else {
+          return false;
         }
       });
       setdataMatPriTmp(resultadoBusqueda);
@@ -87,12 +88,15 @@ const ListMateriaPrima = () => {
             .includes(terminoBusqueda.toLowerCase())
         ) {
           return element;
+        } else {
+          return false;
         }
       });
       setdataMatPriTmp(resultadoBusqueda);
     }
   };
 
+  // CONTROLADOR DE CATEGORIA
   const AddNewCategory = ({ label }) => {
     setfilters({
       ...filters,
@@ -101,6 +105,7 @@ const ListMateriaPrima = () => {
     filterByCategory(label);
   };
 
+  // FUNCION FILTRO POR CATEGORIA
   const filterByCategory = (terminoBusqueda) => {
     let resultadoBusqueda = dataMatPri.filter((element) => {
       if (
@@ -110,6 +115,8 @@ const ListMateriaPrima = () => {
           .includes(terminoBusqueda.toLowerCase())
       ) {
         return element;
+      } else {
+        return false;
       }
     });
     setdataMatPriTmp(resultadoBusqueda);
@@ -119,7 +126,6 @@ const ListMateriaPrima = () => {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -129,12 +135,11 @@ const ListMateriaPrima = () => {
   const handleClose = () => {
     setOpen(false);
   };
-
   const handleOn = () => {
     setOpen(true);
   };
 
-  // ELIMINAR MATERIA PRIMA
+  // SETEAMOS LOS VALORES DEL DIALOG DE ELIMINACION
   const openDialogDeleteItem = ({ refCodMatPri, nomMatPri, id }) => {
     setmessageDelete({
       ...messageDelete,
@@ -145,24 +150,34 @@ const ListMateriaPrima = () => {
     handleOn();
   };
 
+  // FUNCION PARA ELIMINAR MATERIA PRIMA
   const eliminarMateriPrima = async () => {
     const { message_error, description_error } = await deleteMateriaPrima(
       itemId
     );
+
     if (message_error.length === 0) {
       console.log("Se elimino correctamente");
       // RECALCULAMOS LA DATA
       let dataNueva = dataMatPri.filter((element) => {
         if (element.id !== itemId) {
           //FILTRAMOS
+          return element;
+        } else {
+          return false;
         }
       });
+      // ACTUALIZAMOS LA DATA
+      setdataMatPri(dataNueva);
+      setdataMatPriTmp(dataNueva);
+      // CERRAMOS EL DIALOG
+      handleClose();
     } else {
       console.log(
         "ERROR: " + message_error + " DESCRIPCION: " + description_error
       );
       //MOSTRAMOS MENSAJE DE ERROR
-      handleClose();
+      // handleClose();
     }
   };
 
@@ -174,7 +189,7 @@ const ListMateriaPrima = () => {
   return (
     <>
       <div className="container">
-        <form className="row mb-4 mt-4">
+        <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
           {/* FILTRO POR MATERIA PRIMA */}
           <div className="col-md-2">
             <label for="inputEmail4" className="form-label">
@@ -210,6 +225,25 @@ const ListMateriaPrima = () => {
               className="form-control"
             />
           </div>
+          {/* BOTON AGREGAR MATERIA PRIMA */}
+          <div className="col-md-3 d-flex justify-content-end">
+            <Link
+              to={"/almacen/materia-prima/crear"}
+              className="btn btn-primary"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-plus-circle-fill me-2"
+                viewBox="0 0 16 16"
+              >
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+              </svg>
+              Agregar
+            </Link>
+          </div>
         </form>
 
         {/* TABLA DE RESULTADOS */}
@@ -230,7 +264,6 @@ const ListMateriaPrima = () => {
                   <TableCell align="left" width={150}>
                     Stock
                   </TableCell>
-                  {/* <TableCell align="right">Protein&nbsp;(g)</TableCell> */}
                   <TableCell align="left" width={150}>
                     Acciones
                   </TableCell>
@@ -293,6 +326,7 @@ const ListMateriaPrima = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          {/* PAGINACION DE LA TABLA */}
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
@@ -304,6 +338,7 @@ const ListMateriaPrima = () => {
           />
         </Paper>
 
+        {/* DIALOG DE ELIMINACION DE MATERIA PRIMA */}
         <Dialog
           open={open}
           onClose={handleClose}

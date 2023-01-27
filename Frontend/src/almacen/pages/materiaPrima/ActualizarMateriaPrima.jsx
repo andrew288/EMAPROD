@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Navigate, useNavigate } from "react-router-dom";
+// IMPORTACIONES PARA LA NAVEGACION
+import { useParams, useNavigate } from "react-router-dom";
+// IMPORTACIONES PARA EL MANEJO DE LA DATA
 import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
 import { FilterMedidas } from "./../../components/FilterMedidas";
 import { getMateriaPrimaById } from "./../../helpers/getMateriaPrimaById";
 import { updateMateriaPrima } from "./../../helpers/updateMateriaPrima";
+// IMPORTACIONES PARA EL DIALOG
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+// IMPORTACIONES PARA EL FEEDBACK
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+
+// CONFIGURACION DE FEEDBACK
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const ActualizarMateriaPrima = () => {
   // RECIBIMOS LOS PARAMETROS DE LA URL
@@ -42,7 +53,23 @@ const ActualizarMateriaPrima = () => {
 
   const { message_error, description_error } = messageError;
 
+  // ESTADO PARA CONTROLAR LA VISIBILIDAD DEL DIALOG
   const [open, setOpen] = React.useState(false);
+
+  // ESTADO PARA CONTROLAR EL FEEDBACK
+  const [feedbackUpdate, setfeedbackUpdate] = useState(false);
+
+  // MANEJADORES DE FEEDBACK
+  const handleClickFeeback = () => {
+    setfeedbackUpdate(true);
+  };
+
+  const handleCloseFeedback = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setfeedbackUpdate(false);
+  };
 
   // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
   const obtenerDataMateriPrimaById = async () => {
@@ -59,10 +86,12 @@ const ActualizarMateriaPrima = () => {
     });
   };
 
+  // CODIGO QUE SE EJECUTA ANTES DE LA RENDERIZACION
   useEffect(() => {
     obtenerDataMateriPrimaById();
   }, []);
 
+  // MANEJADOR DE FORMULARIO
   const handledForm = ({ target }) => {
     const { name, value } = target;
     setmateriaPrima({
@@ -71,6 +100,7 @@ const ActualizarMateriaPrima = () => {
     });
   };
 
+  // CONTROLADOR DE CATEGORIA MATERIA PRIMA
   const onAddCategoriaMateriaPrima = ({ value }) => {
     setmateriaPrima({
       ...materiaPrima,
@@ -78,6 +108,7 @@ const ActualizarMateriaPrima = () => {
     });
   };
 
+  // CONTROLADOR DE MEDIDA MATERIA PRIMA
   const onAddMedida = (newValue) => {
     setmateriaPrima({
       ...materiaPrima,
@@ -85,6 +116,7 @@ const ActualizarMateriaPrima = () => {
     });
   };
 
+  // FUNCION PARA ACTUALIZAR MATERIA PRIMA
   const actualizarMateriaPrima = async (idMatPri, data) => {
     const { message_error, description_error } = await updateMateriaPrima(
       idMatPri,
@@ -94,7 +126,9 @@ const ActualizarMateriaPrima = () => {
     if (message_error.length === 0) {
       console.log("Se actualizo correctamente");
       // REDIRECCIONAMOS
-      onNavigateBack();
+      // onNavigateBack();
+      // MOSTRAMOS FEEDBACK
+      handleClickFeeback();
     } else {
       setmessageError({
         ...messageError,
@@ -105,6 +139,7 @@ const ActualizarMateriaPrima = () => {
     }
   };
 
+  // CONTROLADOR SUBMIT DEL FORMULARIO
   const handleSubmitMateriPrima = (e) => {
     e.preventDefault();
     if (
@@ -125,7 +160,6 @@ const ActualizarMateriaPrima = () => {
   const handleClose = () => {
     setOpen(false);
   };
-
   const handleOn = () => {
     setOpen(true);
   };
@@ -135,6 +169,7 @@ const ActualizarMateriaPrima = () => {
       <div className="container">
         <h1 className="mt-4 text-center">Actualizar materia prima</h1>
         <form className="mt-4">
+          {/* CODIGO DE REFERENCIA */}
           <div class="mb-3 row">
             <label for="codigo_referencia" class="col-sm-2 col-form-label">
               Codigo de referencia
@@ -149,6 +184,7 @@ const ActualizarMateriaPrima = () => {
               />
             </div>
           </div>
+          {/* NOMBRE */}
           <div class="mb-3 row">
             <label for="nombre" class="col-sm-2 col-form-label">
               Nombre
@@ -163,6 +199,7 @@ const ActualizarMateriaPrima = () => {
               />
             </div>
           </div>
+          {/* CATEGORIA */}
           <div class="mb-3 row">
             <label for="categoria" class="col-sm-2 col-form-label">
               Categoria
@@ -173,7 +210,7 @@ const ActualizarMateriaPrima = () => {
               />
             </div>
           </div>
-
+          {/* MEDIDA */}
           <div class="mb-3 row">
             <label for="medida" class="col-sm-2 col-form-label">
               Medida
@@ -182,7 +219,7 @@ const ActualizarMateriaPrima = () => {
               <FilterMedidas onNewInput={onAddMedida} />
             </div>
           </div>
-
+          {/* DESCRIPCION */}
           <div class="mb-3 row">
             <label for="descripcion" class="col-sm-2 col-form-label">
               Descripción
@@ -199,7 +236,7 @@ const ActualizarMateriaPrima = () => {
               </div>
             </div>
           </div>
-
+          {/* CANTIDAD STOCK */}
           <div class="mb-3 row">
             <label for="stock" class="col-sm-2 col-form-label">
               Cantidad en Stock
@@ -214,25 +251,25 @@ const ActualizarMateriaPrima = () => {
               />
             </div>
           </div>
+          {/* BOTONES DE CANCELAR Y GUARDAR */}
           <div className="btn-toolbar">
             <button
               type="button"
               onClick={onNavigateBack}
-              class="btn btn-secondary me-2"
+              className="btn btn-secondary me-2"
             >
               Cancelar
             </button>
             <button
               type="submit"
               onClick={handleSubmitMateriPrima}
-              class="btn btn-primary"
+              className="btn btn-primary"
             >
               Guardar
             </button>
           </div>
         </form>
       </div>
-
       {/* DIALOG DE ERRORES DE ACTUALIZACION */}
       <Dialog
         open={open}
@@ -261,6 +298,22 @@ const ActualizarMateriaPrima = () => {
           <Button onClick={handleClose}>Aceptar</Button>
         </DialogActions>
       </Dialog>
+
+      {/* FEEDBACK UPDATE */}
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={feedbackUpdate}
+        autoHideDuration={6000}
+        onClose={handleCloseFeedback}
+      >
+        <Alert
+          onClose={handleCloseFeedback}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          Se actualizó correctamente
+        </Alert>
+      </Snackbar>
     </>
   );
 };
