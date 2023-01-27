@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 export const deleteMateriaPrima = async (idMateriaPrima) => {
-
-    const urlPeticion = 'http://localhost/EMAPROD/Backend/almacen/materia_prima/delete_materia_prima.php';
-    const { data } = await axios.delete(urlPeticion,
+    const domain = 'http://localhost/EMAPROD/Backend';
+    const path = '/almacen/materia_prima/delete_materia_prima.php';
+    const url = domain + path;
+    const { data } = await axios.delete(url,
         {
             headers: {
                 'Content-Type': 'application/json',

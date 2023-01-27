@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { getMateriaPrima } from "../helpers/getMateriasPrimas";
 import Select from "react-select";
+import { getMateriaPrima } from "./../helpers/materia-prima/getMateriasPrimas";
 
 export const FilterMateriaPrima = ({ onNewInput }) => {
   const [result, setResult] = useState([]);

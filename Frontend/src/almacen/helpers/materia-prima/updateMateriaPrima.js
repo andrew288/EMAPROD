@@ -1,10 +1,12 @@
 import axios from 'axios';
 
 export const updateMateriaPrima = async (idMateriaPrima, body) => {
+    const domain = 'http://localhost/EMAPROD/Backend';
+    const path = '/almacen/materia_prima/update_materia_prima.php';
+    const url = domain + path;
 
-    const urlPeticion = 'http://localhost/EMAPROD/Backend/almacen/materia_prima/update_materia_prima.php';
     const { data } = await axios.put(
-        urlPeticion,
+        url,
         {
             ...body,
             id: idMateriaPrima,

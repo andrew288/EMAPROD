@@ -4,8 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 // IMPORTACIONES PARA EL MANEJO DE LA DATA
 import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
 import { FilterMedidas } from "./../../components/FilterMedidas";
-import { getMateriaPrimaById } from "./../../helpers/getMateriaPrimaById";
-import { updateMateriaPrima } from "./../../helpers/updateMateriaPrima";
+import { getMateriaPrimaById } from "./../../helpers/materia-prima/getMateriaPrimaById";
+import { updateMateriaPrima } from "./../../helpers/materia-prima/updateMateriaPrima";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
@@ -58,7 +58,7 @@ const ActualizarMateriaPrima = () => {
     setfeedbackUpdate(false);
   };
 
-  // ESTADO PARA BOTON CREAR
+  // ESTADO PARA BOTON ACTUALIZAR
   const [disableButton, setdisableButton] = useState(false);
 
   // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
@@ -74,11 +74,6 @@ const ActualizarMateriaPrima = () => {
       stoMatPri: resultPeticion[0].stoMatPri,
     });
   };
-
-  // CODIGO QUE SE EJECUTA ANTES DE LA RENDERIZACION
-  useEffect(() => {
-    obtenerDataMateriPrimaById();
-  }, []);
 
   // MANEJADOR DE FORMULARIO
   const handledForm = ({ target }) => {
@@ -154,90 +149,98 @@ const ActualizarMateriaPrima = () => {
     }
   };
 
+  // CODIGO QUE SE EJECUTA ANTES DE LA RENDERIZACION
+  useEffect(() => {
+    obtenerDataMateriPrimaById();
+  }, []);
+
   return (
     <>
       <div className="container">
         <h1 className="mt-4 text-center">Actualizar materia prima</h1>
         <form className="mt-4">
           {/* CODIGO DE REFERENCIA */}
-          <div class="mb-3 row">
-            <label for="codigo_referencia" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label
+              htmlFor="codigo_referencia"
+              className="col-sm-2 col-form-label"
+            >
               Codigo de referencia
             </label>
-            <div class="col-md-2">
+            <div className="col-md-2">
               <input
                 type="text"
                 value={refCodMatPri}
                 onChange={handledForm}
                 name="refCodMatPri"
-                class="form-control"
+                className="form-control"
               />
             </div>
           </div>
           {/* NOMBRE */}
-          <div class="mb-3 row">
-            <label for="nombre" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label htmlFor="nombre" className="col-sm-2 col-form-label">
               Nombre
             </label>
-            <div class="col-md-4">
+            <div className="col-md-4">
               <input
                 type="text"
                 value={nomMatPri}
                 onChange={handledForm}
                 name="nomMatPri"
-                class="form-control"
+                className="form-control"
               />
             </div>
           </div>
           {/* CATEGORIA */}
-          <div class="mb-3 row">
-            <label for="categoria" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label htmlFor="categoria" className="col-sm-2 col-form-label">
               Categoria
             </label>
-            <div class="col-md-2">
+            <div className="col-md-2">
               <FilterCategoriaMateriaPrima
                 onNewInput={onAddCategoriaMateriaPrima}
               />
             </div>
           </div>
           {/* MEDIDA */}
-          <div class="mb-3 row">
-            <label for="medida" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label htmlFor="medida" className="col-sm-2 col-form-label">
               Medida
             </label>
-            <div class="col-md-2">
+            <div className="col-md-2">
               <FilterMedidas onNewInput={onAddMedida} />
             </div>
           </div>
           {/* DESCRIPCION */}
-          <div class="mb-3 row">
-            <label for="descripcion" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label htmlFor="descripcion" className="col-sm-2 col-form-label">
               Descripción
             </label>
-            <div class="col-md-4">
-              <div class="form-floating">
+            <div className="col-md-4">
+              <div className="form-floating">
                 <textarea
                   value={desMatPri}
                   onChange={handledForm}
                   name="desMatPri"
-                  class="form-control"
+                  className="form-control"
                   placeholder="Leave a comment here"
                 ></textarea>
               </div>
             </div>
           </div>
           {/* CANTIDAD STOCK */}
-          <div class="mb-3 row">
-            <label for="stock" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label htmlFor="stock" className="col-sm-2 col-form-label">
               Cantidad en Stock
             </label>
-            <div class="col-md-2">
+            <div className="col-md-2">
               <input
                 type="number"
                 name="stoMatPri"
                 onChange={handledForm}
                 value={stoMatPri}
-                class="form-control"
+                className="form-control"
               />
             </div>
           </div>

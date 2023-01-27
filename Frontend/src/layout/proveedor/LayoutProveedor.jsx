@@ -1,12 +1,12 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React from "react";
+import { Outlet } from "react-router-dom";
 
 const LayoutProveedor = () => {
   return (
     <main>
-        <Outlet/>
+      <Outlet />
     </main>
-  )
-}
+  );
+};
 
-export default LayoutProveedor
+export default LayoutProveedor;

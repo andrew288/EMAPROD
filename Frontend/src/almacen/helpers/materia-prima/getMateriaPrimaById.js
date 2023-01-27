@@ -1,10 +1,12 @@
 import axios from 'axios';
 
 export const getMateriaPrimaById = async (idMateriaPrima) => {
+    const domain = 'http://localhost/EMAPROD/Backend';
+    const path = '/almacen/materia_prima/view_materia_prima.php';
+    const url = domain + path;
 
-    const urlPeticion = "http://localhost/EMAPROD/Backend/almacen/materia_prima/view_materia_prima.php";
     const { data } = await axios.post(
-        urlPeticion,
+        url,
         {
             id: idMateriaPrima
         },

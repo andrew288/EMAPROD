@@ -12,7 +12,7 @@ export const RouterAlmacenProveedor = [
     element: <AgregarProveedor />,
   },
   {
-    path: "actualizar",
+    path: "actualizar/:id",
     element: <ActualizarProveedor />,
   },
 ];

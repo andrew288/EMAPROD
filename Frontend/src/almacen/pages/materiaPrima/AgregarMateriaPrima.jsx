@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
 import { FilterMedidas } from "./../../components/FilterMedidas";
-import { createMateriaPrima } from "./../../helpers/createMateriaPrima";
+import { createMateriaPrima } from "../../helpers/materia-prima/createMateriaPrima";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
@@ -133,7 +133,10 @@ const AgregarMateriaPrima = () => {
         <form className="mt-4">
           {/* CODIGO DE REFERENCIA */}
           <div className="mb-3 row">
-            <label for="codigo_referencia" className="col-sm-2 col-form-label">
+            <label
+              htmFor="codigo_referencia"
+              className="col-sm-2 col-form-label"
+            >
               Codigo de referencia
             </label>
             <div className="col-md-2">
@@ -147,11 +150,11 @@ const AgregarMateriaPrima = () => {
             </div>
           </div>
           {/* NOMBRE */}
-          <div class="mb-3 row">
-            <label for="nombre" className="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label htmlFor="nombre" className="col-sm-2 col-form-label">
               Nombre
             </label>
-            <div class="col-md-4">
+            <div className="col-md-4">
               <input
                 type="text"
                 value={nomMatPri}
@@ -163,7 +166,7 @@ const AgregarMateriaPrima = () => {
           </div>
           {/* CATEGORIA */}
           <div className="mb-3 row">
-            <label for="categoria" className="col-sm-2 col-form-label">
+            <label htmlFor="categoria" className="col-sm-2 col-form-label">
               Categoria
             </label>
             <div className="col-md-2">
@@ -174,7 +177,7 @@ const AgregarMateriaPrima = () => {
           </div>
           {/* MEDIDA */}
           <div className="mb-3 row">
-            <label for="medida" className="col-sm-2 col-form-label">
+            <label htmlFor="medida" className="col-sm-2 col-form-label">
               Medida
             </label>
             <div className="col-md-2">
@@ -183,7 +186,7 @@ const AgregarMateriaPrima = () => {
           </div>
           {/* DESCRIPCION */}
           <div className="mb-3 row">
-            <label for="descripcion" className="col-sm-2 col-form-label">
+            <label htmlFor="descripcion" className="col-sm-2 col-form-label">
               Descripción
             </label>
             <div className="col-md-4">
@@ -200,7 +203,7 @@ const AgregarMateriaPrima = () => {
           </div>
           {/* CANTIDAD STOCK */}
           <div className="mb-3 row">
-            <label for="stock" className="col-sm-2 col-form-label">
+            <label htmlFor="stock" className="col-sm-2 col-form-label">
               Cantidad en Stock
             </label>
             <div className="col-md-2">
@@ -233,7 +236,7 @@ const AgregarMateriaPrima = () => {
           </div>
         </form>
       </div>
-      {/* FEEDBACK UPDATE */}
+      {/* FEEDBACK AGREGAR MATERIA PRIMA */}
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={feedbackCreate}
