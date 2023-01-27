@@ -8,10 +8,10 @@ $result = [];
 $message_error = "";
 $description_error = "";
 
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-    if($pdo){
-        $sql = 
-        "SELECT
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($pdo) {
+        $sql =
+            "SELECT
         M.id,
         M.refCodMatPri, 
         M.idMatPriCat,
@@ -27,13 +27,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         // Preparamos la consulta
         $stmt = $pdo->prepare($sql);
         // Ejecutamos la consulta
-        $stmt->execute();
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            $message_error = "ERROR INTERNO SERVER";
+            $description_error = $e->getMessage();
+        }
         // Recorremos los resultados
-        while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             array_push($result, $row);
         }
-    
-    } else{
+    } else {
         // No se pudo realizar la conexion a la base de datos
         $message_error = "Error con la conexion a la base de datos";
         $description_error = "Error con la conexion a la base de datos a traves de PDO";
@@ -44,7 +48,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $return['description_error'] = $description_error;
     $return['result'] = $result;
     echo json_encode($return);
-    
 } else {
     $message_error = "No se realizo una peticion post";
     $description_error = "No se realizo una peticion post";
@@ -57,4 +60,3 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 // Si se pudo realizar la conexion a la base de datos
 
 // Programa terminado
-?>

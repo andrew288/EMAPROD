@@ -6,13 +6,6 @@ import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMat
 import { FilterMedidas } from "./../../components/FilterMedidas";
 import { getMateriaPrimaById } from "./../../helpers/getMateriaPrimaById";
 import { updateMateriaPrima } from "./../../helpers/updateMateriaPrima";
-// IMPORTACIONES PARA EL DIALOG
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
@@ -45,19 +38,13 @@ const ActualizarMateriaPrima = () => {
   const { refCodMatPri, idMatPriCat, idMed, nomMatPri, desMatPri, stoMatPri } =
     materiaPrima;
 
-  // ESTADOS DE ERRORES DE ACTUALIZACION
-  const [messageError, setmessageError] = useState({
-    message_error: "",
-    description_error: "",
-  });
-
-  const { message_error, description_error } = messageError;
-
-  // ESTADO PARA CONTROLAR LA VISIBILIDAD DEL DIALOG
-  const [open, setOpen] = React.useState(false);
-
   // ESTADO PARA CONTROLAR EL FEEDBACK
   const [feedbackUpdate, setfeedbackUpdate] = useState(false);
+  const [feedbackMessages, setfeedbackMessages] = useState({
+    style_message: "",
+    feedback_description_error: "",
+  });
+  const { style_message, feedback_description_error } = feedbackMessages;
 
   // MANEJADORES DE FEEDBACK
   const handleClickFeeback = () => {
@@ -71,10 +58,12 @@ const ActualizarMateriaPrima = () => {
     setfeedbackUpdate(false);
   };
 
+  // ESTADO PARA BOTON CREAR
+  const [disableButton, setdisableButton] = useState(false);
+
   // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
   const obtenerDataMateriPrimaById = async () => {
     const resultPeticion = await getMateriaPrimaById(id);
-    console.log(resultPeticion[0]);
     setmateriaPrima({
       ...materiaPrima,
       refCodMatPri: resultPeticion[0].refCodMatPri,
@@ -125,18 +114,21 @@ const ActualizarMateriaPrima = () => {
 
     if (message_error.length === 0) {
       console.log("Se actualizo correctamente");
-      // REDIRECCIONAMOS
-      // onNavigateBack();
       // MOSTRAMOS FEEDBACK
+      setfeedbackMessages({
+        style_message: "success",
+        feedback_description_error: "Se actualizó exitosamente",
+      });
       handleClickFeeback();
     } else {
-      setmessageError({
-        ...messageError,
-        message_error: message_error,
-        description_error: description_error,
+      console.log("No se pudo actualizar");
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
       });
-      handleOn();
+      handleClickFeeback();
     }
+    setdisableButton(false);
   };
 
   // CONTROLADOR SUBMIT DEL FORMULARIO
@@ -147,21 +139,19 @@ const ActualizarMateriaPrima = () => {
       nomMatPri.length === 0 ||
       idMatPriCat === 0 ||
       idMed === 0 ||
-      stoMatPri <= 0
+      stoMatPri < 0
     ) {
-      console.log("Asegurese de completar los campos requeridos");
+      // MANEJAMOS FORMULARIOS INCOMPLETOS
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: "Asegurese de llenar los datos requeridos",
+      });
+      handleClickFeeback();
     } else {
+      setdisableButton(true);
       // EJECUTAMOS LA ACTUALIZACION
       actualizarMateriaPrima(id, materiaPrima);
     }
-  };
-
-  // MANEJADORES DE CUADRO DE DIALOGO
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleOn = () => {
-    setOpen(true);
   };
 
   return (
@@ -262,43 +252,15 @@ const ActualizarMateriaPrima = () => {
             </button>
             <button
               type="submit"
+              disabled={disableButton}
               onClick={handleSubmitMateriPrima}
               className="btn btn-primary"
             >
-              Guardar
+              Actualizar
             </button>
           </div>
         </form>
       </div>
-      {/* DIALOG DE ERRORES DE ACTUALIZACION */}
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          <p className="fs-3 text-danger">No se ha podido actualizar</p>
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            <div>
-              <p>
-                <b className="text-danger">Error: </b>
-                {message_error}
-              </p>
-              <p>
-                <b className="text-danger">Descripcion: </b>
-                {description_error}
-              </p>
-            </div>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Aceptar</Button>
-        </DialogActions>
-      </Dialog>
-
       {/* FEEDBACK UPDATE */}
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
@@ -308,10 +270,10 @@ const ActualizarMateriaPrima = () => {
       >
         <Alert
           onClose={handleCloseFeedback}
-          severity="success"
+          severity={style_message}
           sx={{ width: "100%" }}
         >
-          Se actualizó correctamente
+          {feedback_description_error}
         </Alert>
       </Snackbar>
     </>

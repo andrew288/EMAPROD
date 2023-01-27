@@ -37,7 +37,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $stmt->bindParam(1, $idMateriaPrima, PDO::PARAM_INT);
             // Ejecutamos la consulta
-            $stmt->execute();
+            try {
+                $stmt->execute();
+            } catch (Exception $e) {
+                $message_error = "ERROR INTERNO SERVER";
+                $description_error = $e->getMessage();
+            }
             // Recorremos los resultados
             $count_results = 0;
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

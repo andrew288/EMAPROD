@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
 import { getMateriaPrima } from "../../helpers/getMateriasPrimas";
-
 // IMPORTACIONES PARA TABLE MUI
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,7 +11,6 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TablePagination from "@mui/material/TablePagination";
 import { Link } from "react-router-dom";
-
 //IMPORTACIONES PARA DIALOG DELETE
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -21,6 +19,14 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { deleteMateriaPrima } from "./../../helpers/deleteMateriaPrima";
+// IMPORTACIONES PARA EL FEEDBACK
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+
+// CONFIGURACION DE FEEDBACK
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const ListMateriaPrima = () => {
   // ESTADOS PARA LOS FILTROS PERSONALIZADOS
@@ -39,12 +45,32 @@ const ListMateriaPrima = () => {
 
   // ESTADOS PARA EL DIALOG DELETE
   const [open, setOpen] = React.useState(false);
-  const [messageDelete, setmessageDelete] = useState({
+  const [itemDelete, setitemDelete] = useState({
     itemId: 0,
     itemCodigoMatPri: "",
     itemNomMatPri: "",
   });
-  const { itemCodigoMatPri, itemNomMatPri, itemId } = messageDelete;
+  const { itemCodigoMatPri, itemNomMatPri, itemId } = itemDelete;
+
+  // ESTADO PARA CONTROLAR EL FEEDBACK
+  const [feedbackDelete, setfeedbackDelete] = useState(false);
+  const [feedbackMessages, setfeedbackMessages] = useState({
+    style_message: "",
+    feedback_description_error: "",
+  });
+  const { style_message, feedback_description_error } = feedbackMessages;
+
+  // MANEJADORES DE FEEDBACK
+  const handleClickFeeback = () => {
+    setfeedbackDelete(true);
+  };
+
+  const handleCloseFeedback = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setfeedbackDelete(false);
+  };
 
   // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
   const obtenerDataMateriPrima = async () => {
@@ -141,8 +167,8 @@ const ListMateriaPrima = () => {
 
   // SETEAMOS LOS VALORES DEL DIALOG DE ELIMINACION
   const openDialogDeleteItem = ({ refCodMatPri, nomMatPri, id }) => {
-    setmessageDelete({
-      ...messageDelete,
+    setitemDelete({
+      ...itemDelete,
       itemId: id,
       itemCodigoMatPri: refCodMatPri,
       itemNomMatPri: nomMatPri,
@@ -170,14 +196,22 @@ const ListMateriaPrima = () => {
       // ACTUALIZAMOS LA DATA
       setdataMatPri(dataNueva);
       setdataMatPriTmp(dataNueva);
-      // CERRAMOS EL DIALOG
       handleClose();
+      // MOSTRAMOS FEEDBACK
+      console.log("Se elimino exitosamente");
+      setfeedbackMessages({
+        style_message: "success",
+        feedback_description_error: "Se eliminó exitosamente",
+      });
+      handleClickFeeback();
     } else {
-      console.log(
-        "ERROR: " + message_error + " DESCRIPCION: " + description_error
-      );
-      //MOSTRAMOS MENSAJE DE ERROR
-      // handleClose();
+      handleClose();
+      // MOSTRAMOS FEEDBACK
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
     }
   };
 
@@ -337,37 +371,59 @@ const ListMateriaPrima = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Paper>
-
-        {/* DIALOG DE ELIMINACION DE MATERIA PRIMA */}
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            <p className="fs-3 text-danger">Eliminar Materia Prima</p>
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              <div>
-                <p>
-                  <b className="text-danger">Codigo: </b>
-                  {itemCodigoMatPri}
-                </p>
-                <p>
-                  <b className="text-danger">Nombre: </b>
-                  {itemNomMatPri}
-                </p>
-              </div>
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={eliminarMateriPrima}>Aceptar</Button>
-            <Button onClick={handleClose}>Cancelar</Button>
-          </DialogActions>
-        </Dialog>
       </div>
+      {/* DIALOG DE ELIMINACION DE MATERIA PRIMA */}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          <p className="fs-3 text-danger">Eliminar Materia Prima</p>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            <div>
+              <p>
+                <b className="text-danger">Codigo: </b>
+                {itemCodigoMatPri}
+              </p>
+              <p>
+                <b className="text-danger">Nombre: </b>
+                {itemNomMatPri}
+              </p>
+            </div>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={eliminarMateriPrima}
+          >
+            Aceptar
+          </Button>
+          <Button variant="outlined" onClick={handleClose}>
+            Cancelar
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* FEEDBACK DELETE */}
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={feedbackDelete}
+        autoHideDuration={6000}
+        onClose={handleCloseFeedback}
+      >
+        <Alert
+          onClose={handleCloseFeedback}
+          severity={style_message}
+          sx={{ width: "100%" }}
+        >
+          {feedback_description_error}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

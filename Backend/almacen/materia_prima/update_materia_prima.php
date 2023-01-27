@@ -44,9 +44,14 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             $stmt->bindParam(':id', $idMateriaPrima, PDO::PARAM_INT); //ID
 
             // Comprobamos la respuesta
-            if (!$stmt->execute()) {
-                $message_error = "No se pudo realizar la actualización";
-                $description_error = "No se pudo actualizar, por favor verifique que existe el id ingresado";
+            try {
+                if (!$stmt->execute()) {
+                    $message_error = "No se pudo realizar la actualización";
+                    $description_error = "No se pudo actualizar, por favor verifique que existe el id ingresado";
+                }
+            } catch (Exception $e) {
+                $message_error = "ERROR INTERNO SERVER";
+                $description_error = $e->getMessage();
             }
         } else {
             // No se pudo realizar la conexion a la base de datos

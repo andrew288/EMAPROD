@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
-import { FilterMedidas } from './../../components/FilterMedidas';
+import { FilterMedidas } from "./../../components/FilterMedidas";
+import { createMateriaPrima } from "./../../helpers/createMateriaPrima";
+// IMPORTACIONES PARA EL FEEDBACK
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+
+// CONFIGURACION DE FEEDBACK
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const AgregarMateriaPrima = () => {
-
   // ESTADOS PARA EL CONTROL DEL FORMULARIO MATERIA PRIMA
   const [materiaPrima, setmateriaPrima] = useState({
     refCodMatPri: "",
@@ -18,48 +26,105 @@ const AgregarMateriaPrima = () => {
   const { refCodMatPri, idMatPriCat, idMed, nomMatPri, desMatPri, stoMatPri } =
     materiaPrima;
 
+  // ESTADO PARA CONTROLAR EL FEEDBACK
+  const [feedbackCreate, setfeedbackCreate] = useState(false);
+  const [feedbackMessages, setfeedbackMessages] = useState({
+    style_message: "",
+    feedback_description_error: "",
+  });
+  const { style_message, feedback_description_error } = feedbackMessages;
+
+  // MANEJADORES DE FEEDBACK
+  const handleClickFeeback = () => {
+    setfeedbackCreate(true);
+  };
+
+  const handleCloseFeedback = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setfeedbackCreate(false);
+  };
+
+  // ESTADO PARA BOTON CREAR
+  const [disableButton, setdisableButton] = useState(false);
+
   // ESTADOS PARA LA NAVEGACION
   const navigate = useNavigate();
   const onNavigateBack = () => {
     navigate(-1);
   };
-  
+
   // CONTROLADOR DE FORMULARIO
-  const handledForm = ({target}) => {
-    const {name, value} = target;
+  const handledForm = ({ target }) => {
+    const { name, value } = target;
     setmateriaPrima({
       ...materiaPrima,
-      [name]: value
-    })
-  }
+      [name]: value,
+    });
+  };
 
   // CONTROLADOR DE CATEGORIA
-  const onAddCategoriaMateriaPrima = ({value}) => {
+  const onAddCategoriaMateriaPrima = ({ value }) => {
     setmateriaPrima({
       ...materiaPrima,
       idMatPriCat: value,
-    })
-  }
+    });
+  };
 
   // CONTROLADOR DE MEDIDA
   const onAddMedida = (newValue) => {
     setmateriaPrima({
       ...materiaPrima,
       idMed: newValue,
-    })
-  }
+    });
+  };
+
+  // FUNCION PARA CREAR MATERIA PRIMA
+  const crearMateriaPrima = async () => {
+    const { message_error, description_error } = await createMateriaPrima(
+      materiaPrima
+    );
+    if (message_error.length === 0) {
+      console.log("Se creo exitosamente");
+      setfeedbackMessages({
+        style_message: "success",
+        feedback_description_error: "Se creó exitosamente",
+      });
+      handleClickFeeback();
+    } else {
+      console.log("No se pudo crear");
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+    setdisableButton(false);
+  };
 
   // CONTROLADOR DE SUBMIT
   const handleSubmitMateriPrima = (e) => {
     e.preventDefault();
-    if(refCodMatPri.length === 0 || nomMatPri.length === 0 || 
-      idMatPriCat === 0 || idMed === 0){
-        console.log("Asegurese de completar los campos requeridos")
-      }
-    else{
-      console.log(materiaPrima);
+    if (
+      refCodMatPri.length === 0 ||
+      nomMatPri.length === 0 ||
+      idMatPriCat === 0 ||
+      idMed === 0 ||
+      stoMatPri < 0
+    ) {
+      // MANEJAMOS FORMULARIOS INCOMPLETOS
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: "Asegurese de llenar los datos requeridos",
+      });
+      handleClickFeeback();
+    } else {
+      setdisableButton(true);
+      // LLAMAMOS A LA FUNCION CREAR MATERIA PRIMA
+      crearMateriaPrima();
     }
-  }
+  };
 
   return (
     <>
@@ -67,23 +132,23 @@ const AgregarMateriaPrima = () => {
         <h1 className="mt-4 text-center">Agregar materia prima</h1>
         <form className="mt-4">
           {/* CODIGO DE REFERENCIA */}
-          <div class="mb-3 row">
-            <label for="codigo_referencia" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label for="codigo_referencia" className="col-sm-2 col-form-label">
               Codigo de referencia
             </label>
-            <div class="col-md-2">
+            <div className="col-md-2">
               <input
                 type="text"
                 value={refCodMatPri}
                 onChange={handledForm}
                 name="refCodMatPri"
-                class="form-control"
+                className="form-control"
               />
             </div>
           </div>
           {/* NOMBRE */}
           <div class="mb-3 row">
-            <label for="nombre" class="col-sm-2 col-form-label">
+            <label for="nombre" className="col-sm-2 col-form-label">
               Nombre
             </label>
             <div class="col-md-4">
@@ -92,79 +157,97 @@ const AgregarMateriaPrima = () => {
                 value={nomMatPri}
                 onChange={handledForm}
                 name="nomMatPri"
-                class="form-control"
+                className="form-control"
               />
             </div>
           </div>
           {/* CATEGORIA */}
-          <div class="mb-3 row">
-            <label for="categoria" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label for="categoria" className="col-sm-2 col-form-label">
               Categoria
             </label>
-            <div class="col-md-2">
-              <FilterCategoriaMateriaPrima 
+            <div className="col-md-2">
+              <FilterCategoriaMateriaPrima
                 onNewInput={onAddCategoriaMateriaPrima}
               />
             </div>
           </div>
           {/* MEDIDA */}
-          <div class="mb-3 row">
-            <label for="medida" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label for="medida" className="col-sm-2 col-form-label">
               Medida
             </label>
-            <div class="col-md-2">
-              <FilterMedidas 
-                onNewInput={onAddMedida}
-              />
+            <div className="col-md-2">
+              <FilterMedidas onNewInput={onAddMedida} />
             </div>
           </div>
           {/* DESCRIPCION */}
-          <div class="mb-3 row">
-            <label for="descripcion" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label for="descripcion" className="col-sm-2 col-form-label">
               Descripción
             </label>
-            <div class="col-md-4">
-              <div class="form-floating">
+            <div className="col-md-4">
+              <div className="form-floating">
                 <textarea
                   value={desMatPri}
                   onChange={handledForm}
                   name="desMatPri"
-                  class="form-control"
+                  className="form-control"
                   placeholder="Leave a comment here"
                 ></textarea>
               </div>
             </div>
           </div>
           {/* CANTIDAD STOCK */}
-          <div class="mb-3 row">
-            <label for="stock" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label for="stock" className="col-sm-2 col-form-label">
               Cantidad en Stock
             </label>
-            <div class="col-md-2">
+            <div className="col-md-2">
               <input
                 type="number"
                 name="stoMatPri"
                 onChange={handledForm}
                 value={stoMatPri}
-                class="form-control"
+                className="form-control"
               />
             </div>
           </div>
           {/* BOTONES DE CANCELAR Y GUARDAR */}
           <div className="btn-toolbar">
             <button
-                type="button"
-                onClick={onNavigateBack}
-                className="btn btn-secondary me-2"
-              >
-                Cancelar
-              </button>
-            <button type="submit" onClick={handleSubmitMateriPrima} className="btn btn-primary">
+              type="button"
+              onClick={onNavigateBack}
+              className="btn btn-secondary me-2"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={disableButton}
+              onClick={handleSubmitMateriPrima}
+              className="btn btn-primary"
+            >
               Guardar
             </button>
           </div>
         </form>
       </div>
+      {/* FEEDBACK UPDATE */}
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={feedbackCreate}
+        autoHideDuration={6000}
+        onClose={handleCloseFeedback}
+      >
+        <Alert
+          onClose={handleCloseFeedback}
+          severity={style_message}
+          sx={{ width: "100%" }}
+        >
+          {feedback_description_error}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
