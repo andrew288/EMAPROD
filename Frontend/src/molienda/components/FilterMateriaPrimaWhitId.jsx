@@ -1,17 +1,17 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import Select from "react-select";
-import { getProveedores } from "./../helpers/proveedor/getProveedores";
+import { getMateriaPrima } from "./../../almacen/helpers/materia-prima/getMateriasPrimas";
 
-export const FilterProveedor = ({ onNewInput }) => {
+export const FilterMateriaPrimaWhitId = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
 
   const obtenerDataMateriPrima = async () => {
-    const resultPeticion = await getProveedores();
+    const resultPeticion = await getMateriaPrima();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.refCodPro,
-        label: `${element.nomPro} ${element.apePro}`,
+        value: element.id,
+        label: element.nomMatPri,
       };
     });
     setResult(formatSelect);

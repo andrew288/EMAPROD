@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { getProductos } from "./../../helpers/producto/getProductos";
+import { FilterCategoriaProducto } from "./../../components/FilterCategoriaProducto";
 // IMPORTACIONES PARA TABLE MUI
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -16,27 +18,25 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { deleteProducto } from "./../../helpers/producto/deleteProducto";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import { deleteProveedor } from "./../../helpers/proveedor/deleteProveedor";
-import { getProveedores } from "./../../helpers/proveedor/getProveedores";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const ListProveedor = () => {
+export const ListProducto = () => {
   // ESTADOS PARA LOS FILTROS PERSONALIZADOS
-  const [dataPro, setdataPro] = useState([]);
-  const [dataProTmp, setdataProTmp] = useState([]);
+  const [dataProd, setdataProd] = useState([]);
+  const [dataProdTemp, setdataProdTemp] = useState([]);
   const [filters, setfilters] = useState({
-    filterCodPro: "",
-    filterNomPro: "",
+    filterNomProd: "",
+    filterCatProd: 0,
   });
-
-  const { filterCodPro, filterNomPro } = filters;
+  const { filterNomProd, filterCatProd } = filters;
 
   // ESTADOS PARA LA PAGINACIÓN
   const [page, setPage] = useState(0);
@@ -46,10 +46,9 @@ const ListProveedor = () => {
   const [open, setOpen] = React.useState(false);
   const [itemDelete, setitemDelete] = useState({
     itemId: 0,
-    itemCodigo: "",
-    itemNom: "",
+    itemNomProd: "",
   });
-  const { itemCodigo, itemNom, itemId } = itemDelete;
+  const { itemNomProd, itemId } = itemDelete;
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
   const [feedbackDelete, setfeedbackDelete] = useState(false);
@@ -71,11 +70,11 @@ const ListProveedor = () => {
     setfeedbackDelete(false);
   };
 
-  // FUNCION PARA TRAER LA DATA DE MATERIA DE PRIMA
-  const obtenerDataProveedor = async () => {
-    const resultPeticion = await getProveedores();
-    setdataPro(resultPeticion);
-    setdataProTmp(resultPeticion);
+  // FUNCION PARA TRAER LA DATA DE PRODUCTO
+  const obtenerDataProducto = async () => {
+    const resultPeticion = await getProductos();
+    setdataProd(resultPeticion);
+    setdataProdTemp(resultPeticion);
   };
 
   // MANEJADORES DE LOS FILTROS
@@ -88,43 +87,55 @@ const ListProveedor = () => {
     filter(value, name);
   };
 
+  // FUNCION PARA FILTRAR LA DATA
   const filter = (terminoBusqueda, name) => {
-    if (name == "filterCodPro") {
-      let resultadoBusqueda = dataPro.filter((element) => {
+    if (name === "filterNomProd") {
+      let resultadoBusqueda = dataProd.filter((element) => {
         if (
-          element.refCodPro
+          element.nomProd
             .toString()
             .toLowerCase()
             .includes(terminoBusqueda.toLowerCase())
         ) {
           return element;
+        } else {
+          return false;
         }
       });
-      setdataProTmp(resultadoBusqueda);
-    } else {
-      let resultadoBusqueda = dataPro.filter((element) => {
-        if (
-          element.nomPro
-            .toString()
-            .toLowerCase()
-            .includes(terminoBusqueda.toLowerCase()) ||
-          element.apePro
-            .toString()
-            .toLowerCase()
-            .includes(terminoBusqueda.toLowerCase())
-        ) {
-          return element;
-        }
-      });
-      setdataProTmp(resultadoBusqueda);
+      setdataProdTemp(resultadoBusqueda);
     }
+  };
+
+  // CONTROLADOR DE CATEGORIA
+  const AddNewCategory = ({ label }) => {
+    setfilters({
+      ...filters,
+      filterCatProd: label,
+    });
+    filterByCategory(label);
+  };
+
+  // FUNCION FILTRO POR CATEGORIA
+  const filterByCategory = (terminoBusqueda) => {
+    let resultadoBusqueda = dataProd.filter((element) => {
+      if (
+        element.desProdCat
+          .toString()
+          .toLowerCase()
+          .includes(terminoBusqueda.toLowerCase())
+      ) {
+        return element;
+      } else {
+        return false;
+      }
+    });
+    setdataProdTemp(resultadoBusqueda);
   };
 
   // MANEJADORES DE LA PAGINACION
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -139,23 +150,23 @@ const ListProveedor = () => {
   };
 
   // SETEAMOS LOS VALORES DEL DIALOG DE ELIMINACION
-  const openDialogDeleteItem = ({ refCodPro, nomPro, apePro, id }) => {
+  const openDialogDeleteItem = ({ nomProd, id }) => {
     setitemDelete({
       ...itemDelete,
       itemId: id,
-      itemCodigo: refCodPro,
-      itemNom: nomPro + " " + apePro,
+      itemNomProd: nomProd,
     });
     handleOn();
   };
 
-  // FUNCION PARA ELIMINAR UN PROVEEDOR
-  const eliminarProveedor = async () => {
-    const { message_error, description_error } = await deleteProveedor(itemId);
+  // FUNCION PARA ELIMINAR MATERIA PRIMA
+  const eliminarProducto = async () => {
+    const { message_error, description_error } = await deleteProducto(itemId);
+
     if (message_error.length === 0) {
       console.log("Se elimino correctamente");
       // RECALCULAMOS LA DATA
-      let dataNueva = dataPro.filter((element) => {
+      let dataNueva = dataProd.filter((element) => {
         if (element.id !== itemId) {
           //FILTRAMOS
           return element;
@@ -164,8 +175,8 @@ const ListProveedor = () => {
         }
       });
       // ACTUALIZAMOS LA DATA
-      setdataPro(dataNueva);
-      setdataProTmp(dataNueva);
+      setdataProd(dataNueva);
+      setdataProdTemp(dataNueva);
       handleClose();
       // MOSTRAMOS FEEDBACK
       console.log("Se elimino exitosamente");
@@ -187,44 +198,38 @@ const ListProveedor = () => {
 
   // INICIALIZAMOS LA DATA ANTES DE RENDERIZAR EL COMPONENTE
   useEffect(() => {
-    obtenerDataProveedor();
+    obtenerDataProducto();
   }, []);
 
   return (
     <>
       <div className="container">
         <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
-          {/* FILTRO POR MATERIA PRIMA */}
-          <div className="col-md-2">
-            <label htmlFor="inputEmail4" className="form-label">
-              Codigo
-            </label>
-            <input
-              type="text"
-              onChange={handleFormFilter}
-              value={filterCodPro}
-              name="filterCodPro"
-              className="form-control"
-            />
-          </div>
-
-          {/* FILTRO POR NOMBRE Y APELLIDO */}
+          {/* FILTRO POR NOMBRE DE PRODUCTO */}
           <div className="col-md-4">
-            <label htmlFor="inputPassword4" className="form-label">
+            <label htmlFor="inputEmail4" className="form-label">
               Nombre
             </label>
             <input
               type="text"
               onChange={handleFormFilter}
-              value={filterNomPro}
-              name="filterNomPro"
+              value={filterNomProd}
+              name="filterNomProd"
               className="form-control"
             />
           </div>
 
-          {/* BOTON AGREGAR MATERIA PRIMA */}
+          {/* FILTRO POR CATEGORIA */}
+          <div className="col-md-3">
+            <label htmlFor="inputPassword4" className="form-label">
+              Categoria
+            </label>
+            <FilterCategoriaProducto onNewInput={AddNewCategory} />
+          </div>
+
+          {/* BOTON AGREGAR PRODUCTO */}
           <div className="col-md-3 d-flex justify-content-end ms-auto">
-            <Link to={"/almacen/proveedor/crear"} className="btn btn-primary">
+            <Link to={"/molienda/producto/crear"} className="btn btn-primary">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -246,23 +251,22 @@ const ListProveedor = () => {
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell align="left" width={80}>
-                    Código
+                  <TableCell align="left" width={350}>
+                    Nombre
                   </TableCell>
-                  <TableCell align="left" width={300}>
-                    Nombres
+                  <TableCell align="left" width={150}>
+                    Categoria
                   </TableCell>
-                  <TableCell align="left" width={300}>
-                    Apellidos
+                  <TableCell align="left" width={150}>
+                    Stock
                   </TableCell>
-                  {/* <TableCell align="right">Protein&nbsp;(g)</TableCell> */}
                   <TableCell align="left" width={150}>
                     Acciones
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {dataProTmp
+                {dataProdTemp
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <TableRow
@@ -270,14 +274,16 @@ const ListProveedor = () => {
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
-                        {row.refCodPro}
+                        {row.nomProd}
                       </TableCell>
-                      <TableCell align="left">{row.nomPro}</TableCell>
-                      <TableCell align="left">{row.apePro}</TableCell>
+                      <TableCell align="left">{row.desProdCat}</TableCell>
+                      <TableCell align="left">
+                        {row.stoProd}&nbsp;{"KG"}
+                      </TableCell>
                       <TableCell align="left">
                         <div className="btn-toolbar">
                           <Link
-                            to={`/almacen/proveedor/actualizar/${row.id}`}
+                            to={`/molienda/producto/actualizar/${row.id}`}
                             className="btn btn-success me-2"
                           >
                             <svg
@@ -315,10 +321,11 @@ const ListProveedor = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          {/* PAGINACION DE LA TABLA */}
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={dataProTmp.length}
+            count={dataProdTemp.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -326,7 +333,7 @@ const ListProveedor = () => {
           />
         </Paper>
       </div>
-      {/* DIALOG DE ELIMINACION DE PROVEEDOR */}
+      {/* DIALOG DE ELIMINACION DE MATERIA PRIMA */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -334,24 +341,20 @@ const ListProveedor = () => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          <p className="fs-3 text-danger">Eliminar Proveedor</p>
+          <p className="fs-3 text-danger">Eliminar Materia Prima</p>
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             <div>
               <p>
-                <b className="text-danger">Codigo: </b>
-                {itemCodigo}
-              </p>
-              <p>
-                <b className="text-danger">Nombre: </b>
-                {itemNom}
+                <b className="text-danger">Nombre del producto: </b>
+                {itemNomProd}
               </p>
             </div>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" color="error" onClick={eliminarProveedor}>
+          <Button variant="contained" color="error" onClick={eliminarProducto}>
             Aceptar
           </Button>
           <Button variant="outlined" onClick={handleClose}>
@@ -377,5 +380,3 @@ const ListProveedor = () => {
     </>
   );
 };
-
-export default ListProveedor;

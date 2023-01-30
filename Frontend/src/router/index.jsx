@@ -6,6 +6,7 @@ import LayoutAlmacenNav from "./../layout/LayoutAlmacenNav";
 import LayoutMoliendaNav from "./../layout/LayoutMoliendaNav";
 import HomeMolienda from "../molienda/pages/HomeMolienda";
 import { RouterAlmacen } from "../almacen/router/router";
+import { RouterMolienda } from "./../molienda/router/router";
 
 export const router = createBrowserRouter([
   {
@@ -21,11 +22,6 @@ export const router = createBrowserRouter([
   {
     path: "molienda",
     element: <LayoutMoliendaNav />,
-    children: [
-      {
-        path: "",
-        element: <HomeMolienda />,
-      },
-    ],
+    children: RouterMolienda,
   },
 ]);
