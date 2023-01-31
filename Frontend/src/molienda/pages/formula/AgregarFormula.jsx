@@ -22,6 +22,7 @@ import MuiAlert from "@mui/material/Alert";
 import { FilterProducto } from "../../components/FilterProducto";
 import { FilterMateriaPrimaWhitId } from "./../../components/FilterMateriaPrimaWhitId";
 import { getMateriaPrimaById } from "./../../../almacen/helpers/materia-prima/getMateriaPrimaById";
+import { createFormulaWithDetalle } from "./../../helpers/formula/createFormulaWithDetalle";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -29,7 +30,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export const AgregarFormula = () => {
-  // ESTADOS PARA DATOS DE FORMULARO FORMULA
+  // ESTADOS PARA DATOS DE FORMULARO FORMULA (MAESTRO)
   const [formula, setformula] = useState({
     idProd: 0,
     nomFor: "",
@@ -39,7 +40,7 @@ export const AgregarFormula = () => {
   });
   const { idProd, nomFor, desFor, lotKgrFor, forDet } = formula;
 
-  // ESTADOS PARA DATOS DE DETALLE FORMULA
+  // ESTADOS PARA DATOS DE DETALLE FORMULA (DETALLE)
   const [materiaPrimaDetalle, setmateriaPrimaDetalle] = useState({
     idMateriaPrima: 0,
     cantidadMateriaPrima: 0,
@@ -91,43 +92,55 @@ export const AgregarFormula = () => {
     });
   };
 
+  // MANEJADOR PARA AGREGAR MATERIA PRIMA A FORMULA
   const handleAddNewMateriPrimaDetalle = async (e) => {
     e.preventDefault();
 
-    // PRIMERO VERIFICAMOS SI EXISTE ALGUNA COINCIDENCIA DE LO INGRESADO
-    const itemFound = forDet.find((elemento) => elemento.id === idMateriaPrima);
-    if (itemFound) {
+    // PRIMERO VERIFICAMOS QUE LOS INPUTS TENGAN DATOS
+    if (idMateriaPrima !== 0 && cantidadMateriaPrima > 0) {
+      // PRIMERO VERIFICAMOS SI EXISTE ALGUNA COINCIDENCIA DE LO INGRESADO
+      const itemFound = forDet.find(
+        (elemento) => elemento.id === idMateriaPrima
+      );
+      if (itemFound) {
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error: "Ya se agrego esta materia prima",
+        });
+        handleClickFeeback();
+      } else {
+        // HACEMOS UNA CONSULTA A LA MATERIA PRIMA Y DESESTRUCTURAMOS
+        const result = await getMateriaPrimaById(idMateriaPrima);
+        const { id, refCodMatPri, nomMatPri, simMed } = result[0];
+
+        // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
+        const detalleFormulaMateriaPrima = {
+          id: id,
+          refCodMatPri: refCodMatPri,
+          nomMatPri: nomMatPri,
+          simMed: simMed,
+          cantidad: cantidadMateriaPrima,
+        };
+
+        // SETEAMOS SU ESTADO PARA QUE PUEDA SER MOSTRADO EN LA TABLA DE DETALLE
+        const dataMateriaPrimaDetalle = [...forDet, detalleFormulaMateriaPrima];
+        setformula({
+          ...formula,
+          forDet: dataMateriaPrimaDetalle,
+        });
+      }
+    } else {
       setfeedbackMessages({
         style_message: "warning",
-        feedback_description_error: "Ya se agrego esta materia prima",
+        feedback_description_error: "Asegurese de llenar los datos requeridos",
       });
       handleClickFeeback();
-    } else {
-      // HACEMOS UNA CONSULTA A LA MATERIA PRIMA Y DESESTRUCTURAMOS
-      const result = await getMateriaPrimaById(idMateriaPrima);
-      const { id, refCodMatPri, nomMatPri, simMed } = result[0];
-
-      // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
-      const detalleFormulaMateriaPrima = {
-        id: id,
-        refCodMatPri: refCodMatPri,
-        nomMatPri: nomMatPri,
-        simMed: simMed,
-        cantidad: cantidadMateriaPrima,
-      };
-
-      // SETEAMOS SU ESTADO PARA QUE PUEDA SER MOSTRADO EN LA TABLA DE DETALLE
-      const dataMateriaPrimaDetalle = [...forDet, detalleFormulaMateriaPrima];
-      setformula({
-        ...formula,
-        forDet: dataMateriaPrimaDetalle,
-      });
-      console.log(dataMateriaPrimaDetalle);
     }
   };
 
   // MANEJADOR DE ELIMINACION DE MATERIA PRIMA
   const deleteDetalleMateriaPrima = (idItem) => {
+    // FILTRAMOS EL ELEMENTO ELIMINADO
     const nuevaDataDetalleFormulario = forDet.filter((element) => {
       if (element.id !== idItem) {
         return element;
@@ -135,7 +148,8 @@ export const AgregarFormula = () => {
         return false;
       }
     });
-    console.log(nuevaDataDetalleFormulario);
+
+    // VOLVEMOS A SETEAR LA DATA
     setformula({
       ...formula,
       forDet: nuevaDataDetalleFormulario,
@@ -175,9 +189,26 @@ export const AgregarFormula = () => {
   // FUNCION PARA CREAR FORMULARIO
   const crearFormula = async () => {
     console.log(formula);
-    setInterval(() => {
-      setdisableButton(false);
-    }, 1000);
+    const { message_error, description_error } = await createFormulaWithDetalle(
+      formula
+    );
+
+    if (message_error.length === 0) {
+      console.log("Se creo exitosamente");
+      setfeedbackMessages({
+        style_message: "success",
+        feedback_description_error: "Se creó exitosamente",
+      });
+      handleClickFeeback();
+    } else {
+      console.log("No se pudo crear");
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+    setdisableButton(false);
   };
 
   // CONTROLADOR DE SUBMIT
@@ -199,7 +230,22 @@ export const AgregarFormula = () => {
       setdisableButton(true);
       // LLAMAMOS A LA FUNCION CREAR MATERIA PRIMA
       crearFormula();
+      // RESETEAMOS LOS VALORES
+      resetValues();
     }
+  };
+
+  // RESETEAR LOS VALORES
+  const resetValues = () => {
+    setformula({
+      nomFor: "",
+      desFor: "",
+      lotKgrFor: 1500,
+      forDet: [],
+    });
+    setmateriaPrimaDetalle({
+      cantidadMateriaPrima: 0,
+    });
   };
 
   return (
