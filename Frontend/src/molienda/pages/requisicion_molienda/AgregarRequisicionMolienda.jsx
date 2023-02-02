@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 // IMPORTACIONES PARA TABLE MUI
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -14,6 +14,9 @@ import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { FilterMateriaPrimaWhitId } from "./../../components/FilterMateriaPrimaWhitId";
 import { FilterProducto } from "./../../components/FilterProducto";
+import { FilterFormula } from "./../../components/FilterFormula";
+import { getFormulaWithDetalleById } from "./../../helpers/formula/getFormulaWithDetalleById";
+import { getMateriaPrimaById } from "./../../../almacen/helpers/materia-prima/getMateriaPrimaById";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -21,10 +24,17 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export const AgregarRequisicionMolienda = () => {
+  const refTable = useRef();
+  // ESTADO PARA LOS DATOS DEL FILTRO POR FORMULA
+  const [formula, setformula] = useState({
+    idFormula: 0,
+  });
+  const { idFormula } = formula;
   // ESTADOS PARA LOS DATOS DE REQUISICION
   const [requisicion, setRequisicion] = useState({
     numReqLot: "",
     idProd: 0,
+    nomProd: "",
     canReqLot: 0,
     klgReqLot: 0,
     fetPedReqLot: "",
@@ -34,6 +44,7 @@ export const AgregarRequisicionMolienda = () => {
   const {
     numReqLot,
     idProd,
+    nomProd,
     canReqLot,
     klgReqLot,
     fetPedReqLot,
@@ -100,10 +111,11 @@ export const AgregarRequisicionMolienda = () => {
   };
 
   // EVENTO DE ASOCIAR FORMULA A UN PRODUCTO
-  const onAddProducto = ({ value }) => {
+  const onAddProducto = ({ value, label }) => {
     setRequisicion({
       ...requisicion,
       idProd: value,
+      nomProd: label,
     });
   };
 
@@ -124,15 +136,124 @@ export const AgregarRequisicionMolienda = () => {
   };
 
   // ELIMINAR DETALLE DE REQUISICION
-  const deleteDetalleRequisicion = () => {};
-  // SUBMIT FORMULARIO DE REQUISICION (M-D)
-  const handleSubmitRequisicion = () => {};
+  const deleteDetalleRequisicion = (idItem) => {
+    // FILTRAMOS EL ELEMENTO ELIMINADO
+    const nuevaDataDetalleRequisicion = reqMolDet.filter((element) => {
+      if (element.idMatPri !== idItem) {
+        return element;
+      } else {
+        return false;
+      }
+    });
 
+    // VOLVEMOS A SETEAR LA DATA
+    setRequisicion({
+      ...requisicion,
+      reqMolDet: nuevaDataDetalleRequisicion,
+    });
+  };
+
+  // ACTUALIZAR DETALLE DE REQUISICION
+  const updateDetalleRequisicion = (idPosElement) => {
+    console.log("update");
+    let inputSelected =
+      refTable.current.children[idPosElement].childNodes[2].childNodes[0];
+
+    if (inputSelected.disabled) {
+      inputSelected.disabled = false;
+    } else {
+      inputSelected.disabled = true;
+    }
+  };
+
+  // SUBMIT FORMULARIO DE REQUISICION (M-D)
+  const handleSubmitRequisicion = () => {
+    e.preventDefault();
+    console.log();
+  };
+
+  // FUNCION ASINCRONA PARA TRAER A LA FORMULA Y SUS DETALLES
+  const traerDatosFormulaDetalle = async () => {
+    const { result } = await getFormulaWithDetalleById(idFormula);
+    const { desFor, forDet, idProd, lotKgrFor, nomFor, nomProd } = result;
+    setRequisicion({
+      ...requisicion,
+      nomProd: nomProd,
+      reqMolDet: forDet,
+      klgReqLot: lotKgrFor,
+    });
+  };
   // MANEJADOR COMPLETAR FORMULARIO SEGUN FORMULA
-  const handleCompleteFormFormula = () => {};
+  const handleCompleteFormFormula = (e) => {
+    e.preventDefault();
+    console.log(idFormula);
+    if (idFormula === 0) {
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: "Escoge una formula",
+      });
+      handleClickFeeback();
+    } else {
+      traerDatosFormulaDetalle();
+    }
+  };
 
   // FILTER POR FORMULA
-  const onFilterFormula = () => {};
+  const onFilterFormula = (valueId) => {
+    setformula({
+      ...formula,
+      idFormula: valueId,
+    });
+  };
+
+  // AGREGAR MATERIA PRIMA A DETALLE DE REQUISICION
+  const handleAddNewMateriPrimaDetalle = async (e) => {
+    e.preventDefault();
+
+    // PRIMERO VERIFICAMOS QUE LOS INPUTS TENGAN DATOS
+    if (idMateriaPrima !== 0 && cantidadMateriaPrima > 0) {
+      // PRIMERO VERIFICAMOS SI EXISTE ALGUNA COINCIDENCIA DE LO INGRESADO
+      const itemFound = reqMolDet.find(
+        (elemento) => elemento.id === idMateriaPrima
+      );
+      if (itemFound) {
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error: "Ya se agrego esta materia prima",
+        });
+        handleClickFeeback();
+      } else {
+        // HACEMOS UNA CONSULTA A LA MATERIA PRIMA Y DESESTRUCTURAMOS
+        const result = await getMateriaPrimaById(idMateriaPrima);
+        const { id, refCodMatPri, nomMatPri, simMed } = result[0];
+
+        // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
+        const detalleFormulaMateriaPrima = {
+          idMatPri: id,
+          refCodMatPri: refCodMatPri,
+          nomMatPri: nomMatPri,
+          simMed: simMed,
+          canMatPriFor: cantidadMateriaPrima,
+        };
+
+        // SETEAMOS SU ESTADO PARA QUE PUEDA SER MOSTRADO EN LA TABLA DE DETALLE
+        const dataMateriaPrimaDetalle = [
+          ...reqMolDet,
+          detalleFormulaMateriaPrima,
+        ];
+        setRequisicion({
+          ...requisicion,
+          reqMolDet: dataMateriaPrimaDetalle,
+        });
+      }
+    } else {
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: "Asegurese de llenar los datos requeridos",
+      });
+      handleClickFeeback();
+    }
+  };
 
   return (
     <>
@@ -141,13 +262,13 @@ export const AgregarRequisicionMolienda = () => {
         <div className=" container mt-4">
           <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
             {/* FILTRO POR FORMULA */}
-            <div className="col-md-3">
+            <div className="col-md-5">
               <label htmlFor="inputPassword4" className="form-label">
                 Formula
               </label>
-              {/* <FilterFormula onNewInput={onFilterFormula} /> */}
+              <FilterFormula onNewInput={onFilterFormula} />
             </div>
-            {/* BOTON AGREGAR MATERIA PRIMA */}
+            {/* BOTON AGREGAR DATOS FORMULA */}
             <div className="col-md-3 d-flex justify-content-end ms-auto">
               <button
                 // onClick={handleAddNewMateriPrimaDetalle}
@@ -175,7 +296,7 @@ export const AgregarRequisicionMolienda = () => {
             <label htmlFor="nombre" className="col-sm-2 col-form-label">
               Numero de Lote
             </label>
-            <div className="col-md-1">
+            <div className="col-md-2">
               <input
                 type="text"
                 name="numReqLot"
@@ -190,6 +311,16 @@ export const AgregarRequisicionMolienda = () => {
             <label htmlFor="nombre" className="col-sm-2 col-form-label">
               Producto
             </label>
+            <div className="col-md-3">
+              <input
+                type="text"
+                name="nomProd"
+                // onChange={handledForm}
+                value={nomProd}
+                className="form-control"
+                readOnly
+              />
+            </div>
             <div className="col-md-3">
               <FilterProducto onNewInput={onAddProducto} />
             </div>
@@ -252,7 +383,10 @@ export const AgregarRequisicionMolienda = () => {
             </div>
             {/* BOTON AGREGAR MATERIA PRIMA */}
             <div className="col-md-3 d-flex justify-content-end ms-auto">
-              <button className="btn btn-primary">
+              <button
+                onClick={handleAddNewMateriPrimaDetalle}
+                className="btn btn-primary"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -290,12 +424,12 @@ export const AgregarRequisicionMolienda = () => {
                     </TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
+                <TableBody ref={refTable}>
                   {reqMolDet
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => (
+                    .map((row, i) => (
                       <TableRow
-                        key={row.id}
+                        key={row.idMatPri}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
@@ -305,14 +439,37 @@ export const AgregarRequisicionMolienda = () => {
                         </TableCell>
                         <TableCell align="left">{row.nomMatPri}</TableCell>
                         <TableCell align="left">
-                          {row.cantidad}&nbsp;{row.simMed}
+                          <input
+                            id={`input-cantidad-${row.idMatPri}`}
+                            type="number"
+                            value={row.canMatPriFor}
+                            disabled={true}
+                          />
+                          &nbsp;{row.simMed}
                         </TableCell>
                         <TableCell align="left">Requerido</TableCell>
                         <TableCell align="left">
                           <div className="btn-toolbar">
                             <button
                               onClick={() => {
-                                deleteDetalleRequisicion(row.id);
+                                updateDetalleRequisicion(i);
+                              }}
+                              className="btn btn-success me-2"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                className="bi bi-pencil-fill"
+                                viewBox="0 0 16 16"
+                              >
+                                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => {
+                                deleteDetalleRequisicion(row.idMatPri);
                               }}
                               className="btn btn-danger"
                             >
