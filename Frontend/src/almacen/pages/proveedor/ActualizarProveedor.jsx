@@ -23,12 +23,12 @@ const ActualizarProveedor = () => {
 
   // ESTADO DEL FORMULARIO DE PROVEEDOR
   const [proveedor, setproveedor] = useState({
-    refCodPro: "",
+    codPro: "",
     nomPro: "",
     apePro: "",
     desPro: "",
   });
-  const { refCodPro, nomPro, apePro, desPro } = proveedor;
+  const { codPro, nomPro, apePro, desPro } = proveedor;
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
   const [feedbackUpdate, setfeedbackUpdate] = useState(false);
@@ -58,7 +58,7 @@ const ActualizarProveedor = () => {
     const resultPeticion = await getProveedorById(id);
     setproveedor({
       ...proveedor,
-      refCodPro: resultPeticion[0].refCodPro,
+      codPro: resultPeticion[0].codPro,
       apePro: resultPeticion[0].apePro,
       nomPro: resultPeticion[0].nomPro,
       desPro: resultPeticion[0].desPro,
@@ -103,7 +103,7 @@ const ActualizarProveedor = () => {
   // CONTROLADOR SUBMIT DE FORMULARIO
   const handleSubmitProveedor = (e) => {
     e.preventDefault();
-    if (refCodPro.length === 0 || nomPro.length === 0 || apePro.length === 0) {
+    if (codPro.length === 0 || nomPro.length === 0 || apePro.length === 0) {
       console.log("Asegurese de completar los campos requeridos");
       // MANEJAMOS FORMULARIOS INCOMPLETOS
       setfeedbackMessages({
@@ -139,8 +139,8 @@ const ActualizarProveedor = () => {
               <input
                 type="text"
                 onChange={handledForm}
-                value={refCodPro}
-                name="refCodPro"
+                value={codPro}
+                name="codPro"
                 className="form-control"
               />
             </div>

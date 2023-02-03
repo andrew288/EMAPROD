@@ -32,23 +32,23 @@ export const AgregarRequisicionMolienda = () => {
   const { idFormula } = formula;
   // ESTADOS PARA LOS DATOS DE REQUISICION
   const [requisicion, setRequisicion] = useState({
-    numReqLot: "",
+    codLotReqMol: "",
     idProd: 0,
     nomProd: "",
-    canReqLot: 0,
-    klgReqLot: 0,
-    fetPedReqLot: "",
-    idReqLotEst: 0,
+    canLotReqMol: 0,
+    klgLotReqMol: 0,
+    fetPedReqMol: "",
+    idReqMolEst: 0,
     reqMolDet: [], // DETALLE DE REQUISICION MOLIENDA
   });
   const {
-    numReqLot,
+    codLotReqMol,
     idProd,
     nomProd,
-    canReqLot,
-    klgReqLot,
-    fetPedReqLot,
-    idReqLotEst,
+    canLotReqMol,
+    klgLotReqMol,
+    fetPedReqMol,
+    idReqMolEst,
     reqMolDet,
   } = requisicion;
 
@@ -167,7 +167,7 @@ export const AgregarRequisicionMolienda = () => {
   };
 
   // SUBMIT FORMULARIO DE REQUISICION (M-D)
-  const handleSubmitRequisicion = () => {
+  const handleSubmitRequisicion = (e) => {
     e.preventDefault();
     console.log();
   };
@@ -180,13 +180,12 @@ export const AgregarRequisicionMolienda = () => {
       ...requisicion,
       nomProd: nomProd,
       reqMolDet: forDet,
-      klgReqLot: lotKgrFor,
+      klgLotReqMol: lotKgrFor,
     });
   };
   // MANEJADOR COMPLETAR FORMULARIO SEGUN FORMULA
   const handleCompleteFormFormula = (e) => {
     e.preventDefault();
-    console.log(idFormula);
     if (idFormula === 0) {
       setfeedbackMessages({
         style_message: "warning",
@@ -225,12 +224,12 @@ export const AgregarRequisicionMolienda = () => {
       } else {
         // HACEMOS UNA CONSULTA A LA MATERIA PRIMA Y DESESTRUCTURAMOS
         const result = await getMateriaPrimaById(idMateriaPrima);
-        const { id, refCodMatPri, nomMatPri, simMed } = result[0];
+        const { id, codMatPri, nomMatPri, simMed } = result[0];
 
         // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
         const detalleFormulaMateriaPrima = {
           idMatPri: id,
-          refCodMatPri: refCodMatPri,
+          codMatPri: codMatPri,
           nomMatPri: nomMatPri,
           simMed: simMed,
           canMatPriFor: cantidadMateriaPrima,
@@ -299,9 +298,9 @@ export const AgregarRequisicionMolienda = () => {
             <div className="col-md-2">
               <input
                 type="text"
-                name="numReqLot"
+                name="codLotReqMol"
                 onChange={handledForm}
-                value={numReqLot}
+                value={codLotReqMol}
                 className="form-control"
               />
             </div>
@@ -333,9 +332,9 @@ export const AgregarRequisicionMolienda = () => {
             <div className="col-md-2">
               <input
                 type="number"
-                name="canReqLot"
+                name="canLotReqMol"
                 onChange={handledForm}
-                value={canReqLot}
+                value={canLotReqMol}
                 className="form-control"
               />
             </div>
@@ -348,9 +347,9 @@ export const AgregarRequisicionMolienda = () => {
             <div className="col-md-2">
               <input
                 type="number"
-                name="klgReqLot"
+                name="klgLotReqMol"
                 onChange={handledForm}
-                value={klgReqLot}
+                value={klgLotReqMol}
                 className="form-control"
               />
             </div>
@@ -435,7 +434,7 @@ export const AgregarRequisicionMolienda = () => {
                         }}
                       >
                         <TableCell component="th" scope="row">
-                          {row.refCodMatPri}
+                          {row.codMatPri}
                         </TableCell>
                         <TableCell align="left">{row.nomMatPri}</TableCell>
                         <TableCell align="left">

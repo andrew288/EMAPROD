@@ -17,14 +17,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($pdo) {
         $sql =
             "SELECT
-            f.id,
+            fd.id,
+            fd.idFor,
             f.idProd,
             p.nomProd,
             f.nomFor,
             f.desFor,
             f.lotKgrFor,
             fd.idMatPri,
-            fd.refCodMatPri,
+            m.codMatPri,
             m.nomMatPri,
             me.simMed,
             fd.canMatPriFor
@@ -50,11 +51,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // DESCOMENTAR PARA VER LA DATA DE LA CONSULTA Y REALIZAR CAMBIOS
-        // print_r($result)
+        // print_r($result);
 
         // FORMATEAMOS EL RESULTADO
         $result_formater = [];
         $result_formater["id"] = $result[0]["id"];
+        $result_formater["idFor"] = $result[0]["idFor"];
         $result_formater["idProd"] = $result[0]["idProd"];
         $result_formater["nomProd"] = $result[0]["nomProd"];
         $result_formater["nomFor"] = $result[0]["nomFor"];
@@ -67,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $result_formater["forDet"],
                 array(
                     'idMatPri' => $item['idMatPri'],
-                    'refCodMatPri' => $item['refCodMatPri'],
+                    'codMatPri' => $item['codMatPri'],
                     'nomMatPri' => $item['nomMatPri'],
                     'simMed' => $item['simMed'],
                     'canMatPriFor' => $item['canMatPriFor']

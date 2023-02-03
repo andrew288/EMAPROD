@@ -14,10 +14,9 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     if (isset($data["id"])) {
 
         $idMateriaPrima = $data["id"];
-        $refCodMatPri = $data["refCodMatPri"];
+        $codMatPri = $data["codMatPri"];
         $idMatPriCat = $data["idMatPriCat"];
         $desMatPri = $data["desMatPri"];
-        //if(isset($data["desMatPri"]))
         $idMed = $data["idMed"];
         $nomMatPri = $data["nomMatPri"];
         $stoMatPri = $data["stoMatPri"];
@@ -26,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             $sql =
                 "UPDATE
             materia_prima
-            SET refCodMatPri = :refCodMatPri,
+            SET codMatPri = :codMatPri,
             idMatPriCat = :idMatPriCat,
             desMatPri = :desMatPri,
             idMed = :idMed,
@@ -36,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             ";
             //Preparamos la consulta
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':refCodMatPri', $refCodMatPri, PDO::PARAM_STR); //CODIGO
+            $stmt->bindParam(':codMatPri', $codMatPri, PDO::PARAM_STR); //CODIGO
             $stmt->bindParam(':idMatPriCat', $idMatPriCat, PDO::PARAM_INT); //CATEGORIA
             $stmt->bindParam(':desMatPri', $desMatPri, PDO::PARAM_STR); //DESCRIPCION
             $stmt->bindParam(':idMed', $idMed, PDO::PARAM_INT); //MEDIDA

@@ -92,7 +92,7 @@ const ListProveedor = () => {
     if (name == "filterCodPro") {
       let resultadoBusqueda = dataPro.filter((element) => {
         if (
-          element.refCodPro
+          element.codPro
             .toString()
             .toLowerCase()
             .includes(terminoBusqueda.toLowerCase())
@@ -139,11 +139,11 @@ const ListProveedor = () => {
   };
 
   // SETEAMOS LOS VALORES DEL DIALOG DE ELIMINACION
-  const openDialogDeleteItem = ({ refCodPro, nomPro, apePro, id }) => {
+  const openDialogDeleteItem = ({ codPro, nomPro, apePro, id }) => {
     setitemDelete({
       ...itemDelete,
       itemId: id,
-      itemCodigo: refCodPro,
+      itemCodigo: codPro,
       itemNom: nomPro + " " + apePro,
     });
     handleOn();
@@ -211,7 +211,7 @@ const ListProveedor = () => {
           {/* FILTRO POR NOMBRE Y APELLIDO */}
           <div className="col-md-4">
             <label htmlFor="inputPassword4" className="form-label">
-              Nombre
+              Nombres y Apellidos
             </label>
             <input
               type="text"
@@ -270,7 +270,7 @@ const ListProveedor = () => {
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
-                        {row.refCodPro}
+                        {row.codPro}
                       </TableCell>
                       <TableCell align="left">{row.nomPro}</TableCell>
                       <TableCell align="left">{row.apePro}</TableCell>

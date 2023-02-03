@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
 
-    $refCodPro = $data["refCodPro"];
+    $codPro = $data["codPro"];
     $nomPro = $data["nomPro"];
     $apePro = $data["apePro"];
     //if(isset($data["desMatPri"]))
@@ -22,12 +22,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql =
             "INSERT INTO
             proveedor
-            (refCodPro,nomPro,apePro,desPro)
+            (codPro,nomPro,apePro,desPro)
             VALUES (?,?,?,?);
             ";
         //Preparamos la consulta
         $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(1, $refCodPro, PDO::PARAM_STR); //CODIGO
+        $stmt->bindParam(1, $codPro, PDO::PARAM_STR); //CODIGO
         $stmt->bindParam(2, $nomPro, PDO::PARAM_INT); //NOMBRE
         $stmt->bindParam(3, $apePro, PDO::PARAM_STR); //APELLIDO
         $stmt->bindParam(4, $desPro, PDO::PARAM_INT); //DESCRIPCION

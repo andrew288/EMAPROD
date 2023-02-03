@@ -10,7 +10,7 @@ export const FilterMateriaPrima = ({ onNewInput }) => {
     const resultPeticion = await getMateriaPrima();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.refCodMatPri,
+        value: element.codMatPri,
         label: element.nomMatPri,
       };
     });

@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sql =
                 "SELECT
             M.id,
-            M.refCodMatPri, 
+            M.codMatPri, 
             M.idMatPriCat,
             M.desMatPri,
             C.desMatPriCat,

@@ -1,32 +1,32 @@
-import React, {useState, useEffect} from 'react';
-import { getCategoriasMateriaPrima } from './../helpers/getCategoriasMateriaPrima';
-import Select from 'react-select';
+import React, { useState, useEffect } from "react";
+import { getCategoriasMateriaPrima } from "./../helpers/getCategoriasMateriaPrima";
+import Select from "react-select";
 
-export const FilterCategoriaMateriaPrima = ({onNewInput}) => {
-    const [result, setResult] = useState([]);
+export const FilterCategoriaMateriaPrima = ({ onNewInput }) => {
+  const [result, setResult] = useState([]);
 
-    const obtenerDataCategoriaMateriaPrima = async() => {
-        const resultPeticion = await getCategoriasMateriaPrima();
-        const formatSelect = resultPeticion.map((element) => {
-            return {
-                value: element.id,
-                label: `${element.desMatPriCat}`,
-            }
-        })
-        setResult(formatSelect);
-    }
+  const obtenerDataCategoriaMateriaPrima = async () => {
+    const resultPeticion = await getCategoriasMateriaPrima();
+    const formatSelect = resultPeticion.map((element) => {
+      return {
+        value: element.id,
+        label: `${element.desMatPriCat}`,
+      };
+    });
+    setResult(formatSelect);
+  };
 
-    useEffect(() => {
-        obtenerDataCategoriaMateriaPrima();
-    }, [])
+  useEffect(() => {
+    obtenerDataCategoriaMateriaPrima();
+  }, []);
 
-    const handledChange = ({value, label}) => {
-        onNewInput({value,label});
-    }
+  const handledChange = ({ value, label }) => {
+    onNewInput({ value, label });
+  };
 
   return (
     <>
-        <Select options={result} onChange={handledChange} />
+      <Select options={result} onChange={handledChange} />
     </>
-  )
-}
+  );
+};

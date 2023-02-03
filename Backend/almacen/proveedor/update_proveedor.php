@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     if (isset($data["id"])) {
 
         $idProveedor = $data["id"];
-        $refCodPro = $data["refCodPro"];
+        $codPro = $data["codPro"];
         $nomPro = $data["nomPro"];
         $apePro = $data["apePro"];
         //if(isset($data["desMatPri"]))
@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             $sql =
                 "UPDATE
             proveedor
-            SET refCodPro = :refCodPro,
+            SET codPro = :codPro,
             nomPro = :nomPro,
             apePro = :apePro,
             desPro = :desPro
@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             ";
             //Preparamos la consulta
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':refCodPro', $refCodPro, PDO::PARAM_STR); //CODIGO
+            $stmt->bindParam(':codPro', $codPro, PDO::PARAM_STR); //CODIGO
             $stmt->bindParam(':nomPro', $nomPro, PDO::PARAM_INT); //NOMBRE
             $stmt->bindParam(':apePro', $apePro, PDO::PARAM_STR); //APELLIDO
             $stmt->bindParam(':desPro', $desPro, PDO::PARAM_INT); //DESCRIPCION

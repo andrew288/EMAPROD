@@ -94,7 +94,7 @@ const ListMateriaPrima = () => {
     if (name === "filterCodMatPri") {
       let resultadoBusqueda = dataMatPri.filter((element) => {
         if (
-          element.refCodMatPri
+          element.codMatPri
             .toString()
             .toLowerCase()
             .includes(terminoBusqueda.toLowerCase())
@@ -166,11 +166,11 @@ const ListMateriaPrima = () => {
   };
 
   // SETEAMOS LOS VALORES DEL DIALOG DE ELIMINACION
-  const openDialogDeleteItem = ({ refCodMatPri, nomMatPri, id }) => {
+  const openDialogDeleteItem = ({ codMatPri, nomMatPri, id }) => {
     setitemDelete({
       ...itemDelete,
       itemId: id,
-      itemCodigoMatPri: refCodMatPri,
+      itemCodigoMatPri: codMatPri,
       itemNomMatPri: nomMatPri,
     });
     handleOn();
@@ -312,7 +312,7 @@ const ListMateriaPrima = () => {
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
-                        {row.refCodMatPri}
+                        {row.codMatPri}
                       </TableCell>
                       <TableCell align="left">{row.desMatPriCat}</TableCell>
                       <TableCell align="left">{row.nomMatPri}</TableCell>

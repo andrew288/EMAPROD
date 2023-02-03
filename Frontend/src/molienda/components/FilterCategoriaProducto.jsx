@@ -16,17 +16,6 @@ export const FilterCategoriaProducto = ({ onNewInput }) => {
     setResult(formatSelect);
   };
 
-  //   const obtenerDefaultValue = () => {
-  //     const defaultValueSelect = result.filter((element) => {
-  //       if (defaultInput === element.value) {
-  //         return element;
-  //       } else {
-  //         return false;
-  //       }
-  //     });
-  //     return defaultValueSelect[0];
-  //   };
-
   useEffect(() => {
     obtenerDataCategoriaProducto();
   }, []);

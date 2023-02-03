@@ -1,58 +1,73 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import FechaPicker from "../../components/FechaPicker";
-import {DiaJuliano, FormatDateTimeMYSQLNow} from '../../../utils/functions/FormatDate';
+import {
+  DiaJuliano,
+  FormatDateTimeMYSQLNow,
+} from "../../../utils/functions/FormatDate";
 import { FilterMateriaPrima } from "../../components/FilterMateriaPrima";
 import { FilterProveedor } from "../../components/FilterProveedor";
 
 const ActualizarEntradaStock = () => {
   const [entrada, setEntrada] = useState({
-    codigoMateriaPrima: '',
-    codigoProveedor: '',
-    fechaEntrada: '',
-    documentoEntrada: '',
+    codigoMateriaPrima: "",
+    codigoProveedor: "",
+    fechaEntrada: "",
+    documentoEntrada: "",
     cantidadEntrada: 0,
   });
 
-  const {codigoMateriaPrima, codigoProveedor, fechaEntrada, documentoEntrada, cantidadEntrada} = entrada;
+  const {
+    codigoMateriaPrima,
+    codigoProveedor,
+    fechaEntrada,
+    documentoEntrada,
+    cantidadEntrada,
+  } = entrada;
 
   // MANEJADOR DE FORMUALARIO
 
-  const handledForm = ({target}) => {
-    const {name, value} = target;
+  const handledForm = ({ target }) => {
+    const { name, value } = target;
     setEntrada({
       ...entrada,
-      [name]: value
-    }) 
-    
-  }
-  
+      [name]: value,
+    });
+  };
+
   // INPUT CODIGO MATERIA PRIMA
   const onAddCodigoEntrada = (newCodMateriaPrima) => {
-    setEntrada({ ...entrada, codigoMateriaPrima : newCodMateriaPrima});
-  }
+    setEntrada({ ...entrada, codigoMateriaPrima: newCodMateriaPrima });
+  };
 
   // INPUT CODIGO PROVEEDOR
   const onAddCodigoProveedor = (newCodProveedor) => {
-    setEntrada({ ...entrada, codigoProveedor:newCodProveedor})
-  }
+    setEntrada({ ...entrada, codigoProveedor: newCodProveedor });
+  };
 
   // SETTEAR VALOR DE FECHA DE ENTRADA
   const onAddFechaEntrada = (newFechaEntrada) => {
-    setEntrada({ ...entrada, fechaEntrada: newFechaEntrada});
+    setEntrada({ ...entrada, fechaEntrada: newFechaEntrada });
   };
 
   // SUBMIT DE UNA ENTRADA COMUNICACION CON BACKEND
   const onAddEntrada = (event) => {
     event.preventDefault();
 
-    const {codigoMateriaPrima, codigoProveedor, documentoEntrada} = entrada;
+    const { codigoMateriaPrima, codigoProveedor, documentoEntrada } = entrada;
 
     // VERIFICAMOS SI SE INGRESARON LOS CAMPOS REQUERIDOS
-    if(codigoMateriaPrima.length != 0 && codigoProveedor.length != 0 && documentoEntrada.length != 0 ){
-      let ResponseJSON = {...entrada};
+    if (
+      codigoMateriaPrima.length != 0 &&
+      codigoProveedor.length != 0 &&
+      documentoEntrada.length != 0
+    ) {
+      let ResponseJSON = { ...entrada };
       // VERIFICAMOS SI SE INGRESO UNA FECHA DE ENTRADA
-      if(entrada.fechaEntrada.length == 0){
-        ResponseJSON = {...ResponseJSON, fechaEntrada: FormatDateTimeMYSQLNow()};
+      if (entrada.fechaEntrada.length == 0) {
+        ResponseJSON = {
+          ...ResponseJSON,
+          fechaEntrada: FormatDateTimeMYSQLNow(),
+        };
       }
 
       //Formamos el codigo de entrada
@@ -63,14 +78,15 @@ const ActualizarEntradaStock = () => {
         9-11: dia juliano
         12-13: num. ingreso de la misma materia prima
       */
-     const codEntrada = `${codigoMateriaPrima}${codigoProveedor}C${DiaJuliano(ResponseJSON.fechaEntrada)}01`;
+      const codEntrada = `${codigoMateriaPrima}${codigoProveedor}C${DiaJuliano(
+        ResponseJSON.fechaEntrada
+      )}01`;
 
       console.log(ResponseJSON);
       console.log(codEntrada);
     } else {
       console.log("Complete todos los campos");
     }
-
   };
 
   return (

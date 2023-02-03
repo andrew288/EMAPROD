@@ -44,4 +44,3 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 // Si se pudo realizar la conexion a la base de datos
 
 // Programa terminado
-?>

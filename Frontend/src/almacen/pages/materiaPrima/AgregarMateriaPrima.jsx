@@ -15,7 +15,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 const AgregarMateriaPrima = () => {
   // ESTADOS PARA EL CONTROL DEL FORMULARIO MATERIA PRIMA
   const [materiaPrima, setmateriaPrima] = useState({
-    refCodMatPri: "",
+    codMatPri: "",
     idMatPriCat: 0,
     idMed: 0,
     nomMatPri: "",
@@ -23,7 +23,7 @@ const AgregarMateriaPrima = () => {
     stoMatPri: 0,
   });
 
-  const { refCodMatPri, idMatPriCat, idMed, nomMatPri, desMatPri, stoMatPri } =
+  const { codMatPri, idMatPriCat, idMed, nomMatPri, desMatPri, stoMatPri } =
     materiaPrima;
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
@@ -107,7 +107,7 @@ const AgregarMateriaPrima = () => {
   const handleSubmitMateriPrima = (e) => {
     e.preventDefault();
     if (
-      refCodMatPri.length === 0 ||
+      codMatPri.length === 0 ||
       nomMatPri.length === 0 ||
       idMatPriCat === 0 ||
       idMed === 0 ||
@@ -142,9 +142,9 @@ const AgregarMateriaPrima = () => {
             <div className="col-md-2">
               <input
                 type="text"
-                value={refCodMatPri}
+                value={codMatPri}
                 onChange={handledForm}
-                name="refCodMatPri"
+                name="codMatPri"
                 className="form-control"
               />
             </div>

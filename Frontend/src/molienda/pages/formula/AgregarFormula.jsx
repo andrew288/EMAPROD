@@ -111,12 +111,12 @@ export const AgregarFormula = () => {
       } else {
         // HACEMOS UNA CONSULTA A LA MATERIA PRIMA Y DESESTRUCTURAMOS
         const result = await getMateriaPrimaById(idMateriaPrima);
-        const { id, refCodMatPri, nomMatPri, simMed } = result[0];
+        const { id, codMatPri, nomMatPri, simMed } = result[0];
 
         // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
         const detalleFormulaMateriaPrima = {
           id: id,
-          refCodMatPri: refCodMatPri,
+          codMatPri: codMatPri,
           nomMatPri: nomMatPri,
           simMed: simMed,
           cantidad: cantidadMateriaPrima,
@@ -237,7 +237,7 @@ export const AgregarFormula = () => {
 
   // RESETEAR LOS VALORES
   const resetValues = () => {
-    setformula({
+    setformula(...formula, {
       nomFor: "",
       desFor: "",
       lotKgrFor: 1500,
@@ -386,7 +386,7 @@ export const AgregarFormula = () => {
                         }}
                       >
                         <TableCell component="th" scope="row">
-                          {row.refCodMatPri}
+                          {row.codMatPri}
                         </TableCell>
                         <TableCell align="left">{row.nomMatPri}</TableCell>
                         <TableCell align="left">

@@ -14,12 +14,12 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 const AgregarProveedor = () => {
   // ESTADO DE FORMULARIO DE PROVEEDOR
   const [proveedor, setproveedor] = useState({
-    refCodPro: "",
+    codPro: "",
     nomPro: "",
     apePro: "",
     desPro: "",
   });
-  const { refCodPro, nomPro, apePro, desPro } = proveedor;
+  const { codPro, nomPro, apePro, desPro } = proveedor;
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
   const [feedbackCreate, setfeedbackCreate] = useState(false);
@@ -84,7 +84,7 @@ const AgregarProveedor = () => {
 
   const handleSubmitProveedor = (e) => {
     e.preventDefault();
-    if (refCodPro.length === 0 || nomPro.length === 0 || apePro.length === 0) {
+    if (codPro.length === 0 || nomPro.length === 0 || apePro.length === 0) {
       console.log("Asegurese de completar los campos requeridos");
       // MANEJAMOS FORMULARIOS INCOMPLETOS
       setfeedbackMessages({
@@ -116,8 +116,8 @@ const AgregarProveedor = () => {
               <input
                 type="text"
                 onChange={handledForm}
-                value={refCodPro}
-                name="refCodPro"
+                value={codPro}
+                name="codPro"
                 className="form-control"
               />
             </div>

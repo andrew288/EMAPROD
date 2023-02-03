@@ -10,7 +10,7 @@ export const FilterProveedor = ({ onNewInput }) => {
     const resultPeticion = await getProveedores();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.refCodPro,
+        value: element.codPro,
         label: `${element.nomPro} ${element.apePro}`,
       };
     });

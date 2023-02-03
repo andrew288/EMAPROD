@@ -12,24 +12,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
 
-    $refCodMatPri = $data["refCodMatPri"];
     $idMatPriCat = $data["idMatPriCat"];
-    $desMatPri = $data["desMatPri"];
-    //if(isset($data["desMatPri"]))
     $idMed = $data["idMed"];
+    $codMatPri = $data["codMatPri"];
     $nomMatPri = $data["nomMatPri"];
+    $desMatPri = $data["desMatPri"];
     $stoMatPri = $data["stoMatPri"];
 
     if ($pdo) {
         $sql =
             "INSERT INTO
         materia_prima
-        (refCodMatPri, idMatPriCat, desMatPri, idMed, nomMatPri, stoMatPri)
+        (codMatPri, idMatPriCat, desMatPri, idMed, nomMatPri, stoMatPri)
         VALUES (?,?,?,?,?,'$stoMatPri')
         ";
         //Preparamos la consulta
         $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(1, $refCodMatPri, PDO::PARAM_STR); //CODIGO
+        $stmt->bindParam(1, $codMatPri, PDO::PARAM_STR); //CODIGO
         $stmt->bindParam(2, $idMatPriCat, PDO::PARAM_INT); //CATEGORIA
         $stmt->bindParam(3, $desMatPri, PDO::PARAM_STR); //DESCRIPCION
         $stmt->bindParam(4, $idMed, PDO::PARAM_INT); //MEDIDA

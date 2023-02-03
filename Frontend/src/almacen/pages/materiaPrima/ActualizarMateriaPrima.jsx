@@ -27,7 +27,7 @@ const ActualizarMateriaPrima = () => {
 
   // ESTADOS DE LA MATERIA PRIMA
   const [materiaPrima, setmateriaPrima] = useState({
-    refCodMatPri: "",
+    codMatPri: "",
     idMatPriCat: 0,
     idMed: 0,
     nomMatPri: "",
@@ -35,7 +35,7 @@ const ActualizarMateriaPrima = () => {
     stoMatPri: 0,
   });
 
-  const { refCodMatPri, idMatPriCat, idMed, nomMatPri, desMatPri, stoMatPri } =
+  const { codMatPri, idMatPriCat, idMed, nomMatPri, desMatPri, stoMatPri } =
     materiaPrima;
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
@@ -66,7 +66,7 @@ const ActualizarMateriaPrima = () => {
     const resultPeticion = await getMateriaPrimaById(id);
     setmateriaPrima({
       ...materiaPrima,
-      refCodMatPri: resultPeticion[0].refCodMatPri,
+      codMatPri: resultPeticion[0].codMatPri,
       idMatPriCat: resultPeticion[0].idMatPriCat,
       idMed: resultPeticion[0].idMed,
       nomMatPri: resultPeticion[0].nomMatPri,
@@ -130,7 +130,7 @@ const ActualizarMateriaPrima = () => {
   const handleSubmitMateriPrima = (e) => {
     e.preventDefault();
     if (
-      refCodMatPri.length === 0 ||
+      codMatPri.length === 0 ||
       nomMatPri.length === 0 ||
       idMatPriCat === 0 ||
       idMed === 0 ||
@@ -170,9 +170,9 @@ const ActualizarMateriaPrima = () => {
             <div className="col-md-2">
               <input
                 type="text"
-                value={refCodMatPri}
+                value={codMatPri}
                 onChange={handledForm}
-                name="refCodMatPri"
+                name="codMatPri"
                 className="form-control"
               />
             </div>
