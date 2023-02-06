@@ -17,6 +17,7 @@ import { FilterProducto } from "./../../components/FilterProducto";
 import { FilterFormula } from "./../../components/FilterFormula";
 import { getFormulaWithDetalleById } from "./../../helpers/formula/getFormulaWithDetalleById";
 import { getMateriaPrimaById } from "./../../../almacen/helpers/materia-prima/getMateriaPrimaById";
+import { createRequisicionWithDetalle } from "./../../helpers/requisicion/createRequisicionWithDetalle";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -29,16 +30,16 @@ export const AgregarRequisicionMolienda = () => {
   const [formula, setformula] = useState({
     idFormula: 0,
   });
+
   const { idFormula } = formula;
   // ESTADOS PARA LOS DATOS DE REQUISICION
   const [requisicion, setRequisicion] = useState({
     codLotReqMol: "",
     idProd: 0,
     nomProd: "",
-    canLotReqMol: 0,
+    canLotReqMol: 1,
     klgLotReqMol: 0,
-    fetPedReqMol: "",
-    idReqMolEst: 0,
+    idReqMolEst: 1,
     reqMolDet: [], // DETALLE DE REQUISICION MOLIENDA
   });
   const {
@@ -47,7 +48,6 @@ export const AgregarRequisicionMolienda = () => {
     nomProd,
     canLotReqMol,
     klgLotReqMol,
-    fetPedReqMol,
     idReqMolEst,
     reqMolDet,
   } = requisicion;
@@ -166,10 +166,58 @@ export const AgregarRequisicionMolienda = () => {
     }
   };
 
+  // MANEJADOR PARA ACTUALIZAR REQUISICION
+  const handledFormularioDetalle = ({ target }, index) => {
+    const { value } = target;
+    let editFormDetalle = [...reqMolDet];
+    const aux = { ...reqMolDet[index], canMatPriFor: value };
+    editFormDetalle[index] = aux;
+
+    setRequisicion({
+      ...requisicion,
+      reqMolDet: editFormDetalle,
+    });
+  };
+
+  const crearRequisicion = async () => {
+    console.log(requisicion);
+    const { message_error, description_error } =
+      await createRequisicionWithDetalle(requisicion);
+
+    if (message_error.length === 0) {
+      console.log("Se creo exitosamente");
+      setfeedbackMessages({
+        style_message: "success",
+        feedback_description_error: "Se creó exitosamente",
+      });
+      handleClickFeeback();
+    } else {
+      console.log("No se pudo crear");
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+    setdisableButton(false);
+  };
+
   // SUBMIT FORMULARIO DE REQUISICION (M-D)
   const handleSubmitRequisicion = (e) => {
     e.preventDefault();
-    console.log();
+    if (codLotReqMol.length === 0 || idProd === 0 || reqMolDet.length === 0) {
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error:
+          "Asegurate de completar los campos requeridos",
+      });
+      handleClickFeeback();
+    } else {
+      setdisableButton(true);
+      // LLAMAMOS A LA FUNCION CREAR MATERIA PRIMA
+      crearRequisicion();
+      // RESETEAMOS LOS VALORES
+    }
   };
 
   // FUNCION ASINCRONA PARA TRAER A LA FORMULA Y SUS DETALLES
@@ -178,6 +226,7 @@ export const AgregarRequisicionMolienda = () => {
     const { desFor, forDet, idProd, lotKgrFor, nomFor, nomProd } = result;
     setRequisicion({
       ...requisicion,
+      idProd: idProd,
       nomProd: nomProd,
       reqMolDet: forDet,
       klgLotReqMol: lotKgrFor,
@@ -440,6 +489,9 @@ export const AgregarRequisicionMolienda = () => {
                         <TableCell align="left">
                           <input
                             id={`input-cantidad-${row.idMatPri}`}
+                            onChange={(e) => {
+                              handledFormularioDetalle(e, i);
+                            }}
                             type="number"
                             value={row.canMatPriFor}
                             disabled={true}

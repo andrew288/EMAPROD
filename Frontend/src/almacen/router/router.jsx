@@ -7,6 +7,7 @@ import { RouterAlmacenEntradaStock } from "./../pages/entradasStock/RouterAlmace
 import { RouterAlmacenMateriaPrima } from "./../pages/materiaPrima/RouterAlmacenMateriaPrima";
 import { RouterAlmacenProveedor } from "./../pages/proveedor/RouterAlmacenProveedor";
 import { RouterAlmacenSalidasStock } from "./../pages/salidasStocks/RouterAlmacenSalida";
+import { RouterRequisicionMolienda } from "./../pages/requisicion_molienda/RouterRequisicionMolienda";
 
 export const RouterAlmacen = [
   {
@@ -32,5 +33,10 @@ export const RouterAlmacen = [
     path: "salidas-stock",
     element: <LayoutSalidaStock />,
     children: RouterAlmacenSalidasStock,
+  },
+  {
+    path: "requisicion-molienda",
+    element: <LayoutSalidaStock />,
+    children: RouterRequisicionMolienda,
   },
 ];

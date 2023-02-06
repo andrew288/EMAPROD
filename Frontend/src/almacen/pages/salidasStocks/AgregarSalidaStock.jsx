@@ -1,72 +1,160 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FechaPicker from "../../components/FechaPicker";
 import HoraPicker from "./../../components/HoraPicker";
+import queryString from "query-string";
+import { useLocation } from "react-router-dom";
+import { getRequisicionMoliendaDetalleById } from "./../../helpers/requisicion-molienda/getRequisicionMoliendaDetalleById";
 
 const AgregarSalidaStock = () => {
+  // CONSTANTES PARA LOS PARAMETROS DE LA URL
+  const location = useLocation();
+  const { idReqMol = "" } = queryString.parse(location.search);
+
+  // ESTADOS PARA EL htmlForMULARIO DE SALIDA
+  const [salidaMolienda, setSalidaMolienda] = useState({
+    codLotReqMol: "",
+    codMatPri: "",
+    codEntSto: "",
+    fecSalStoReqMol: "",
+    canSalReqMol: 0,
+    docSalSto: "",
+  });
+
+  const {
+    codLotReqMol,
+    codMatPri,
+    codEntSto,
+    fecSalStoReqMol,
+    canSalReqMol,
+    docSalSto,
+  } = salidaMolienda;
+
+  // ESTADO PARA CONTROLAR EL FEEDBACK
+  const [feedbackCreate, setfeedbackCreate] = useState(false);
+  const [feedbackMessages, setfeedbackMessages] = useState({
+    style_message: "",
+    feedback_description_error: "",
+  });
+  const { style_message, feedback_description_error } = feedbackMessages;
+
+  const traerDatosRequisicionMoliendaDetalle = async () => {
+    if (idReqMol.length !== 0) {
+      console.log(idReqMol);
+      try {
+        const idParserNumber = Number(idReqMol);
+        const resultData = await getRequisicionMoliendaDetalleById(
+          idParserNumber
+        );
+        const { message_error, description_error, result } = resultData;
+        const { codLotReqMol, codMatPri, canReqMolDet } = result;
+
+        if (message_error.length === 0) {
+          setSalidaMolienda({
+            ...salidaMolienda,
+            codLotReqMol: codLotReqMol,
+            codMatPri: codMatPri,
+            canSalReqMol: canReqMolDet,
+          });
+        } else {
+          console.log("Se proporciono un id inexistente");
+          setfeedbackMessages({
+            style_message: "error",
+            feedback_description_error: description_error,
+          });
+          handleClickFeeback();
+        }
+        setdisableButton(false);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  // MANEJADORES DE FEEDBACK
+  const handleClickFeeback = () => {
+    setfeedbackCreate(true);
+  };
+
+  const handleCloseFeedback = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setfeedbackCreate(false);
+  };
+
+  // ESTADO PARA BOTON CREAR
+  const [disableButton, setdisableButton] = useState(false);
+
+  // CONTROLADOR DE htmlForMULARIO
+  const handledForm = ({ target }) => {
+    const { name, value } = target;
+    setSalidaMolienda({
+      ...salidaMolienda,
+      [name]: value,
+    });
+  };
+
+  useEffect(() => {
+    traerDatosRequisicionMoliendaDetalle();
+  }, []);
+
   return (
     <>
-      <div class="container">
-        <h1 class="mt-4 text-center">Registrar salida</h1>
-        <form class="mt-4">
-          <div class="mb-3 row">
-            <label for="codigo-lote" class="col-sm-2 col-form-label">
+      <div className="container">
+        <h1 className="mt-4 text-center">Registrar salida</h1>
+        <form className="mt-4">
+          <div className="mb-3 row">
+            <label htmlFor="codigo-lote" className="col-sm-2 col-form-label">
               Código del Lote
             </label>
-            <div class="col-md-2">
+            <div className="col-md-2">
               <input
                 type="text"
-                name="codLote"
-                readonly
-                class="form-control"
-                id="codigo-lote"
+                name="codLotReqMol"
+                value={codLotReqMol}
+                className="form-control"
+                onChange={handledForm}
               />
             </div>
           </div>
 
-          <div class="mb-3 row">
-            <label for="codigo-materia-prima" class="col-sm-2 col-form-label">Código de la materia prima</label>
-            <div class="col-md-2">
-              <input type="text" name='codMateriaPrima' readonly class="form-control" id="codigo-materia-prima"/>
-            </div>
-            <div class="col-md-4">
-                <div class="input-group">
-                    <input type="text" name='nombreMateriaPrima' readonly class="form-control" id="nombre-materia-prima"/>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="agregarCodigoMateriaPrima">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-          </div>
-
-          <div class="mb-3 row">
-            <label for="codigo-materia-prima" class="col-sm-2 col-form-label">
-              Código de entrada
+          <div className="mb-3 row">
+            <label
+              htmlFor="codigo-materia-prima"
+              className="col-sm-2 col-form-label"
+            >
+              Código de la materia prima
             </label>
-            <div class="col-md-3">
-              <div class="input-group">
+            <div className="col-md-2">
+              <input
+                type="text"
+                name="codMatPri"
+                value={codMatPri}
+                className="form-control"
+                onChange={handledForm}
+              />
+            </div>
+            <div className="col-md-4">
+              <div className="input-group">
                 <input
                   type="text"
                   name="nombreMateriaPrima"
-                  readonly
-                  class="form-control"
+                  readOnly
+                  className="form-control"
                   id="nombre-materia-prima"
                 />
-                <div class="input-group-append">
+                <div className="input-group-append">
                   <button
-                    class="btn btn-outline-secondary"
+                    className="btn btn-outline-secondary"
                     type="button"
-                    id="agregarCodigoProveedor"
+                    id="agregarCodigoMateriaPrima"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
                       height="16"
                       fill="currentColor"
-                      class="bi bi-search"
+                      className="bi bi-search"
                       viewBox="0 0 16 16"
                     >
                       <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
@@ -75,9 +163,47 @@ const AgregarSalidaStock = () => {
                 </div>
               </div>
             </div>
-            <div class="table-responsive mt-4">
-              <table class="table text-center">
-                <thead class="table-success ">
+          </div>
+
+          <div className="mb-3 row">
+            <label
+              htmlFor="codigo-materia-prima"
+              className="col-sm-2 col-form-label"
+            >
+              Código de entrada
+            </label>
+            <div className="col-md-3">
+              <div className="input-group">
+                <input
+                  type="text"
+                  name="codEntSto"
+                  value={codEntSto}
+                  className="form-control"
+                  onChange={handledForm}
+                />
+                <div className="input-group-append">
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    id="agregarCodigoProveedor"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      className="bi bi-search"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="table-responsive mt-4">
+              <table className="table text-center">
+                <thead className="table-success ">
                   <tr>
                     <th scope="col">Cod. Ingreso</th>
                     <th scope="col">N° Ingreso</th>
@@ -93,17 +219,20 @@ const AgregarSalidaStock = () => {
                     <td>24/01/2023</td>
                     <td>200 kg</td>
                     <td>
-                      <div class="form-check">
+                      {/* <div className="form-check">
                         <input
-                          class="form-check-input"
+                          className="form-check-input"
                           type="checkbox"
                           value=""
                           id="flexCheckDefault"
                         />
-                        <div class="form-check-label" for="flexCheckDefault">
-                            <input class="form-control" type="number" />
+                        <div
+                          className="form-check-label"
+                          htmlFor="flexCheckDefault"
+                        >
+                          <input className="form-control" type="number" />
                         </div>
-                      </div>
+                      </div> */}
                     </td>
                   </tr>
                   <tr>
@@ -112,17 +241,20 @@ const AgregarSalidaStock = () => {
                     <td>24/01/2023</td>
                     <td>200 kg</td>
                     <td>
-                      <div class="form-check">
+                      {/* <div className="form-check">
                         <input
-                          class="form-check-input"
+                          className="form-check-input"
                           type="checkbox"
                           value=""
                           id="flexCheckDefault"
                         />
-                        <div class="form-check-label" for="flexCheckDefault">
-                            <input class="form-control" type="number" />
+                        <div
+                          className="form-check-label"
+                          htmlFor="flexCheckDefault"
+                        >
+                          <input className="form-control" type="number" />
                         </div>
-                      </div>
+                      </div> */}
                     </td>
                   </tr>
                 </tbody>
@@ -130,49 +262,58 @@ const AgregarSalidaStock = () => {
             </div>
           </div>
 
-          <div class="mb-3 row">
-            <label for="fecha-salida-stock" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label
+              htmlFor="fecha-salida-stock"
+              className="col-sm-2 col-form-label"
+            >
               Fecha de salida
             </label>
-            <div class="col-md-3">
+            <div className="col-md-3">
               <FechaPicker />
             </div>
-            <div class="col-md-3">
+            <div className="col-md-3">
               <HoraPicker />
             </div>
           </div>
 
-          <div class="mb-3 row">
-            <label for="documento-salida" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label
+              htmlFor="documento-salida"
+              className="col-sm-2 col-form-label"
+            >
               Documento
             </label>
-            <div class="col-md-3">
+            <div className="col-md-3">
               <input
                 type="text"
-                name="documentoSalida"
-                readonly
-                class="form-control"
-                id="documento-salida"
+                name="docSalSto"
+                value={docSalSto}
+                className="form-control"
+                onChange={handledForm}
               />
             </div>
           </div>
 
-          <div class="mb-3 row">
-            <label for="cantidad-salida" class="col-sm-2 col-form-label">
+          <div className="mb-3 row">
+            <label
+              htmlFor="cantidad-salida"
+              className="col-sm-2 col-form-label"
+            >
               Cantidad Salida
             </label>
-            <div class="col-md-2">
+            <div className="col-md-2">
               <input
                 type="number"
                 name="cantidadSalida"
-                readonly
-                class="form-control"
-                id="cantidad-salida"
+                value={canSalReqMol}
+                className="form-control"
+                onChange={handledForm}
               />
             </div>
           </div>
-          <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">
+          <div className="d-flex justify-content-end">
+            <button type="submit" className="btn btn-primary">
               Guardar
             </button>
           </div>
