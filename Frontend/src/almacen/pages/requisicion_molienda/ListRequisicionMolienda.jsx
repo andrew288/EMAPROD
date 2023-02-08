@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 // IMPORTACIONES PARA TABLE MUI
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -27,6 +27,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export const ListRequisicionMolienda = () => {
+  const refTable = useRef();
   // ESTADOS PARA LOS FILTROS PERSONALIZADOS
   const [dataRequisicion, setdataRequisicion] = useState([]);
   const [dataRequisicionTemp, setdataRequisicionTemp] = useState([]);
@@ -68,6 +69,17 @@ export const ListRequisicionMolienda = () => {
     setdataRequisicionTemp(resultPeticion);
   };
 
+  // MOSTRAR Y OCULTAR DETALLE DE REQUISICION MOLIENDA
+  const showHiddenRequisicionMoliendaDetalle = (idPosElement) => {
+    let requisicionDetalleIndex =
+      refTable.current.children[idPosElement * 2 + 1];
+    if (requisicionDetalleIndex.hidden) {
+      requisicionDetalleIndex.hidden = false;
+    } else {
+      requisicionDetalleIndex.hidden = true;
+    }
+  };
+
   // TRAEMOS LA DATA ANTES DE QUE SE RENDERICE EL COMPONENTE
   useEffect(() => {
     obtenerDataRequisicionMolienda();
@@ -94,8 +106,8 @@ export const ListRequisicionMolienda = () => {
                 <th>Acciones</th>
               </tr>
             </thead>
-            <tbody>
-              {dataRequisicionTemp.map((row) => (
+            <tbody ref={refTable}>
+              {dataRequisicionTemp.map((row, i) => (
                 <>
                   <tr key={row.id}>
                     <td>{row.codLotReqMol}</td>
@@ -107,7 +119,12 @@ export const ListRequisicionMolienda = () => {
                     <td>{row.desReqMolEst}</td>
                     <td>
                       <div className="btn-toolbar">
-                        <button className="btn btn-primary me-2">
+                        <button
+                          onClick={() => {
+                            showHiddenRequisicionMoliendaDetalle(i);
+                          }}
+                          className="btn btn-primary me-2"
+                        >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="16"
@@ -120,7 +137,14 @@ export const ListRequisicionMolienda = () => {
                             <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
                           </svg>
                         </button>
-                        <button className="btn btn-success">
+                        <button
+                          disabled={
+                            row.idReqMolEst == 2 || row.idReqMolEst == 3
+                              ? true
+                              : false
+                          }
+                          className="btn btn-success"
+                        >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="16"
@@ -135,8 +159,8 @@ export const ListRequisicionMolienda = () => {
                       </div>
                     </td>
                   </tr>
-                  <tr key={row.codLotReqMol}>
-                    <td colSpan={6} hidden={false}>
+                  <tr key={row.codLotReqMol} hidden={true}>
+                    <td colSpan={6}>
                       <div>
                         <table className="table">
                           <thead>
@@ -144,6 +168,7 @@ export const ListRequisicionMolienda = () => {
                               <th>Codigo</th>
                               <th>Nombre</th>
                               <th>Cantidad</th>
+                              <th>Estado</th>
                               <th>Acciones</th>
                             </tr>
                           </thead>
@@ -153,10 +178,17 @@ export const ListRequisicionMolienda = () => {
                                 <td>{row_item.codMatPri}</td>
                                 <td>{row_item.nomMatPri}</td>
                                 <td>{row_item.canReqMolDet}</td>
+                                <td>{row_item.desReqMolDetEst}</td>
                                 <td>
                                   <div className="btn-toolbar">
                                     <Link
-                                      to={`/almacen/salidas-stock/crear?idReqMol=${row_item.id}`}
+                                      style={{
+                                        pointerEvents:
+                                          row_item.idReqMolDetEst == 2
+                                            ? "none"
+                                            : "",
+                                      }}
+                                      to={`/almacen/salidas-stock/crear?idReqMolDet=${row_item.id}`}
                                       className="btn btn-warning me-2"
                                     >
                                       <svg
@@ -175,7 +207,14 @@ export const ListRequisicionMolienda = () => {
                                         <path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1z" />
                                       </svg>
                                     </Link>
-                                    <button className="btn btn-success me-2">
+                                    <button
+                                      disabled={
+                                        row_item.idReqMolDetEst == 2
+                                          ? true
+                                          : false
+                                      }
+                                      className="btn btn-success me-2"
+                                    >
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="16"

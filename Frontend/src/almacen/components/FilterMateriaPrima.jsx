@@ -12,6 +12,7 @@ export const FilterMateriaPrima = ({ onNewInput }) => {
       return {
         value: element.codMatPri,
         label: element.nomMatPri,
+        id: element.id,
       };
     });
     setResult(formatSelect);
@@ -21,7 +22,7 @@ export const FilterMateriaPrima = ({ onNewInput }) => {
     obtenerDataMateriPrima();
   }, []);
 
-  const handledChange = ({ value }) => {
+  const handledChange = (value) => {
     onNewInput(value);
   };
 

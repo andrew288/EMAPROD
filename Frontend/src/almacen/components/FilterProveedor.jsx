@@ -12,6 +12,7 @@ export const FilterProveedor = ({ onNewInput }) => {
       return {
         value: element.codPro,
         label: `${element.nomPro} ${element.apePro}`,
+        id: element.id,
       };
     });
     setResult(formatSelect);
@@ -21,7 +22,7 @@ export const FilterProveedor = ({ onNewInput }) => {
     obtenerDataMateriPrima();
   }, []);
 
-  const handledChange = ({ value }) => {
+  const handledChange = (value) => {
     onNewInput(value);
   };
 

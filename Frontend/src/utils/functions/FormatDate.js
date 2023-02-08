@@ -18,6 +18,40 @@ const esBisiesto = (year) => {
             yearValue % 4 === 0;
 }
 
+const letraAnio = (fecha) => {
+    const fechaExtraida = fecha.split(" ", 1)[0].split("-");
+    const anio = parseInt(fechaExtraida[0]);
+    const mes = parseInt(fechaExtraida[1], 10);
+    const dia = parseInt(fechaExtraida[2], 10);
+
+    // DESESTRUCTURAMOS LA FECHA EN SUS CORRESPONDIENTES UNIDADES
+    const unidades = (anio % 10);
+    let letraAlfabeto = "";
+    switch (unidades) {
+        case 1: letraAlfabeto = "A"
+            break;
+        case 2: letraAlfabeto = "B"
+            break;
+        case 3: letraAlfabeto = "C"
+            break;
+        case 4: letraAlfabeto = "D"
+            break;
+        case 5: letraAlfabeto = "E"
+            break;
+        case 6: letraAlfabeto = "F"
+            break;
+        case 7: letraAlfabeto = "G"
+            break;
+        case 8: letraAlfabeto = "H"
+            break;
+        case 9: letraAlfabeto = "I"
+            break;
+        case 0: letraAlfabeto = "J"
+            break;
+    }
+    return letraAlfabeto;
+}
+
 const DiaJuliano = (fecha) => {
     const fechaExtraida = fecha.split(" ", 1)[0].split("-");
     const anio = fechaExtraida[0];
@@ -52,4 +86,4 @@ const DiaJuliano = (fecha) => {
 
 }
 
-export { FormatDateTimeMYSQL, FormatDateTimeMYSQLNow, DiaJuliano };
+export { FormatDateTimeMYSQL, FormatDateTimeMYSQLNow, DiaJuliano, letraAnio };

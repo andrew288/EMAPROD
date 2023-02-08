@@ -11,7 +11,7 @@ export const FilterFormula = ({ onNewInput }) => {
     const formatSelect = result.map((element) => {
       return {
         value: element.id, //ID DE LA FORMULA
-        label: element.nomFor + " " + element.nomProd, // NOMBRE DE LA FORMULA Y PRODUCTO
+        label: element.nomFor, // NOMBRE DE LA FORMULA Y PRODUCTO
       };
     });
     setResult(formatSelect);

@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-export const getRequisicionMoliendaDetalleById = async (id) => {
+export const getEntradasDisponibles = async (id) => {
     const domain = 'http://localhost/EMAPROD/Backend';
-    const path = '/almacen/requisicion-molienda/get_requisicion_molienda_detalle_by_id.php';
+    const path = '/almacen/salidas_stock/getEntradasDisponiblesByMatPri.php';
     const url = domain + path;
 
     const { data } = await axios.post(url, {
-        id,
+        idMatPri: id,
     });
     return data;
 }
