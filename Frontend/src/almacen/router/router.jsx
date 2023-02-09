@@ -1,13 +1,11 @@
 import HomeAlmacen from "./../pages/HomeAlmacen";
-import LayoutMateriaPrima from "./../../layout/materiaPrima/LayoutMateriaPrima";
-import LayoutProveedor from "./../../layout/proveedor/LayoutProveedor";
-import LayoutEntradaStock from "./../../layout/entradaStock/LayoutEntradaStock";
-import LayoutSalidaStock from "./../../layout/salidaStock/LayoutSalidaStock";
 import { RouterAlmacenEntradaStock } from "./../pages/entradasStock/RouterAlmacenEntradas";
 import { RouterAlmacenMateriaPrima } from "./../pages/materiaPrima/RouterAlmacenMateriaPrima";
 import { RouterAlmacenProveedor } from "./../pages/proveedor/RouterAlmacenProveedor";
 import { RouterAlmacenSalidasStock } from "./../pages/salidasStocks/RouterAlmacenSalida";
 import { RouterRequisicionMolienda } from "./../pages/requisicion_molienda/RouterRequisicionMolienda";
+import LayoutModulo from "./../../layout/LayoutModulo";
+import { RouterRequisicionSeleccion } from "./../pages/requisicion_seleccion/RouterRequisicionSeleccion";
 
 export const RouterAlmacen = [
   {
@@ -16,27 +14,32 @@ export const RouterAlmacen = [
   },
   {
     path: "materia-prima",
-    element: <LayoutMateriaPrima />,
+    element: <LayoutModulo />,
     children: RouterAlmacenMateriaPrima,
   },
   {
     path: "proveedor",
-    element: <LayoutProveedor />,
+    element: <LayoutModulo />,
     children: RouterAlmacenProveedor,
   },
   {
     path: "entradas-stock",
-    element: <LayoutEntradaStock />,
+    element: <LayoutModulo />,
     children: RouterAlmacenEntradaStock,
   },
   {
     path: "salidas-stock",
-    element: <LayoutSalidaStock />,
+    element: <LayoutModulo />,
     children: RouterAlmacenSalidasStock,
   },
   {
     path: "requisicion-molienda",
-    element: <LayoutSalidaStock />,
+    element: <LayoutModulo />,
     children: RouterRequisicionMolienda,
+  },
+  {
+    path: "requisicion-seleccion",
+    element: <LayoutModulo />,
+    children: RouterRequisicionSeleccion,
   },
 ];

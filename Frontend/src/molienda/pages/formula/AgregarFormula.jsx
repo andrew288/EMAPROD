@@ -100,7 +100,7 @@ export const AgregarFormula = () => {
     if (idMateriaPrima !== 0 && cantidadMateriaPrima > 0) {
       // PRIMERO VERIFICAMOS SI EXISTE ALGUNA COINCIDENCIA DE LO INGRESADO
       const itemFound = forDet.find(
-        (elemento) => elemento.id === idMateriaPrima
+        (elemento) => elemento.idMatPri === idMateriaPrima
       );
       if (itemFound) {
         setfeedbackMessages({
@@ -115,7 +115,7 @@ export const AgregarFormula = () => {
 
         // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
         const detalleFormulaMateriaPrima = {
-          id: id,
+          idMatPri: id,
           codMatPri: codMatPri,
           nomMatPri: nomMatPri,
           simMed: simMed,
@@ -142,8 +142,8 @@ export const AgregarFormula = () => {
   const deleteDetalleMateriaPrima = (idItem) => {
     // FILTRAMOS EL ELEMENTO ELIMINADO
     const nuevaDataDetalleFormulario = forDet.filter((element) => {
-      if (element.id !== idItem) {
-        return element;
+      if (element.idMatPri !== idItem) {
+        return true;
       } else {
         return false;
       }
@@ -380,7 +380,7 @@ export const AgregarFormula = () => {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => (
                       <TableRow
-                        key={row.id}
+                        key={row.idMatPri}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
@@ -396,7 +396,7 @@ export const AgregarFormula = () => {
                           <div className="btn-toolbar">
                             <button
                               onClick={() => {
-                                deleteDetalleMateriaPrima(row.id);
+                                deleteDetalleMateriaPrima(row.idMatPri);
                               }}
                               className="btn btn-danger"
                             >

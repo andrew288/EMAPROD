@@ -11,12 +11,10 @@ $description_error = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
-    $idProd = $data["idProd"];
-    $idReqMolEst = $data["idReqMolEst"];
-    $codLotReqMol = $data["codLotReqMol"];
-    $canLotReqMol = $data["canLotReqMol"];
-    $klgLotReqMol = $data["klgLotReqMol"];
-    $reqMolDet = $data["reqMolDet"];
+    $idReqSelEst = $data["idReqSelEst"];
+    $codReqSel = $data["codReqSel"];
+    $canReqSel = $data["canReqSel"];
+    $reqSelDet = $data["reqSelDet"];
     $idLastInsertion = 0;
 
     if ($pdo) {
@@ -25,9 +23,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             2.- OTHER RULES
         */
         $year = date("Y"); // obtenemos el año actual
-        $sql = "SELECT * FROM requisicion_molienda WHERE codLotReqMol=? AND fecPedReqMol REGEXP '^$year-*'";
+        $sql = "SELECT * FROM requisicion_seleccion WHERE codReqSel=? AND fecPedReqSel REGEXP '^$year-*'";
         $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(1, $codLotReqMol, PDO::PARAM_STR);
+        $stmt->bindParam(1, $codReqSel, PDO::PARAM_STR);
         $stmt->execute();
         $countRows = $stmt->rowCount();
         if ($countRows > 0) {
@@ -36,15 +34,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $sql =
                 "INSERT INTO
-                requisicion_molienda
-                (idProd, idReqMolEst, codLotReqMol, canLotReqMol, klgLotReqMol)
-                VALUES (?,?,?,'$canLotReqMol','$klgLotReqMol');
+                requisicion_seleccion
+                (idReqSelEst, codReqSel, canReqSel)
+                VALUES (?,?,$canReqSel);
                 ";
             // PREPARAMOS LA CONSULTA
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(1, $idProd, PDO::PARAM_INT);
-            $stmt->bindParam(2, $idReqMolEst, PDO::PARAM_INT);
-            $stmt->bindParam(3, $codLotReqMol, PDO::PARAM_STR);
+            $stmt->bindParam(1, $idReqSelEst, PDO::PARAM_INT);
+            $stmt->bindParam(2, $codReqSel, PDO::PARAM_INT);
 
             try {
                 $pdo->beginTransaction();
@@ -59,24 +56,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($idLastInsertion != 0) {
                 $sql_detalle = "";
-                $idReqMolDetEst = 1; // ESTADO REQUERIDO
+                $idReqSelDetEst = 1; // ESTADO REQUERIDO
                 try {
                     // COMENZAMOS LA TRANSACCION
                     $pdo->beginTransaction();
-                    foreach ($reqMolDet as $fila) {
+                    foreach ($reqSelDet as $fila) {
                         // EXTRAEMOS LOS VALORES
                         $idMatPri = $fila["idMatPri"];
                         $canMatPriReq = $fila["canMatPriFor"];
 
                         // CREAMOS LA SENTENCIA
                         $sql_detalle = "INSERT INTO 
-                            requisicion_molienda_detalle (idReqMol, idMatPri, idReqMolDetEst, canReqMolDet) 
+                            requisicion_seleccion_detalle (idReqSel, idMatPri, idReqSelDetEst, canReqSelDet) 
                             VALUES (?, ?, ?, $canMatPriReq);";
                         // PREPARAMOS LA CONSULTA
                         $stmt_detalle = $pdo->prepare($sql_detalle);
                         $stmt_detalle->bindParam(1, $idLastInsertion, PDO::PARAM_INT);
                         $stmt_detalle->bindParam(2, $idMatPri, PDO::PARAM_INT);
-                        $stmt_detalle->bindParam(3, $idReqMolDetEst, PDO::PARAM_INT);
+                        $stmt_detalle->bindParam(3, $idReqSelDetEst, PDO::PARAM_INT);
                         // EJECUTAMOS LA CONSULTA
                         $stmt_detalle->execute();
                         $sql_detalle = "";

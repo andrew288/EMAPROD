@@ -81,7 +81,9 @@ const Home = () => {
                     <i className="bi bi-collection"></i>
                   </div>
                   <h2 className="fs-4 fw-bold">Selección</h2>
-                  <button className="btn  btn-primary">Ingresar</button>
+                  <Link to="seleccion" className="btn  btn-primary">
+                    Ingresar
+                  </Link>
                 </div>
               </div>
             </div>

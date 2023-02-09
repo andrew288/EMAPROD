@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-const LayoutProveedor = () => {
+const LayoutModulo = () => {
   return (
     <main>
       <Outlet />
@@ -9,4 +9,4 @@ const LayoutProveedor = () => {
   );
 };
 
-export default LayoutProveedor;
+export default LayoutModulo;

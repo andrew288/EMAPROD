@@ -12,45 +12,25 @@ import TablePagination from "@mui/material/TablePagination";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
-import { FilterMateriaPrimaWhitId } from "./../../components/FilterMateriaPrimaWhitId";
-import { FilterProducto } from "./../../components/FilterProducto";
-import { FilterFormula } from "./../../components/FilterFormula";
-import { getFormulaWithDetalleById } from "./../../helpers/formula/getFormulaWithDetalleById";
+import { FilterMateriaPrimaSeleccionWhitId } from "./../../components/FilterMateriaPrimaSeleccionWhitId";
 import { getMateriaPrimaById } from "./../../../almacen/helpers/materia-prima/getMateriaPrimaById";
-import { createRequisicionWithDetalle } from "./../../helpers/requisicion/createRequisicionWithDetalle";
+import { createRequisicionSeleccionWithDetalle } from "./../../helpers/requisicion/createRequisicionSeleccionWithDetalle";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
-
-export const AgregarRequisicionMolienda = () => {
+export const AgregarRequisicionSeleccion = () => {
   const refTable = useRef();
-  // ESTADO PARA LOS DATOS DEL FILTRO POR FORMULA
-  const [formula, setformula] = useState({
-    idFormula: 0,
-  });
 
-  const { idFormula } = formula;
   // ESTADOS PARA LOS DATOS DE REQUISICION
   const [requisicion, setRequisicion] = useState({
-    codLotReqMol: "",
-    idProd: 0,
-    nomProd: "",
-    canLotReqMol: 1,
-    klgLotReqMol: 0,
-    idReqMolEst: 1,
-    reqMolDet: [], // DETALLE DE REQUISICION MOLIENDA
+    codReqSel: "",
+    canReqSel: 1,
+    idReqSelEst: 1,
+    reqSelDet: [], // DETALLE DE REQUISICION MOLIENDA
   });
-  const {
-    codLotReqMol,
-    idProd,
-    nomProd,
-    canLotReqMol,
-    klgLotReqMol,
-    idReqMolEst,
-    reqMolDet,
-  } = requisicion;
+  const { codReqSel, canReqSel, idReqSelEst, reqSelDet } = requisicion;
 
   // ESTADOS PARA DATOS DE DETALLE FORMULA (DETALLE)
   const [materiaPrimaDetalle, setmateriaPrimaDetalle] = useState({
@@ -110,15 +90,6 @@ export const AgregarRequisicionMolienda = () => {
     });
   };
 
-  // EVENTO DE ASOCIAR FORMULA A UN PRODUCTO
-  const onAddProducto = ({ value, label }) => {
-    setRequisicion({
-      ...requisicion,
-      idProd: value,
-      nomProd: label,
-    });
-  };
-
   // MANEJADOR DE AGREGAR MATERIA PRIMA A DETALLE DE FORMULA
   const onMateriaPrimaId = (value) => {
     setmateriaPrimaDetalle({
@@ -138,7 +109,7 @@ export const AgregarRequisicionMolienda = () => {
   // ELIMINAR DETALLE DE REQUISICION
   const deleteDetalleRequisicion = (idItem) => {
     // FILTRAMOS EL ELEMENTO ELIMINADO
-    const nuevaDataDetalleRequisicion = reqMolDet.filter((element) => {
+    const nuevaDataDetalleRequisicion = reqSelDet.filter((element) => {
       if (element.idMatPri !== idItem) {
         return element;
       } else {
@@ -149,7 +120,7 @@ export const AgregarRequisicionMolienda = () => {
     // VOLVEMOS A SETEAR LA DATA
     setRequisicion({
       ...requisicion,
-      reqMolDet: nuevaDataDetalleRequisicion,
+      reqSelDet: nuevaDataDetalleRequisicion,
     });
   };
 
@@ -169,13 +140,13 @@ export const AgregarRequisicionMolienda = () => {
   // MANEJADOR PARA ACTUALIZAR REQUISICION
   const handledFormularioDetalle = ({ target }, index) => {
     const { value } = target;
-    let editFormDetalle = [...reqMolDet];
-    const aux = { ...reqMolDet[index], canMatPriFor: value };
+    let editFormDetalle = [...reqSelDet];
+    const aux = { ...reqSelDet[index], canMatPriFor: value };
     editFormDetalle[index] = aux;
 
     setRequisicion({
       ...requisicion,
-      reqMolDet: editFormDetalle,
+      reqSelDet: editFormDetalle,
     });
   };
 
@@ -183,7 +154,7 @@ export const AgregarRequisicionMolienda = () => {
   const crearRequisicion = async () => {
     console.log(requisicion);
     const { message_error, description_error } =
-      await createRequisicionWithDetalle(requisicion);
+      await createRequisicionSeleccionWithDetalle(requisicion);
 
     if (message_error.length === 0) {
       console.log("Se creo exitosamente");
@@ -206,7 +177,7 @@ export const AgregarRequisicionMolienda = () => {
   // SUBMIT FORMULARIO DE REQUISICION (M-D)
   const handleSubmitRequisicion = (e) => {
     e.preventDefault();
-    if (codLotReqMol.length === 0 || idProd === 0 || reqMolDet.length === 0) {
+    if (codReqSel.length === 0 || reqSelDet.length === 0) {
       setfeedbackMessages({
         style_message: "warning",
         feedback_description_error:
@@ -214,45 +185,11 @@ export const AgregarRequisicionMolienda = () => {
       });
       handleClickFeeback();
     } else {
-      setdisableButton(true);
+      // setdisableButton(true);
       // LLAMAMOS A LA FUNCION CREAR REQUISICION
       crearRequisicion();
       // RESETEAMOS LOS VALORES
     }
-  };
-
-  // FUNCION ASINCRONA PARA TRAER A LA FORMULA Y SUS DETALLES
-  const traerDatosFormulaDetalle = async () => {
-    const { result } = await getFormulaWithDetalleById(idFormula);
-    const { desFor, forDet, idProd, lotKgrFor, nomFor, nomProd } = result;
-    setRequisicion({
-      ...requisicion,
-      idProd: idProd,
-      nomProd: nomProd,
-      reqMolDet: forDet,
-      klgLotReqMol: lotKgrFor,
-    });
-  };
-  // MANEJADOR COMPLETAR FORMULARIO SEGUN FORMULA
-  const handleCompleteFormFormula = (e) => {
-    e.preventDefault();
-    if (idFormula === 0) {
-      setfeedbackMessages({
-        style_message: "warning",
-        feedback_description_error: "Escoge una formula",
-      });
-      handleClickFeeback();
-    } else {
-      traerDatosFormulaDetalle();
-    }
-  };
-
-  // FILTER POR FORMULA
-  const onFilterFormula = (valueId) => {
-    setformula({
-      ...formula,
-      idFormula: valueId,
-    });
   };
 
   // AGREGAR MATERIA PRIMA A DETALLE DE REQUISICION
@@ -262,7 +199,7 @@ export const AgregarRequisicionMolienda = () => {
     // PRIMERO VERIFICAMOS QUE LOS INPUTS TENGAN DATOS
     if (idMateriaPrima !== 0 && cantidadMateriaPrima > 0) {
       // PRIMERO VERIFICAMOS SI EXISTE ALGUNA COINCIDENCIA DE LO INGRESADO
-      const itemFound = reqMolDet.find(
+      const itemFound = reqSelDet.find(
         (elemento) => elemento.idMatPri === idMateriaPrima
       );
       if (itemFound) {
@@ -275,7 +212,6 @@ export const AgregarRequisicionMolienda = () => {
         // HACEMOS UNA CONSULTA A LA MATERIA PRIMA Y DESESTRUCTURAMOS
         const result = await getMateriaPrimaById(idMateriaPrima);
         const { id, codMatPri, nomMatPri, simMed } = result[0];
-
         // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
         const detalleFormulaMateriaPrima = {
           idMatPri: id,
@@ -284,15 +220,14 @@ export const AgregarRequisicionMolienda = () => {
           simMed: simMed,
           canMatPriFor: cantidadMateriaPrima,
         };
-
         // SETEAMOS SU ESTADO PARA QUE PUEDA SER MOSTRADO EN LA TABLA DE DETALLE
         const dataMateriaPrimaDetalle = [
-          ...reqMolDet,
+          ...reqSelDet,
           detalleFormulaMateriaPrima,
         ];
         setRequisicion({
           ...requisicion,
-          reqMolDet: dataMateriaPrimaDetalle,
+          reqSelDet: dataMateriaPrimaDetalle,
         });
       }
     } else {
@@ -308,37 +243,6 @@ export const AgregarRequisicionMolienda = () => {
     <>
       <div className="container">
         <h1 className="mt-4 text-center">Agregar Requisicion</h1>
-        <div className=" container mt-4">
-          <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
-            {/* FILTRO POR FORMULA */}
-            <div className="col-md-5">
-              <label htmlFor="inputPassword4" className="form-label">
-                Formula
-              </label>
-              <FilterFormula onNewInput={onFilterFormula} />
-            </div>
-            {/* BOTON AGREGAR DATOS FORMULA */}
-            <div className="col-md-3 d-flex justify-content-end ms-auto">
-              <button
-                // onClick={handleAddNewMateriPrimaDetalle}
-                onClick={handleCompleteFormFormula}
-                className="btn btn-primary"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-plus-circle-fill me-2"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
-                </svg>
-                Agregar
-              </button>
-            </div>
-          </form>
-        </div>
         <form className="mt-4">
           {/* NUMERO DE LOTE */}
           <div className="mb-3 row">
@@ -348,30 +252,11 @@ export const AgregarRequisicionMolienda = () => {
             <div className="col-md-2">
               <input
                 type="text"
-                name="codLotReqMol"
+                name="codReqSel"
                 onChange={handledForm}
-                value={codLotReqMol}
+                value={codReqSel}
                 className="form-control"
               />
-            </div>
-          </div>
-          {/* PRODUCTO */}
-          <div className="mb-3 row">
-            <label htmlFor="nombre" className="col-sm-2 col-form-label">
-              Producto
-            </label>
-            <div className="col-md-3">
-              <input
-                type="text"
-                name="nomProd"
-                // onChange={handledForm}
-                value={nomProd}
-                className="form-control"
-                readOnly
-              />
-            </div>
-            <div className="col-md-3">
-              <FilterProducto onNewInput={onAddProducto} />
             </div>
           </div>
           {/* CANTIDAD REQUISICION */}
@@ -382,24 +267,9 @@ export const AgregarRequisicionMolienda = () => {
             <div className="col-md-2">
               <input
                 type="number"
-                name="canLotReqMol"
+                name="canReqSel"
                 onChange={handledForm}
-                value={canLotReqMol}
-                className="form-control"
-              />
-            </div>
-          </div>
-          {/* KILOGRAMOS POR LOTE */}
-          <div className="mb-3 row">
-            <label htmlFor="stock" className="col-sm-2 col-form-label">
-              Kilogramos de lote
-            </label>
-            <div className="col-md-2">
-              <input
-                type="number"
-                name="klgLotReqMol"
-                onChange={handledForm}
-                value={klgLotReqMol}
+                value={canReqSel}
                 className="form-control"
               />
             </div>
@@ -414,7 +284,9 @@ export const AgregarRequisicionMolienda = () => {
               <label htmlFor="inputPassword4" className="form-label">
                 Materia Prima
               </label>
-              <FilterMateriaPrimaWhitId onNewInput={onMateriaPrimaId} />
+              <FilterMateriaPrimaSeleccionWhitId
+                onNewInput={onMateriaPrimaId}
+              />
             </div>
 
             {/* AGREGAR CANTIDAD*/}
@@ -474,7 +346,7 @@ export const AgregarRequisicionMolienda = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody ref={refTable}>
-                  {reqMolDet
+                  {reqSelDet
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row, i) => (
                       <TableRow
@@ -547,7 +419,7 @@ export const AgregarRequisicionMolienda = () => {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={reqMolDet.length}
+              count={reqSelDet.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}

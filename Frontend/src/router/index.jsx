@@ -4,9 +4,10 @@ import Home from "../home/pages/Home";
 import NotFound from "../pages/NotFound";
 import LayoutAlmacenNav from "./../layout/LayoutAlmacenNav";
 import LayoutMoliendaNav from "./../layout/LayoutMoliendaNav";
-import HomeMolienda from "../molienda/pages/HomeMolienda";
 import { RouterAlmacen } from "../almacen/router/router";
 import { RouterMolienda } from "./../molienda/router/router";
+import LayoutSeleccionNav from "./../layout/LayoutSeleccionNav";
+import { RouterSeleccion } from "./../seleccion/router/router";
 
 export const router = createBrowserRouter([
   {
@@ -23,5 +24,10 @@ export const router = createBrowserRouter([
     path: "molienda",
     element: <LayoutMoliendaNav />,
     children: RouterMolienda,
+  },
+  {
+    path: "seleccion",
+    element: <LayoutSeleccionNav />,
+    children: RouterSeleccion,
   },
 ]);

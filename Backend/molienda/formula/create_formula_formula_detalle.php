@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $pdo->beginTransaction();
                 foreach ($forDet as $fila) {
                     // EXTRAEMOS LOS VALORES
-                    $idMatPri = $fila["id"];
+                    $idMatPri = $fila["idMatPri"];
                     $canMatPriFor = $fila["cantidad"];
 
                     // CREAMOS LA SENTENCIA
