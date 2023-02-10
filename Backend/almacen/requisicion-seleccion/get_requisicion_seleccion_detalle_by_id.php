@@ -9,49 +9,49 @@ $message_error = "";
 $description_error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
-
-    $idMatPri = $data["idMatPri"]; // ID DE LA MATERIA PRIMA
+    $idReqSelDet = $data["id"];
 
     if ($pdo) {
         $sql =
             "SELECT
-            es.id,
-            es.codEntSto,
-            es.refNumIngEntSto,
-            DATE(es.fecEntSto) AS fecEntSto,
-            es.canTotDis 
-        FROM entrada_stock AS es
-        WHERE idMatPri = ? AND idEntStoEst = ? AND canTotDis <> 0.00
-        ORDER BY es.refNumIngEntSto DESC
-        ";
-        //Preparamos la consulta
+            rsd.id,
+            rsd.idMatPri,
+            rsd.idReqSel,
+            rs.codReqSel,
+            mp.nomMatPri,
+            mp.codMatPri,
+            rsd.idReqSelDetEst,
+            rsde.desReqSelDetEst,
+            rsd.canReqSelDet
+            FROM requisicion_seleccion_detalle as rsd
+            JOIN materia_prima as mp on mp.id = rsd.idMatPri
+            JOIN requisicion_seleccion_detalle_estado as rsde on rsde.id = rsd.idReqSelDetEst
+            JOIN requisicion_seleccion as rs on rs.id = rsd.idreqSel
+            WHERE rsd.id = ?
+            ";
+        // PREPARAMOS LA CONSULTA
         $stmt = $pdo->prepare($sql);
-
-        $idEntStoEst = 1; // ESTADO DISPONIBLE DE LAS ENTRADAS
-
-        $stmt->bindParam(1, $idMatPri, PDO::PARAM_INT);
-        $stmt->bindParam(2, $idEntStoEst, PDO::PARAM_INT);
-
-        // Comprobamos la respuesta
+        $stmt->bindParam(1, $idReqSelDet, PDO::PARAM_INT);
         try {
             $stmt->execute();
-
-            // Recorremos los resultados
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                array_push($result, $row);
-            }
         } catch (Exception $e) {
             $message_error = "ERROR INTERNO SERVER";
             $description_error = $e->getMessage();
         }
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            array_push($result, $row);
+        }
+
+        // DESCOMENTAR PARA VER LA DATA DE LA CONSULTA Y REALIZAR CAMBIOS
+        // print_r($result);
     } else {
-        // No se pudo realizar la conexion a la base de datos
         $message_error = "Error con la conexion a la base de datos";
         $description_error = "Error con la conexion a la base de datos a traves de PDO";
     }
-
     // Retornamos el resultado
     $return['message_error'] = $message_error;
     $return['description_error'] = $description_error;

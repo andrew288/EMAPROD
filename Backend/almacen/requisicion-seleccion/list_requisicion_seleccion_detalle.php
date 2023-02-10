@@ -13,23 +13,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
 
-    $data_requsicion_molienda = [];
+    $data_requisicion_seleccion = [];
 
     if ($pdo) {
         $sql =
             "SELECT
-            rm.id,
-            rm.idProd,
-            p.nomProd,
-            rm.idReqMolEst,
-            rme.desReqMolEst,
-            rm.codLotReqMol,
-            rm.canLotReqMol,
-            rm.klgLotReqMol,
-            DATE(rm.fecPedReqMol) as fecPedReqMol
-            FROM requisicion_molienda rm
-            JOIN producto as p on p.id = rm.idProd
-            JOIN requisicion_molienda_estado as rme on rme.id = rm.idReqMolEst
+            rs.id,
+            rs.idReqSelEst,
+            rse.desReqSelEst,
+            rs.codReqSel,
+            rs.canReqSel,
+            DATE(rs.fecPedReqSel) as fecPedReqSel
+            FROM requisicion_seleccion rs
+            JOIN requisicion_seleccion_estado as rse on rse.id = rs.idReqSelEst
             ";
         // PREPARAMOS LA CONSULTA
         $stmt = $pdo->prepare($sql);
@@ -42,25 +38,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql_detalle = "";
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $idReqMol = $row["id"];
-            $row["reqMolDet"] = [];
+            $idReqSel = $row["id"];
+            $row["reqSelDet"] = [];
 
             $sql_detalle =
                 "SELECT
-            rmd.id,
-            rmd.idMatPri,
+            rsd.id,
+            rsd.idReqSel,
+            rsd.idMatPri,
             mp.nomMatPri,
             mp.codMatPri,
-            rmd.idReqMolDetEst,
-            rmde.desReqMolDetEst,
-            rmd.canReqMolDet
-            FROM requisicion_molienda_detalle rmd
-            JOIN materia_prima as mp on mp.id = rmd.idMatPri
-            JOIN requisicion_molienda_detalle_estado as rmde on rmde.id = rmd.idReqMolDetEst
-            WHERE rmd.idReqMol = ?
+            rsd.idReqSelDetEst,
+            rsde.desReqSelDetEst,
+            rsd.canReqSelDet
+            FROM requisicion_seleccion_detalle rsd
+            JOIN materia_prima as mp on mp.id = rsd.idMatPri
+            JOIN requisicion_seleccion_detalle_estado as rsde on rsde.id = rsd.idReqSelDetEst
+            WHERE rsd.idReqSel = ?
             ";
             $stmt_detalle = $pdo->prepare($sql_detalle);
-            $stmt_detalle->bindParam(1, $idReqMol, PDO::PARAM_INT);
+            $stmt_detalle->bindParam(1, $idReqSel, PDO::PARAM_INT);
             try {
                 $stmt_detalle->execute();
             } catch (Exception $e) {
@@ -68,15 +65,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $description_error = $e->getMessage();
             }
             while ($row_detalle = $stmt_detalle->fetch(PDO::FETCH_ASSOC)) {
-                array_push($row["reqMolDet"], $row_detalle);
+                array_push($row["reqSelDet"], $row_detalle);
             }
             //AÑADIMOS TODA LA DATA FORMATEADA
-            array_push($data_requsicion_molienda, $row);
+            array_push($data_requisicion_seleccion, $row);
         }
         // DESCOMENTAR PARA VER LA DATA
-        //print_r($data_requsicion_molienda);
+        //print_r($data_requisicion_seleccion);
 
-        $result = $data_requsicion_molienda;
+        $result = $data_requisicion_seleccion;
     } else {
         $message_error = "Error con la conexion a la base de datos";
         $description_error = "Error con la conexion a la base de datos a traves de PDO";

@@ -12,27 +12,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
 
+    $idReqSel = $data["idReqSel"]; // ID DE LA REQ SEL
     $idMatPri = $data["idMatPri"]; // ID DE LA MATERIA PRIMA
 
     if ($pdo) {
         $sql =
             "SELECT
-            es.id,
+            ses.id,
+            ses.idEntSto,
+            ses.idMatPri,
             es.codEntSto,
+            es.canTotDis,
+            es.canPorSel,
+            es.canSel,
             es.refNumIngEntSto,
-            DATE(es.fecEntSto) AS fecEntSto,
-            es.canTotDis 
-        FROM entrada_stock AS es
-        WHERE idMatPri = ? AND idEntStoEst = ? AND canTotDis <> 0.00
-        ORDER BY es.refNumIngEntSto DESC
+            DATE(ses.fecSalStoReqSel) AS fecSalStoReqSel,
+            ses.canSalStoReqSel,
+            ses.canEntStoReqSel,
+            ses.merReqSel
+        FROM salida_entrada_seleccion AS ses
+        JOIN entrada_stock AS es ON es.id = ses.idEntSto
+        WHERE ses.idReqSel = ? AND ses.idMatPri = ? AND ses.idSalEntSelEst = ? AND ses.canSalStoReqSel <> 0.00
         ";
         //Preparamos la consulta
         $stmt = $pdo->prepare($sql);
 
-        $idEntStoEst = 1; // ESTADO DISPONIBLE DE LAS ENTRADAS
+        $idSalEntSelEst = 1; // ESTADO DE SALIDA COMPLETA
 
-        $stmt->bindParam(1, $idMatPri, PDO::PARAM_INT);
-        $stmt->bindParam(2, $idEntStoEst, PDO::PARAM_INT);
+        $stmt->bindParam(1, $idReqSel, PDO::PARAM_INT);
+        $stmt->bindParam(2, $idMatPri, PDO::PARAM_INT);
+        $stmt->bindParam(3, $idSalEntSelEst, PDO::PARAM_INT);
 
         // Comprobamos la respuesta
         try {

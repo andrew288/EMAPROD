@@ -21,9 +21,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             es.codEntSto,
             es.refNumIngEntSto,
             DATE(es.fecEntSto) AS fecEntSto,
-            es.canTotDis 
+            es.canTotDis,
+            es.canPorSel,
+            es.canSel 
         FROM entrada_stock AS es
-        WHERE idMatPri = ? AND idEntStoEst = ? AND canTotDis <> 0.00
+        WHERE idMatPri = ? AND idEntStoEst = ? AND canPorSel <> 0.00
         ORDER BY es.refNumIngEntSto DESC
         ";
         //Preparamos la consulta
