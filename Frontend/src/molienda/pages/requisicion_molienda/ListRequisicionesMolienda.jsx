@@ -1,5 +1,9 @@
 import React from "react";
 
 export const ListRequisicionesMolienda = () => {
-  return <></>;
+  return (
+    <>
+      <p>Requisicion molienda</p>
+    </>
+  );
 };

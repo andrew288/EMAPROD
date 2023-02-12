@@ -199,12 +199,13 @@ export const ListRequisicionSeleccion = () => {
                                       </svg>
                                     </Link>
                                     <Link
-                                      disabled={
-                                        row_item.idReqSelDetEst === 4 ||
-                                        row_item.idReqSelDetEst === 1
-                                          ? true
-                                          : false
-                                      }
+                                      style={{
+                                        pointerEvents:
+                                          row_item.idReqSelDetEst === 4 ||
+                                          row_item.idReqSelDetEst === 1
+                                            ? "none"
+                                            : "",
+                                      }}
                                       to={`/almacen/requisicion-seleccion/entrada-stock?idReqSelDet=${row_item.id}`}
                                       className="btn btn-secondary me-2"
                                     >

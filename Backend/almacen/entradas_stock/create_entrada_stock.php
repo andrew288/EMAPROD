@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     //DATOS RECIBIDOS
     $idMatPri = $data["idMatPri"];
     $idPro = $data["idPro"];
-    $idEntStoEst = $data["idEntStoEst"];
+    $idEntStoEst = 0;
     $codEntSto = $data["codEntSto"];
     $letAniEntSto = $data["letAniEntSto"];
     $diaJulEntSto = $data["diaJulEntSto"];
@@ -35,9 +35,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($esSel) {
             // LA CANTIDAD POR SELECCIONAR ES IGUAL A LA CANTIDAD ENTRANTE
             $canPorSel = $canTotEnt;
+            $idEntStoEst = 2;
         } else {
             // LA CANTIDAD DISPONIBLE ES IGUAL A LA CANTIDAD ENTRANTE
             $canTotDis = $canTotEnt;
+            $idEntStoEst = 1;
         }
 
         // INSERTAMOS LA ENTRADA

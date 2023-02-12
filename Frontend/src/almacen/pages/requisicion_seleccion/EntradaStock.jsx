@@ -8,6 +8,7 @@ import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { getRequisicionSeleccionDetalleById } from "./../../helpers/requisicion-seleccion/getRequisicionSeleccionDetalleById";
 import { getSalidasDisponiblesForSeleccion } from "./../../helpers/requisicion-seleccion/getSalidasDisponiblesForSeleccion";
+import { createEntradasStockByReqSelDet } from "../../helpers/requisicion-seleccion/createEntradasStockByReqSelDet";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -215,22 +216,22 @@ export const EntradaStock = () => {
 
   const crearEntradasStockByRequisicionSeleccionDetalle = async (body) => {
     console.log(body);
-    // const { message_error, description_error } =
-    //   await createSalidasStockByReqSelDet(entradaSeleccion);
+    const { message_error, description_error } =
+      await createEntradasStockByReqSelDet(body);
 
-    // if (message_error.length === 0) {
-    //   console.log("Se agregaron las salidas exitosamente");
-    //   // Volvemos a la vista de requisiciones
-    //   onNavigateBack();
-    // } else {
-    //   console.log("No se pudo crear");
-    //   setfeedbackMessages({
-    //     style_message: "error",
-    //     feedback_description_error: description_error,
-    //   });
-    //   handleClickFeeback();
-    // }
-    // setdisableButton(false);
+    if (message_error.length === 0) {
+      console.log("Se agregaron las salidas exitosamente");
+      // Volvemos a la vista de requisiciones
+      onNavigateBack();
+    } else {
+      console.log("No se pudo crear");
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+    setdisableButton(false);
   };
 
   // enviar salida

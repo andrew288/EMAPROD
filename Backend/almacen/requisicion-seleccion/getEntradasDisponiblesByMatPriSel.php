@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             es.canPorSel,
             es.canSel 
         FROM entrada_stock AS es
-        WHERE idMatPri = ? AND idEntStoEst = ? AND canPorSel <> 0.00
+        WHERE idMatPri = ? AND canPorSel <> 0.00
         ORDER BY es.refNumIngEntSto DESC
         ";
         //Preparamos la consulta
@@ -34,7 +34,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $idEntStoEst = 1; // ESTADO DISPONIBLE DE LAS ENTRADAS
 
         $stmt->bindParam(1, $idMatPri, PDO::PARAM_INT);
-        $stmt->bindParam(2, $idEntStoEst, PDO::PARAM_INT);
 
         // Comprobamos la respuesta
         try {
