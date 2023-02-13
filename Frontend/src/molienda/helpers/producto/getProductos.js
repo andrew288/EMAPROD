@@ -1,7 +1,8 @@
 import axios from 'axios';
+import config from '../.././../config';
 
 export const getProductos = async () => {
-    const domain = 'http://localhost/EMAPROD/Backend';
+    const domain = config.API_URL;
     const path = '/molienda/producto/list_productos.php';
     const url = domain + path;
 

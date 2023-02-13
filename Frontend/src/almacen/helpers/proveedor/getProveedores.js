@@ -1,7 +1,8 @@
 import axios from 'axios';
+import config from '../.././../config';
 
 export const getProveedores = async () => {
-    const domain = 'http://localhost/EMAPROD/Backend';
+    const domain = config.API_URL;
     const path = '/almacen/proveedor/list_proveedores.php';
     const url = domain + path;
 

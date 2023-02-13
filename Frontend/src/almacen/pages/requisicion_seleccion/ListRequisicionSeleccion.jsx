@@ -101,7 +101,8 @@ export const ListRequisicionSeleccion = () => {
                 <th>Codigo</th>
                 <th>Cantidad</th>
                 <th>Estado</th>
-                <th>Fecha</th>
+                <th>Fecha Requerido</th>
+                <th>Fecha terminado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -111,8 +112,25 @@ export const ListRequisicionSeleccion = () => {
                   <tr key={row.id}>
                     <td>{row.codReqSel}</td>
                     <td>{row.canReqSel}</td>
-                    <td>{row.desReqSelEst}</td>
+                    <td>
+                      <span
+                        class={
+                          row.idReqSelEst === 1
+                            ? "badge text-bg-danger"
+                            : row.idReqSelEst === 2
+                            ? "badge text-bg-warning"
+                            : "badge text-bg-success"
+                        }
+                      >
+                        {row.desReqSelEst}
+                      </span>
+                    </td>
                     <td>{row.fecPedReqSel}</td>
+                    <td>
+                      {row.fecTerReqSel === null
+                        ? "No terminado"
+                        : row.fecTerReqSel}
+                    </td>
                     <td>
                       <div className="btn-toolbar">
                         <button
@@ -174,7 +192,21 @@ export const ListRequisicionSeleccion = () => {
                                 <td>{row_item.codMatPri}</td>
                                 <td>{row_item.nomMatPri}</td>
                                 <td>{row_item.canReqSelDet}</td>
-                                <td>{row_item.desReqSelDetEst}</td>
+                                <td>
+                                  <span
+                                    class={
+                                      row_item.idReqSelDetEst === 1
+                                        ? "badge text-bg-danger"
+                                        : row_item.idReqSelDetEst === 2
+                                        ? "badge text-bg-secondary"
+                                        : row_item.idReqSelDetEst === 3
+                                        ? "badge text-bg-warning"
+                                        : "badge text-bg-success"
+                                    }
+                                  >
+                                    {row_item.desReqSelDetEst}
+                                  </span>
+                                </td>
                                 <td>
                                   <div className="btn-toolbar">
                                     <Link

@@ -99,10 +99,12 @@ export const ListRequisicionMolienda = () => {
             <thead>
               <tr>
                 <th>Codigo</th>
-                <th>Nombre</th>
+                <th>Producto</th>
                 <th>Cantidad</th>
                 <th>Peso</th>
                 <th>Estado</th>
+                <th>Fecha Requerido</th>
+                {<th>Fecha Terminado</th>}
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -116,7 +118,25 @@ export const ListRequisicionMolienda = () => {
                     <td>
                       {row.klgLotReqMol}&nbsp;{"KG"}
                     </td>
-                    <td>{row.desReqMolEst}</td>
+                    <td>
+                      <span
+                        class={
+                          row.idReqMolEst === 1
+                            ? "badge text-bg-danger"
+                            : row.idReqMolEst === 2
+                            ? "badge text-bg-warning"
+                            : "badge text-bg-success"
+                        }
+                      >
+                        {row.desReqMolEst}
+                      </span>
+                    </td>
+                    <td>{row.fecPedReqMol}</td>
+                    <td>
+                      {row.fecTerReqMol === null
+                        ? "No terminado"
+                        : row.fecTerReqMol}
+                    </td>
                     <td>
                       <div className="btn-toolbar">
                         <button
@@ -178,7 +198,17 @@ export const ListRequisicionMolienda = () => {
                                 <td>{row_item.codMatPri}</td>
                                 <td>{row_item.nomMatPri}</td>
                                 <td>{row_item.canReqMolDet}</td>
-                                <td>{row_item.desReqMolDetEst}</td>
+                                <td>
+                                  <span
+                                    class={
+                                      row_item.idReqMolDetEst === 1
+                                        ? "badge text-bg-danger"
+                                        : "badge text-bg-success"
+                                    }
+                                  >
+                                    {row_item.desReqMolDetEst}
+                                  </span>
+                                </td>
                                 <td>
                                   <div className="btn-toolbar">
                                     <Link

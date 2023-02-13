@@ -1,7 +1,8 @@
 import axios from 'axios';
+import config from '../.././../config';
 
 export const getMateriaPrimaById = async (idMateriaPrima) => {
-    const domain = 'http://localhost/EMAPROD/Backend';
+    const domain = config.API_URL;
     const path = '/almacen/materia_prima/view_materia_prima.php';
     const url = domain + path;
 
