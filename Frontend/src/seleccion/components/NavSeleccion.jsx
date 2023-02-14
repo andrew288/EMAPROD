@@ -1,8 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo-oficial.png";
+import { useAuth } from "../../hooks/useAuth";
 
 const NavSeleccion = () => {
+  const { logout } = useAuth();
+  const logoutUser = () => {
+    // cerramos sesion
+    logout();
+  };
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -60,20 +66,9 @@ const NavSeleccion = () => {
             </ul>
             <ul className="navbar-nav d-none d-lg-flex ml-2 order-3">
               <li className="nav-item">
-                <a
-                  className="nav-link"
-                  href="https://themes.getbootstrap.com/signin/"
-                >
-                  Sign in
-                </a>
-              </li>
-              <li className="nav-item">
-                <a
-                  className="nav-link"
-                  href="https://themes.getbootstrap.com/my-account/"
-                >
-                  Sign up
-                </a>
+                <button onClick={logoutUser} className="nav-link">
+                  Cerrar Sesion
+                </button>
               </li>
             </ul>
           </div>
