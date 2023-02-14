@@ -1,8 +1,9 @@
 import axios from 'axios';
+import config from './../../config';
 
 export const getMedidas = async () => {
 
-    const domain = 'http://localhost/EMAPROD/Backend';
+    const domain = config.API_URL;
     const path = '/almacen/medidas/list-medidas.php';
     const url = domain + path;
 
