@@ -1,8 +1,9 @@
 import axios from 'axios';
-import config from '../.././../config';
+import config from '../../../config';
 
 export const getMateriaPrima = async () => {
-    const domain = config.API_URL;
+    const {API_URL} = config;
+    const domain = API_URL;
     const path = '/almacen/materia_prima/list_materias_primas.php';
     const url = domain + path;
     const { data } = await axios.post(url);
