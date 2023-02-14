@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // IMPORTACIONES PARA TABLE MUI
 import Table from "@mui/material/Table";
@@ -9,13 +9,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TablePagination from "@mui/material/TablePagination";
-//IMPORTACIONES PARA DIALOG DELETE
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
@@ -30,6 +23,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export const AgregarFormula = () => {
+  const refTable = useRef();
   // ESTADOS PARA DATOS DE FORMULARO FORMULA (MAESTRO)
   const [formula, setformula] = useState({
     idProd: 0,
@@ -156,6 +150,32 @@ export const AgregarFormula = () => {
     });
   };
 
+  // ACTUALIZAR DETALLE DE REQUISICION
+  const updateDetalleFormula = (idPosElement) => {
+    console.log("update");
+    let inputSelected =
+      refTable.current.children[idPosElement].childNodes[2].childNodes[0];
+
+    if (inputSelected.disabled) {
+      inputSelected.disabled = false;
+    } else {
+      inputSelected.disabled = true;
+    }
+  };
+
+  // MANEJADOR PARA ACTUALIZAR REQUISICION
+  const handledFormularioDetalle = ({ target }, index) => {
+    const { value } = target;
+    let editFormDetalle = [...forDet];
+    const aux = { ...forDet[index], cantidad: value };
+    editFormDetalle[index] = aux;
+
+    setformula({
+      ...formula,
+      forDet: editFormDetalle,
+    });
+  };
+
   // CONTROLADOR DE FORMULARIO
   const handledForm = ({ target }) => {
     const { name, value } = target;
@@ -237,13 +257,15 @@ export const AgregarFormula = () => {
 
   // RESETEAR LOS VALORES
   const resetValues = () => {
-    setformula(...formula, {
+    setformula({
+      ...formula,
       nomFor: "",
       desFor: "",
       lotKgrFor: 1500,
       forDet: [],
     });
     setmateriaPrimaDetalle({
+      ...materiaPrimaDetalle,
       cantidadMateriaPrima: 0,
     });
   };
@@ -375,10 +397,10 @@ export const AgregarFormula = () => {
                     </TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
+                <TableBody ref={refTable}>
                   {forDet
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => (
+                    .map((row, i) => (
                       <TableRow
                         key={row.idMatPri}
                         sx={{
@@ -390,10 +412,36 @@ export const AgregarFormula = () => {
                         </TableCell>
                         <TableCell align="left">{row.nomMatPri}</TableCell>
                         <TableCell align="left">
-                          {row.cantidad}&nbsp;{row.simMed}
+                          <input
+                            id={`input-cantidad-${row.cantidad}`}
+                            onChange={(e) => {
+                              handledFormularioDetalle(e, i);
+                            }}
+                            type="number"
+                            value={row.cantidad}
+                            disabled={true}
+                          />
+                          &nbsp;{row.simMed}
                         </TableCell>
                         <TableCell align="left">
                           <div className="btn-toolbar">
+                            <button
+                              onClick={() => {
+                                updateDetalleFormula(i);
+                              }}
+                              className="btn btn-success me-2"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                className="bi bi-pencil-fill"
+                                viewBox="0 0 16 16"
+                              >
+                                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
+                              </svg>
+                            </button>
                             <button
                               onClick={() => {
                                 deleteDetalleMateriaPrima(row.idMatPri);
