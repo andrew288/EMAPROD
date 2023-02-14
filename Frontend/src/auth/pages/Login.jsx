@@ -4,6 +4,7 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { Navigate, useNavigate } from "react-router-dom";
 import { consultUser } from "./../helpers/consultUser";
+import { useAuth } from "../../hooks/useAuth";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -11,6 +12,9 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export const Login = () => {
+  // FUNCTION LOGIN
+  const { login } = useAuth();
+
   // NAVEGACION
   const navigate = useNavigate();
 
@@ -59,29 +63,8 @@ export const Login = () => {
       user
     );
     if (message_error.length === 0) {
-      // GUARDAMOS EN LOCALSTORAGE
-      // console.log(result);
-      // localStorage.setItem("user", JSON.stringify(result));
-      // REDIRECCIONAMOS SEGUN EL AREA CORRESPONDIENTE
-      const { idAre } = result;
-      switch (idAre) {
-        // ALMACEN
-        case 1:
-          console.log("ALMACEN");
-          // <Navigate to="/almacen" replace={true} />;
-          navigate("/almacen");
-          break;
-        // MOLIENDA
-        case 2:
-          // <Navigate to={"/molienda"} />;
-          navigate("/molienda");
-          break;
-        // SELECCION
-        case 3:
-          // <Navigate to={"/seleccion"} />;
-          navigate("/seleccion");
-          break;
-      }
+      // FUNCION DE LOGEO
+      login(result);
     } else {
       console.log("No se pudo logear al usuario");
       setfeedbackMessages({
