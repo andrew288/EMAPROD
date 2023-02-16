@@ -6,6 +6,7 @@ import { RouterAlmacenSalidasStock } from "./../pages/salidasStocks/RouterAlmace
 import { RouterRequisicionMolienda } from "./../pages/requisicion_molienda/RouterRequisicionMolienda";
 import LayoutModulo from "./../../layout/LayoutModulo";
 import { RouterRequisicionSeleccion } from "./../pages/requisicion_seleccion/RouterRequisicionSeleccion";
+import { RouterReportesAlmacen } from "./../pages/reportes/RouterReportesAlmacen";
 
 export const RouterAlmacen = [
   {
@@ -41,5 +42,10 @@ export const RouterAlmacen = [
     path: "requisicion-seleccion",
     element: <LayoutModulo />,
     children: RouterRequisicionSeleccion,
+  },
+  {
+    path: "reportes",
+    element: <LayoutModulo />,
+    children: RouterReportesAlmacen,
   },
 ];

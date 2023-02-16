@@ -31,5 +31,3 @@ function obtenerVariableDelEntorno($key)
         throw new Exception("La clave especificada (" . $key . ") no existe en el archivo de las variables de entorno");
     }
 }
-
-?>

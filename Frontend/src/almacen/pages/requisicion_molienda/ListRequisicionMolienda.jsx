@@ -120,7 +120,7 @@ export const ListRequisicionMolienda = () => {
                     </td>
                     <td>
                       <span
-                        class={
+                        className={
                           row.idReqMolEst === 1
                             ? "badge text-bg-danger"
                             : row.idReqMolEst === 2
@@ -182,6 +182,9 @@ export const ListRequisicionMolienda = () => {
                   <tr key={row.codLotReqMol} hidden={true}>
                     <td colSpan={6}>
                       <div>
+                        <p className="text-bg-secondary p-1">
+                          Detalle de Requisicion Molienda
+                        </p>
                         <table className="table">
                           <thead>
                             <tr>
@@ -200,7 +203,7 @@ export const ListRequisicionMolienda = () => {
                                 <td>{row_item.canReqMolDet}</td>
                                 <td>
                                   <span
-                                    class={
+                                    className={
                                       row_item.idReqMolDetEst === 1
                                         ? "badge text-bg-danger"
                                         : "badge text-bg-success"

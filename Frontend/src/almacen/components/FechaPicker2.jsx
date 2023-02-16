@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { FormatDateTimeMYSQL } from "../../utils/functions/FormatDate";
 
-const FechaPicker = ({ onNewFechaEntrada }) => {
+const FechaPicker2 = ({ onNewFechaEntrada }) => {
   const [value, setValue] = useState();
 
   const formatFechaMYSQL = (newValue) => {
@@ -17,7 +17,7 @@ const FechaPicker = ({ onNewFechaEntrada }) => {
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <DatePicker
         value={value}
-        inputFormat="DD/MM/YYYY HH:mm:ss"
+        inputFormat="DD/MM/YYYY"
         onChange={formatFechaMYSQL}
         renderInput={(params) => <TextField disabled={false} {...params} />}
       />
@@ -25,4 +25,4 @@ const FechaPicker = ({ onNewFechaEntrada }) => {
   );
 };
 
-export default FechaPicker;
+export default FechaPicker2;

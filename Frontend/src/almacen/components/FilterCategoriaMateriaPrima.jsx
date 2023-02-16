@@ -11,6 +11,7 @@ export const FilterCategoriaMateriaPrima = ({ onNewInput }) => {
       return {
         value: element.id,
         label: `${element.desMatPriCat}`,
+        id: element.id,
       };
     });
     setResult(formatSelect);
@@ -20,8 +21,8 @@ export const FilterCategoriaMateriaPrima = ({ onNewInput }) => {
     obtenerDataCategoriaMateriaPrima();
   }, []);
 
-  const handledChange = ({ value, label }) => {
-    onNewInput({ value, label });
+  const handledChange = (value) => {
+    onNewInput(value);
   };
 
   return (

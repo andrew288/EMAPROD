@@ -114,7 +114,7 @@ export const ListRequisicionSeleccion = () => {
                     <td>{row.canReqSel}</td>
                     <td>
                       <span
-                        class={
+                        className={
                           row.idReqSelEst === 1
                             ? "badge text-bg-danger"
                             : row.idReqSelEst === 2
@@ -175,6 +175,9 @@ export const ListRequisicionSeleccion = () => {
                   </tr>
                   <tr key={row.codLotReqMol} hidden={true}>
                     <td colSpan={6}>
+                      <p className="text-bg-secondary p-1">
+                        Detalle de Requisicion Molienda
+                      </p>
                       <div>
                         <table className="table">
                           <thead>
@@ -194,7 +197,7 @@ export const ListRequisicionSeleccion = () => {
                                 <td>{row_item.canReqSelDet}</td>
                                 <td>
                                   <span
-                                    class={
+                                    className={
                                       row_item.idReqSelDetEst === 1
                                         ? "badge text-bg-danger"
                                         : row_item.idReqSelDetEst === 2

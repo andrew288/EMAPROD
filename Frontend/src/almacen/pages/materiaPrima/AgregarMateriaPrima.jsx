@@ -65,10 +65,10 @@ const AgregarMateriaPrima = () => {
   };
 
   // CONTROLADOR DE CATEGORIA
-  const onAddCategoriaMateriaPrima = ({ value }) => {
+  const onAddCategoriaMateriaPrima = (value) => {
     setmateriaPrima({
       ...materiaPrima,
-      idMatPriCat: value,
+      idMatPriCat: value.id,
     });
   };
 
