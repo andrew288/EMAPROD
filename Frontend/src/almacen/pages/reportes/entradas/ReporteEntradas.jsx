@@ -235,7 +235,7 @@ export const ReporteEntradas = () => {
                 <label className="form-label">Materia prima</label>
                 <FilterMateriaPrima onNewInput={handledMateriPrima} />
                 {/* badges filters */}
-                <div className="d-flex flex-row mt-3">
+                <div className="d-flex flex-wrap justify-content-start mt-3">
                   {materiaPrima.map((element) => (
                     <span
                       key={element.value}
@@ -259,11 +259,11 @@ export const ReporteEntradas = () => {
                   onNewInput={handledCategoriaMateriaPrima}
                 />
                 {/* badges filters */}
-                <div className="d-flex flex-row justify-content-start mt-3">
+                <div className="d-flex flex-wrap justify-content-start mt-3">
                   {categoriaMateriaPrima.map((element) => (
                     <span
                       key={element.id}
-                      className="badge text-bg-primary me-1 py-2 px-1"
+                      className="badge text-bg-primary me-1 py-2 px-1 mb-1"
                     >
                       {element.label}
                       <button
@@ -291,7 +291,7 @@ export const ReporteEntradas = () => {
                 <label className="form-label">Proveedor</label>
                 <FilterProveedor onNewInput={handledProveedor} />
                 {/* badges filters */}
-                <div className="d-flex flex-row justify-content-start mt-3">
+                <div className="d-flex flex-wrap justify-content-start mt-3">
                   {filterProveedor.map((element) => (
                     <span
                       key={element.id}
