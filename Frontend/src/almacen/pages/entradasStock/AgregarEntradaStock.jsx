@@ -10,6 +10,8 @@ import {
 // IMPORTACIONES DE FILTROS
 import { FilterMateriaPrima } from "../../components/FilterMateriaPrima";
 import { FilterProveedor } from "../../components/FilterProveedor";
+import { FilterAlmacen } from "./../../components/FilterAlmacen";
+// HELPERS
 import { getIngresoMateriaPrimaById } from "./../../helpers/entradas-stock/getIngresoMateriaPrimaById";
 // IMPORTACIONES DE COMPONENTES MUI
 import Checkbox from "@mui/material/Checkbox";
@@ -18,37 +20,43 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { createEntradaStock } from "./../../helpers/entradas-stock/createEntradaStock";
+import { useForm } from "./../../../hooks/useForm";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 const AgregarEntradaStock = () => {
-  const [entrada, setEntrada] = useState({
-    idMatPri: 0,
-    idPro: 0,
-    idEntStoEst: 1,
-    letAniEntSto: "",
-    diaJulEntSto: "",
-    refNumIngEntSto: "",
-    esSel: false,
-    codMatPri: "",
-    codPro: "",
-    docEntSto: "",
-    fecEntSto: "",
-    canTotEnt: 0,
-  });
-
   const {
-    codMatPri,
-    codPro,
-    docEntSto,
-    canTotEnt,
-    idMatPri,
-    idPro,
+    idProd,
+    idProv,
+    idAlm,
+    idEntStoEst,
     esSel,
+    canTotEnt,
+    docEntSto,
+    fecVenEntSto,
     fecEntSto,
-  } = entrada;
+    codProd,
+    codProv,
+    codAlm,
+    formState,
+    setFormState,
+    onInputChange,
+  } = useForm({
+    idProd: 0,
+    idProv: 0,
+    idAlm: 0,
+    idEntStoEst: 1,
+    esSel: false,
+    canTotEnt: 0,
+    docEntSto: "",
+    fecVenEntSto: "",
+    fecEntSto: "",
+    codProd: "",
+    codProv: "",
+    codAlm: "",
+  });
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
   const [feedbackCreate, setfeedbackCreate] = useState(false);
@@ -79,15 +87,7 @@ const AgregarEntradaStock = () => {
     navigate(-1);
   };
 
-  // MANEJADOR DE FORMUALARIO
-  const handledForm = ({ target }) => {
-    const { name, value } = target;
-    setEntrada({
-      ...entrada,
-      [name]: value,
-    });
-  };
-
+  // OBTENEMOS EL ULTIMO INGRESO DE LA MATERIA PRIMA
   const obtenerUltimoIngresoMateriaPrima = async (id) => {
     const response = await getIngresoMateriaPrimaById(id);
     const { result } = response;
@@ -99,31 +99,40 @@ const AgregarEntradaStock = () => {
   };
 
   // INPUT CODIGO MATERIA PRIMA
-  const onAddCodigoMateriPrima = ({ value, id }) => {
-    // ACTUALIZAMOS EL CAMPO DE MUESTRA
-    setEntrada({ ...entrada, codMatPri: value, idMatPri: id });
+  const onAddCodProd = ({ value, id }) => {
+    setFormState({ ...formState, codProd: value, idProd: id });
   };
 
   // INPUT CODIGO PROVEEDOR
-  const onAddcodPro = ({ value, id }) => {
-    setEntrada({ ...entrada, codPro: value, idPro: id });
+  const onAddCodProv = ({ value, id }) => {
+    setFormState({ ...formState, codProv: value, idProv: id });
   };
 
-  // SETTEAR VALOR DE FECHA DE ENTRADA
-  const onAddfecEntSto = (newfecEntSto) => {
-    setEntrada({ ...entrada, fecEntSto: newfecEntSto });
+  // INPUT CODIGO ALMACEN
+  const onAddCodAlm = ({ value, id }) => {
+    setFormState({ ...formState, codAlm: value, idAlm: id });
+  };
+
+  // SET VALOR DE FECHA DE VENCIMIENTO
+  const onAddFecVenEntSto = (newfecVentEntSto) => {
+    setFormState({ ...formState, fecVenEntSto: newfecVentEntSto });
+  };
+
+  // SET VALOR DE FECHA DE formState
+  const onAddFecEntSto = (newfecEntSto) => {
+    setFormState({ ...formState, fecEntSto: newfecEntSto });
   };
 
   //SETEAMOS EL VALOR DE ES SELECCION
   const onChangeEsSel = (event) => {
-    setEntrada({ ...entrada, esSel: event.target.checked });
+    setFormState({ ...formState, esSel: event.target.checked });
   };
 
   // CREAR ENTRADA DE STOCK
   const crearEntradaStock = async () => {
-    let requestJSON = { ...entrada };
+    let requestJSON = { ...formState };
 
-    // verificamos si se ingrso una fecha de ingreso
+    // verificamos si se ingreso una fecha de ingreso
     if (fecEntSto.length === 0) {
       requestJSON = {
         ...requestJSON,
@@ -131,18 +140,18 @@ const AgregarEntradaStock = () => {
       };
     }
 
-    // OBTENEMOS EL NUMERO DE INGRESO DE LA MATERIA PRIMA
-    const numIng = await obtenerUltimoIngresoMateriaPrima(idMatPri);
+    // OBTENEMOS EL NUMERO DE INGRESO DE LA MATERIA PRIMA (PASARLO AL BACKEND)
+    const numIng = await obtenerUltimoIngresoMateriaPrima(idProd);
 
-    //FORMAMOS EL CODIGO DE ENTRADA
-    const codEntrada = `${codMatPri}${codPro}${letraAnio(
+    //FORMAMOS EL CODIGO DE formState
+    const codformState = `${codProd}${codProv}${letraAnio(
       requestJSON.fecEntSto
     )}${DiaJuliano(requestJSON.fecEntSto)}${numIng}`;
 
-    // SETEAMO EL VALOR DE CODIGO DE ENTRADA
+    // SETEAMO EL VALOR DE CODIGO DE formState
     requestJSON = {
       ...requestJSON,
-      codEntSto: codEntrada,
+      codEntSto: codformState,
       diaJulEntSto: DiaJuliano(requestJSON.fecEntSto),
       letAniEntSto: letraAnio(requestJSON.fecEntSto),
       refNumIngEntSto: numIng,
@@ -154,31 +163,29 @@ const AgregarEntradaStock = () => {
       requestJSON
     );
     if (message_error.length === 0) {
-      console.log("Se creo exitosamente");
-      setfeedbackMessages({
-        style_message: "success",
-        feedback_description_error: "Se creó exitosamente",
-      });
-      handleClickFeeback();
+      // navegamos a la anterior vista
+      onNavigateBack();
     } else {
-      console.log("No se pudo crear");
+      // mostramos el error recepcionado del backend
       setfeedbackMessages({
         style_message: "error",
         feedback_description_error: description_error,
       });
       handleClickFeeback();
     }
+    // habilitamos el boton de crear
     setdisableButton(false);
   };
 
-  // SUBMIT DE UNA ENTRADA COMUNICACION CON BACKEND
-  const onSubmitEntrada = (event) => {
+  // SUBMIT DE UNA formState COMUNICACION CON BACKEND
+  const onSubmitformState = (event) => {
     event.preventDefault();
 
     // VERIFICAMOS SI SE INGRESARON LOS CAMPOS REQUERIDOS
     if (
-      idMatPri === 0 ||
-      idPro === 0 ||
+      idProd === 0 ||
+      idProv === 0 ||
+      idAlm === 0 ||
       docEntSto.length === 0 ||
       canTotEnt <= 0
     ) {
@@ -199,39 +206,29 @@ const AgregarEntradaStock = () => {
   return (
     <>
       <div className="container">
-        <h1 className="mt-4 text-center">Registrar entrada</h1>
+        <h1 className="mt-4 text-center">Registrar Entrada de stock</h1>
         <form className="mt-4">
           {/* CODIGO MATERIA PRIMA */}
           <div className="mb-3 row">
-            <label
-              htmlFor={"codigo-materia-prima"}
-              className="col-sm-2 col-form-label"
-            >
-              Código de la materia prima
-            </label>
+            <label className="col-md-2 col-form-label">Producto</label>
             <div className="col-md-2">
               <input
-                onChange={handledForm}
-                value={codMatPri}
+                onChange={onInputChange}
+                value={codProd}
                 readOnly
                 type="text"
-                name="codMatPri"
+                name="codProd"
                 className="form-control"
               />
             </div>
-            {/* SEARCH NAME MATERIA PRIMA */}
+            {/* SEARCH NAME PRODUCTO */}
             <div className="col-md-4">
               <div className="input-group">
-                <FilterMateriaPrima onNewInput={onAddCodigoMateriPrima} />
+                <FilterMateriaPrima onNewInput={onAddCodProd} />
               </div>
             </div>
-          </div>
-
-          <div className="mb-3 row">
-            <div className="form-check">
-              <label className="form-check-label" htmlFor="flexCheckChecked">
-                Es para seleccionar
-              </label>
+            <div className="col-md-3 form-check d-flex justify-content-start align-items-center">
+              <label className="form-check-label">Para seleccionar</label>
               <Checkbox
                 checked={esSel}
                 onChange={onChangeEsSel}
@@ -242,54 +239,77 @@ const AgregarEntradaStock = () => {
 
           {/* CODIGO PROVEEDOR*/}
           <div className="mb-3 row">
-            <label
-              htmlFor={"codigo-proveedor"}
-              className="col-sm-2 col-form-label"
-            >
-              Código de proveedor
-            </label>
+            <label className="col-sm-2 col-form-label">Proveedor</label>
             <div className="col-md-2">
               <input
-                onChange={handledForm}
-                value={codPro}
+                onChange={onInputChange}
+                value={codProv}
                 readOnly
                 type="text"
-                name="codPro"
+                name="codProv"
                 className="form-control"
               />
             </div>
             {/* SEARCH NAME PROVEEDOR */}
             <div className="col-md-4">
               <div className="input-group">
-                <FilterProveedor onNewInput={onAddcodPro} />
+                <FilterProveedor onNewInput={onAddCodProv} />
               </div>
             </div>
           </div>
 
-          {/* FECHA DE LA ENTRADA */}
+          {/* CODIGO ALMACEN */}
           <div className="mb-3 row">
-            <label
-              htlmfor={"fecha-entrada-stock"}
-              className="col-sm-2 col-form-label"
-            >
-              Fecha de entrada
-            </label>
+            <label className="col-sm-2 col-form-label">Almacen</label>
+            <div className="col-md-2">
+              <input
+                onChange={onInputChange}
+                value={codProv}
+                readOnly
+                type="text"
+                name="codProv"
+                className="form-control"
+              />
+            </div>
+            {/* SEARCH NAME PROVEEDOR */}
             <div className="col-md-4">
-              <FechaPicker onNewfecEntSto={onAddfecEntSto} />
+              <div className="input-group">
+                <FilterAlmacen onNewInput={onAddCodAlm} />
+              </div>
             </div>
           </div>
 
-          {/* INPUT DOCUMENTO ENTRADA */}
+          {/* FECHA DE LA formState */}
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label">
+              Fecha de Entrada Stock
+            </label>
+            <div className="col-md-4">
+              <FechaPicker onNewfecEntSto={onAddFecEntSto} />
+            </div>
+          </div>
+
+          {/* FECHA DE VENCIMIENTO DE LA formState */}
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label">
+              Fecha de vencimiento
+            </label>
+            <div className="col-md-4">
+              <FechaPicker onNewfecEntSto={onAddFecVenEntSto} />
+            </div>
+          </div>
+
+          {/* INPUT DOCUMENTO formState */}
           <div className="mb-3 row">
             <label
-              htlmfor={"documento-entrada"}
+              htlmfor={"documento-formState"}
               className="col-sm-2 col-form-label"
             >
               Documento
             </label>
             <div className="col-md-4">
               <input
-                onChange={handledForm}
+                onChange={onInputChange}
                 value={docEntSto}
                 type="text"
                 name="docEntSto"
@@ -298,7 +318,7 @@ const AgregarEntradaStock = () => {
             </div>
           </div>
 
-          {/* INPUT CANTIDAD ENTRADA */}
+          {/* INPUT CANTIDAD formState */}
           <div className="mb-3 row">
             <label
               htlmfor={"cantidad-ingresada"}
@@ -308,7 +328,7 @@ const AgregarEntradaStock = () => {
             </label>
             <div className="col-md-2">
               <input
-                onChange={handledForm}
+                onChange={onInputChange}
                 value={canTotEnt}
                 type="number"
                 name="canTotEnt"
@@ -316,6 +336,7 @@ const AgregarEntradaStock = () => {
               />
             </div>
           </div>
+
           {/* BOTONES DE CANCELAR Y GUARDAR */}
           <div className="btn-toolbar">
             <button
@@ -328,7 +349,7 @@ const AgregarEntradaStock = () => {
             <button
               type="submit"
               disabled={disableButton}
-              onClick={(e) => onSubmitEntrada(e)}
+              onClick={(e) => onSubmitformState(e)}
               className="btn btn-primary"
             >
               Guardar
