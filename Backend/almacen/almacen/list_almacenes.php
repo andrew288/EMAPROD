@@ -10,7 +10,7 @@ $description_error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($pdo) {
-        $sql = "SELECT * FROM almacenes";
+        $sql = "SELECT * FROM almacen";
         try {
             // Preparamos la consulta
             $stmt = $pdo->prepare($sql);

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-// IMPORT D EFECHA PICKER
+import { useForm } from "./../../../hooks/useForm";
+// IMPORT DE EFECHA PICKER
 import FechaPicker from "../../components/FechaPicker";
+import FechaPickerYear from "./../../components/FechaPickerYear";
 // FUNCIONES UTILES
 import {
   DiaJuliano,
@@ -11,8 +13,6 @@ import {
 import { FilterMateriaPrima } from "../../components/FilterMateriaPrima";
 import { FilterProveedor } from "../../components/FilterProveedor";
 import { FilterAlmacen } from "./../../components/FilterAlmacen";
-// HELPERS
-import { getIngresoMateriaPrimaById } from "./../../helpers/entradas-stock/getIngresoMateriaPrimaById";
 // IMPORTACIONES DE COMPONENTES MUI
 import Checkbox from "@mui/material/Checkbox";
 // IMPORTACIONES PARA EL FEEDBACK
@@ -20,7 +20,6 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { createEntradaStock } from "./../../helpers/entradas-stock/createEntradaStock";
-import { useForm } from "./../../../hooks/useForm";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -31,7 +30,6 @@ const AgregarEntradaStock = () => {
     idProd,
     idProv,
     idAlm,
-    idEntStoEst,
     esSel,
     canTotEnt,
     docEntSto,
@@ -47,7 +45,6 @@ const AgregarEntradaStock = () => {
     idProd: 0,
     idProv: 0,
     idAlm: 0,
-    idEntStoEst: 1,
     esSel: false,
     canTotEnt: 0,
     docEntSto: "",
@@ -85,17 +82,6 @@ const AgregarEntradaStock = () => {
   const navigate = useNavigate();
   const onNavigateBack = () => {
     navigate(-1);
-  };
-
-  // OBTENEMOS EL ULTIMO INGRESO DE LA MATERIA PRIMA
-  const obtenerUltimoIngresoMateriaPrima = async (id) => {
-    const response = await getIngresoMateriaPrimaById(id);
-    const { result } = response;
-    let parseResult = result.toString();
-    if (parseResult.length === 1) {
-      parseResult = `0${parseResult}`;
-    }
-    return parseResult;
   };
 
   // INPUT CODIGO MATERIA PRIMA
@@ -140,22 +126,12 @@ const AgregarEntradaStock = () => {
       };
     }
 
-    // OBTENEMOS EL NUMERO DE INGRESO DE LA MATERIA PRIMA (PASARLO AL BACKEND)
-    const numIng = await obtenerUltimoIngresoMateriaPrima(idProd);
-
-    //FORMAMOS EL CODIGO DE formState
-    const codformState = `${codProd}${codProv}${letraAnio(
-      requestJSON.fecEntSto
-    )}${DiaJuliano(requestJSON.fecEntSto)}${numIng}`;
-
-    // SETEAMO EL VALOR DE CODIGO DE formState
     requestJSON = {
       ...requestJSON,
-      codEntSto: codformState,
       diaJulEntSto: DiaJuliano(requestJSON.fecEntSto),
       letAniEntSto: letraAnio(requestJSON.fecEntSto),
-      refNumIngEntSto: numIng,
     };
+
     console.log(requestJSON);
 
     // AHORA ENVIAMOS LA DATA AL BACKEND
@@ -187,14 +163,26 @@ const AgregarEntradaStock = () => {
       idProv === 0 ||
       idAlm === 0 ||
       docEntSto.length === 0 ||
-      canTotEnt <= 0
+      canTotEnt <= 0 ||
+      fecVenEntSto.length === 0
     ) {
-      // MANEJAMOS FORMULARIOS INCOMPLETOS
-      setfeedbackMessages({
-        style_message: "warning",
-        feedback_description_error: "Asegurese de llenar los datos requeridos",
-      });
-      handleClickFeeback();
+      if (fecVenEntSto.length === 0) {
+        // MANEJAMOS FORMULARIOS INCOMPLETOS
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error:
+            "Asegurese de ingresar una fecha de vencimiento",
+        });
+        handleClickFeeback();
+      } else {
+        // MANEJAMOS FORMULARIOS INCOMPLETOS
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error:
+            "Asegurese de llenar los datos requeridos",
+        });
+        handleClickFeeback();
+      }
     } else {
       // DESABILTIAMOS EL BOTON DE ENVIAR
       setdisableButton(true);
@@ -222,10 +210,8 @@ const AgregarEntradaStock = () => {
               />
             </div>
             {/* SEARCH NAME PRODUCTO */}
-            <div className="col-md-4">
-              <div className="input-group">
-                <FilterMateriaPrima onNewInput={onAddCodProd} />
-              </div>
+            <div className="col-md-3">
+              <FilterMateriaPrima onNewInput={onAddCodProd} />
             </div>
             <div className="col-md-3 form-check d-flex justify-content-start align-items-center">
               <label className="form-check-label">Para seleccionar</label>
@@ -239,7 +225,7 @@ const AgregarEntradaStock = () => {
 
           {/* CODIGO PROVEEDOR*/}
           <div className="mb-3 row">
-            <label className="col-sm-2 col-form-label">Proveedor</label>
+            <label className="col-md-2 col-form-label">Proveedor</label>
             <div className="col-md-2">
               <input
                 onChange={onInputChange}
@@ -251,31 +237,27 @@ const AgregarEntradaStock = () => {
               />
             </div>
             {/* SEARCH NAME PROVEEDOR */}
-            <div className="col-md-4">
-              <div className="input-group">
-                <FilterProveedor onNewInput={onAddCodProv} />
-              </div>
+            <div className="col-md-3">
+              <FilterProveedor onNewInput={onAddCodProv} />
             </div>
           </div>
 
           {/* CODIGO ALMACEN */}
           <div className="mb-3 row">
-            <label className="col-sm-2 col-form-label">Almacen</label>
+            <label className="col-md-2 col-form-label">Almacen</label>
             <div className="col-md-2">
               <input
                 onChange={onInputChange}
-                value={codProv}
+                value={codAlm}
                 readOnly
                 type="text"
-                name="codProv"
+                name="codAlm"
                 className="form-control"
               />
             </div>
             {/* SEARCH NAME PROVEEDOR */}
-            <div className="col-md-4">
-              <div className="input-group">
-                <FilterAlmacen onNewInput={onAddCodAlm} />
-              </div>
+            <div className="col-md-3">
+              <FilterAlmacen onNewInput={onAddCodAlm} />
             </div>
           </div>
 
@@ -295,7 +277,7 @@ const AgregarEntradaStock = () => {
               Fecha de vencimiento
             </label>
             <div className="col-md-4">
-              <FechaPicker onNewfecEntSto={onAddFecVenEntSto} />
+              <FechaPickerYear onNewfecEntSto={onAddFecVenEntSto} />
             </div>
           </div>
 
@@ -307,7 +289,7 @@ const AgregarEntradaStock = () => {
             >
               Documento
             </label>
-            <div className="col-md-4">
+            <div className="col-md-3">
               <input
                 onChange={onInputChange}
                 value={docEntSto}

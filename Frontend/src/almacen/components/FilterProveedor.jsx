@@ -1,7 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import Select from "react-select";
 import { getProveedores } from "./../helpers/proveedor/getProveedores";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 
 export const FilterProveedor = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
@@ -10,8 +11,8 @@ export const FilterProveedor = ({ onNewInput }) => {
     const resultPeticion = await getProveedores();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.codPro,
-        label: `${element.nomPro} ${element.apePro}`,
+        value: element.codProv,
+        label: `${element.nomProv} ${element.apeProv}`,
         id: element.id,
       };
     });
@@ -22,13 +23,19 @@ export const FilterProveedor = ({ onNewInput }) => {
     obtenerDataMateriPrima();
   }, []);
 
-  const handledChange = (value) => {
+  const handledChange = (event, value) => {
     onNewInput(value);
   };
 
   return (
     <>
-      <Select options={result} onChange={handledChange} />
+      <Autocomplete
+        options={result}
+        disableClearable
+        getOptionLabel={(option) => option.label}
+        onChange={handledChange}
+        renderInput={(params) => <TextField {...params} size="small" />}
+      />
     </>
   );
 };

@@ -1,32 +1,39 @@
-import React, {useState, useEffect} from 'react';
-import { getMedidas } from './../helpers/getMedidas';
-import Select from 'react-select';
+import React, { useState, useEffect } from "react";
+import { getMedidas } from "./../helpers/getMedidas";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 
-export const FilterMedidas = ({onNewInput}) => {
-    const [result, setResult] = useState([]);
+export const FilterMedidas = ({ onNewInput }) => {
+  const [result, setResult] = useState([]);
 
-    const obtenerDataMedidas = async() => {
-        const resultPeticion = await getMedidas();
-        const formatSelect = resultPeticion.map((element) => {
-            return {
-                value: element.id,
-                label: `${element.desMed} (${element.simMed})`,
-            }
-        })
-        setResult(formatSelect);
-    }
+  const obtenerDataMedidas = async () => {
+    const resultPeticion = await getMedidas();
+    const formatSelect = resultPeticion.map((element) => {
+      return {
+        value: element.id,
+        label: `${element.desMed} (${element.simMed})`,
+      };
+    });
+    setResult(formatSelect);
+  };
 
-    useEffect(() => {
-        obtenerDataMedidas();
-    }, [])
+  useEffect(() => {
+    obtenerDataMedidas();
+  }, []);
 
-    const handledChange = ({value}) => {
-        onNewInput(value);
-    }
+  const handledChange = (event, value) => {
+    onNewInput(value);
+  };
 
   return (
     <>
-        <Select options={result} onChange={handledChange} />
+      <Autocomplete
+        options={result}
+        disableClearable
+        getOptionLabel={(option) => option.label}
+        onChange={handledChange}
+        renderInput={(params) => <TextField {...params} size="small" />}
+      />
     </>
-  )
-}
+  );
+};

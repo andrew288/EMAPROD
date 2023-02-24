@@ -62,14 +62,6 @@ const NavAlmacen = () => {
                       Seleccion
                     </Link>
                   </li>
-                  {/* <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Something else here
-                    </a>
-                  </li> */}
                 </ul>
               </li>
 
@@ -100,14 +92,6 @@ const NavAlmacen = () => {
                       Crear
                     </Link>
                   </li>
-                  {/* <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Something else here
-                    </a>
-                  </li> */}
                 </ul>
               </li>
 
@@ -135,25 +119,37 @@ const NavAlmacen = () => {
                       Crear
                     </Link>
                   </li>
-                  {/* <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Something else here
-                    </a>
-                  </li> */}
                 </ul>
               </li>
 
-              <li className="nav-item">
-                <NavLink
-                  className="nav-link"
-                  aria-current="page"
-                  to={"/almacen/entradas-stock/crear"}
+              {/* ENTRADAS STOCK */}
+              <li className="nav-item dropdown">
+                <Link
+                  className="nav-link dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
                   Entradas Stock
-                </NavLink>
+                </Link>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/almacen/entradas-stock"}
+                    >
+                      Administrar
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/almacen/entradas-stock/crear"}
+                    >
+                      Crear
+                    </Link>
+                  </li>
+                </ul>
               </li>
             </ul>
             <ul className="navbar-nav d-none d-lg-flex ml-2 order-3">

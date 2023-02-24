@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getCategoriasMateriaPrima } from "./../helpers/getCategoriasMateriaPrima";
-import Select from "react-select";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 
 export const FilterCategoriaMateriaPrima = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
@@ -21,13 +22,19 @@ export const FilterCategoriaMateriaPrima = ({ onNewInput }) => {
     obtenerDataCategoriaMateriaPrima();
   }, []);
 
-  const handledChange = (value) => {
+  const handledChange = (event, value) => {
     onNewInput(value);
   };
 
   return (
     <>
-      <Select options={result} onChange={handledChange} />
+      <Autocomplete
+        options={result}
+        disableClearable
+        getOptionLabel={(option) => option.label}
+        onChange={handledChange}
+        renderInput={(params) => <TextField {...params} size="small" />}
+      />
     </>
   );
 };

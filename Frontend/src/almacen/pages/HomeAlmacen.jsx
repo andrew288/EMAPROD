@@ -51,7 +51,7 @@ const HomeAlmacen = () => {
                     </div>
                     <h2 className="fs-4 fw-bold">Entradas stock</h2>
                     <Link
-                      to="/almacen/entradas-stock/crear"
+                      to="/almacen/entradas-stock"
                       className="btn btn-primary"
                     >
                       Ingresar

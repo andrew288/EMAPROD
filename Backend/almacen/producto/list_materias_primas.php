@@ -13,29 +13,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql =
             "SELECT
         M.id,
-        M.codMatPri, 
-        M.idMatPriCat,
-        C.desMatPriCat,
+        M.idCat,
+        C.desCat,
         M.idMed,
         ME.simMed,
-        M.nomMatPri,
-        M.stoMatPri
-        FROM materia_prima M
-        LEFT JOIN materia_prima_categoria C ON M.idMatPriCat = C.id
+        M.codProd, 
+        M.nomProd,
+        M.stoActProd,
+        M.esMatPri,
+        M.esProFin,
+        M.esProInt,
+        M.cta1,
+        M.cta2
+        FROM producto M
+        LEFT JOIN categoria C ON M.idCat = C.id
         LEFT JOIN medida ME ON M.idMed = ME.id
+        WHERE M.esMatPri = ?
         ";
         // Preparamos la consulta
         $stmt = $pdo->prepare($sql);
+        $esMatPri = 1; // filtramos las materis primas
+        $stmt->bindParam(1, $esMatPri, PDO::PARAM_BOOL);
         // Ejecutamos la consulta
         try {
             $stmt->execute();
+            // Recorremos los resultados
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                array_push($result, $row);
+            }
         } catch (Exception $e) {
             $message_error = "ERROR INTERNO SERVER";
             $description_error = $e->getMessage();
-        }
-        // Recorremos los resultados
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            array_push($result, $row);
         }
     } else {
         // No se pudo realizar la conexion a la base de datos

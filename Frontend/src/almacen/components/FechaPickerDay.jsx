@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { YearPicker } from "@mui/x-date-pickers/YearPicker";
 import TextField from "@mui/material/TextField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { FormatDateTimeMYSQL } from "../../utils/functions/FormatDate";
+import { styled } from "@mui/material/styles";
 
-const FechaPicker = ({ onNewfecEntSto }) => {
+const FechaPickerDay = ({ onNewfecEntSto }) => {
   const [value, setValue] = useState();
 
   const formatFechaMYSQL = (newValue) => {
@@ -17,12 +19,14 @@ const FechaPicker = ({ onNewfecEntSto }) => {
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <DatePicker
         value={value}
-        inputFormat="DD/MM/YYYY HH:mm:ss"
+        openTo={"day"}
         onChange={formatFechaMYSQL}
-        renderInput={(params) => <TextField disabled={false} {...params} />}
+        renderInput={(params) => (
+          <TextField size="small" disabled={false} {...params} />
+        )}
       />
     </LocalizationProvider>
   );
 };
 
-export default FechaPicker;
+export default FechaPickerDay;

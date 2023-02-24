@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Select from "react-select";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 import { getAlmacenes } from "./../helpers/getAlmacenes";
 
 export const FilterAlmacen = ({ onNewInput }) => {
@@ -21,13 +22,19 @@ export const FilterAlmacen = ({ onNewInput }) => {
     getDataAlmacenes();
   }, []);
 
-  const handledChange = (value) => {
+  const handledChange = (event, value) => {
     onNewInput(value);
   };
 
   return (
     <>
-      <Select options={result} onChange={handledChange} />
+      <Autocomplete
+        options={result}
+        disableClearable
+        getOptionLabel={(option) => option.label}
+        onChange={handledChange}
+        renderInput={(params) => <TextField {...params} size="small" />}
+      />
     </>
   );
 };
