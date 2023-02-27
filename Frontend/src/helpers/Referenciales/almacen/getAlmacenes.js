@@ -1,11 +1,11 @@
 import axios from 'axios';
-import config from '../.././../config';
+import config from '../../../config';
 
-export const getProveedores = async () => {
+export const getAlmacenes = async () => {
+
     const domain = config.API_URL;
-    const path = '/almacen/proveedor/list_proveedores.php';
+    const path = '/referenciales/almacen/list_almacenes.php';
     const url = domain + path;
-
     const { data } = await axios.post(url);
     return data.result;
 }

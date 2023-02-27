@@ -1,10 +1,9 @@
 import axios from 'axios';
-import config from './../../config';
+import config from '../../../config';
 
-export const getMedidas = async () => {
-
+export const getProveedores = async () => {
     const domain = config.API_URL;
-    const path = '/almacen/medidas/list-medidas.php';
+    const path = '/referenciales/proveedor/list_proveedores.php';
     const url = domain + path;
 
     const { data } = await axios.post(url);

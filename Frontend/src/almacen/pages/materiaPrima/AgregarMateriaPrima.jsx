@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
-import { FilterMedidas } from "./../../components/FilterMedidas";
 import { createMateriaPrima } from "../../helpers/materia-prima/createMateriaPrima";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import { FilterMedidas } from "./../../../components/ReferencialesFilters/Medidas/FilterMedidas";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -161,17 +160,6 @@ const AgregarMateriaPrima = () => {
                 onChange={handledForm}
                 name="nomMatPri"
                 className="form-control"
-              />
-            </div>
-          </div>
-          {/* CATEGORIA */}
-          <div className="mb-3 row">
-            <label htmlFor="categoria" className="col-sm-2 col-form-label">
-              Categoria
-            </label>
-            <div className="col-md-2">
-              <FilterCategoriaMateriaPrima
-                onNewInput={onAddCategoriaMateriaPrima}
               />
             </div>
           </div>

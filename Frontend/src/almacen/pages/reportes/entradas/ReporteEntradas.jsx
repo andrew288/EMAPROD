@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { FilterCategoriaMateriaPrima } from "../../../components/FilterCategoriaMateriaPrima";
-import { FilterEstadoEntrada } from "../../../components/FilterEstadoEntrada";
-import { FilterProveedor } from "../../../components/FilterProveedor";
-import { FilterMateriaPrima } from "./../../../components/FilterMateriaPrima";
 import { getReporteEntradas } from "./../../../helpers/reportes/getReporteEntradas";
-import FechaPicker2 from "./../../../components/FechaPicker2";
 import { exportJSONtoExcel } from "../../../utils/exportJSONtoExcel";
+import { FilterEstadoEntrada } from "./../../../../components/ReferencialesFilters/EstadoEntradaStock/FilterEstadoEntrada";
+import { FilterProveedor } from "./../../../../components/ReferencialesFilters/Proveedor/FilterProveedor";
+import { FilterMateriaPrima } from "./../../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
+import FechaPicker2 from "./../../../../components/Fechas/FechaPicker2";
 
 export const ReporteEntradas = () => {
   // ESTADO DE LOS FILTROS SUBMIT
@@ -244,32 +243,6 @@ export const ReporteEntradas = () => {
                       {element.label}
                       <button
                         onClick={() => deleteFilterMateriaPrima(element)}
-                        className="badge btn btn-primary ms-1 py-0"
-                      >
-                        x
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </div>
-              {/* categoria */}
-              <div className="col-6">
-                <label className="form-label">Categoria</label>
-                <FilterCategoriaMateriaPrima
-                  onNewInput={handledCategoriaMateriaPrima}
-                />
-                {/* badges filters */}
-                <div className="d-flex flex-wrap justify-content-start mt-3">
-                  {categoriaMateriaPrima.map((element) => (
-                    <span
-                      key={element.id}
-                      className="badge text-bg-primary me-1 py-2 px-1 mb-1"
-                    >
-                      {element.label}
-                      <button
-                        onClick={() =>
-                          deleteFilterCategoriaMateriaPrima(element)
-                        }
                         className="badge btn btn-primary ms-1 py-0"
                       >
                         x

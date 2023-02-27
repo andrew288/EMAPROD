@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+// HOOKS
+import { useForm } from "../../../hooks/useForm";
 // IMPORTACIONES PARA TABLE MUI
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -22,12 +24,13 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { getEntradasStock } from "./../../helpers/entradas-stock/getEntradasStock";
-import { FilterMateriaPrima } from "../../components/FilterMateriaPrima";
-import { FilterProveedor } from "../../components/FilterProveedor";
-import { FilterAlmacen } from "./../../components/FilterAlmacen";
-import FechaPickerDay from "../../components/FechaPickerDay";
-import FechaPickerMonth from "./../../components/FechaPickerMonth";
-import { useForm } from "../../../hooks/useForm";
+// FILTROS
+import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
+import { FilterProveedor } from "./../../../components/ReferencialesFilters/Proveedor/FilterProveedor";
+import { FilterAlmacen } from "./../../../components/ReferencialesFilters/Almacen/FilterAlmacen";
+// FECHA PICKER
+import FechaPickerDay from "./../../../components/Fechas/FechaPickerDay";
+import FechaPickerMonth from "./../../../components/Fechas/FechaPickerMonth";
 
 // CONFIGURACIONES DE ESTILOS
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -128,24 +131,24 @@ const ListEntradaStock = () => {
 
   // Filtros generales que hacen nuevas consultas
   const onChangeDateStartData = (newDate) => {
-    setFormState({ ...formState, fecEntIniSto: newDate });
+    let dateFormat = newDate.split(" ")[0];
+    setFormState({ ...formState, fecEntIniSto: dateFormat });
     // realizamos una promesa
     let body = {
       ...formState,
-      fecEntIniSto: newDate.split(" ")[0],
+      fecEntIniSto: dateFormat,
     };
-    console.log(body);
     obtenerDataEntradaStock(body);
   };
 
   const onChangeDateEndData = (newDate) => {
-    setFormState({ ...formState, fecEntFinSto: newDate });
+    let dateFormat = newDate.split(" ")[0];
+    setFormState({ ...formState, fecEntFinSto: dateFormat });
     // realizamos una promesa
     let body = {
       ...formState,
-      fecEntFinSto: newDate.split(" ")[0],
+      fecEntFinSto: dateFormat,
     };
-    console.log(body);
     obtenerDataEntradaStock(body);
   };
 

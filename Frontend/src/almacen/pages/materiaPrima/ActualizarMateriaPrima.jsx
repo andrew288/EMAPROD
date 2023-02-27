@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 // IMPORTACIONES PARA LA NAVEGACION
 import { useParams, useNavigate } from "react-router-dom";
 // IMPORTACIONES PARA EL MANEJO DE LA DATA
-import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
-import { FilterMedidas } from "./../../components/FilterMedidas";
 import { getMateriaPrimaById } from "./../../helpers/materia-prima/getMateriaPrimaById";
 import { updateMateriaPrima } from "./../../helpers/materia-prima/updateMateriaPrima";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+// FILTROS
+import { FilterMedidas } from "./../../../components/ReferencialesFilters/Medidas/FilterMedidas";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -189,17 +189,6 @@ const ActualizarMateriaPrima = () => {
                 onChange={handledForm}
                 name="nomMatPri"
                 className="form-control"
-              />
-            </div>
-          </div>
-          {/* CATEGORIA */}
-          <div className="mb-3 row">
-            <label htmlFor="categoria" className="col-sm-2 col-form-label">
-              Categoria
-            </label>
-            <div className="col-md-2">
-              <FilterCategoriaMateriaPrima
-                onNewInput={onAddCategoriaMateriaPrima}
               />
             </div>
           </div>

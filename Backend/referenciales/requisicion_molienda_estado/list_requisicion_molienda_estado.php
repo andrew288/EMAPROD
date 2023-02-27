@@ -10,9 +10,10 @@ $description_error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($pdo) {
-        $sql = "SELECT * FROM entrada_stock_estado";
-        // Preparamos la consulta
+        $sql = "SELECT * FROM requisicion_molienda_estado";
         try {
+
+            // Preparamos la consulta
             $stmt = $pdo->prepare($sql);
             // Ejecutamos la consulta
             $stmt->execute();
@@ -21,7 +22,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 array_push($result, $row);
             }
         } catch (PDOException $e) {
-            $message_error = "ERROR INTERNO SERVER ENTRADA STOCK ESTADO";
+            // No se pudo realizar la conexion a la base de datos
+            $message_error = "ERROR INTERNO REQUISICION MOLIENDA ESTADO";
             $description_error = $e->getMessage();
         }
     } else {
@@ -36,7 +38,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $return['result'] = $result;
     echo json_encode($return);
 }
-
-// Si se pudo realizar la conexion a la base de datos
-
-// Programa terminado

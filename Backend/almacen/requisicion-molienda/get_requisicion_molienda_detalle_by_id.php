@@ -20,16 +20,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             rmd.id,
             rmd.idMatPri,
             rmd.idReqMol,
-            rm.codLotReqMol,
-            mp.nomMatPri,
-            mp.codMatPri,
+            pd.codLotPro,
+            p.nomProd,
+            p.codProd,
             rmd.idReqMolDetEst,
             rmde.desReqMolDetEst,
             rmd.canReqMolDet
             FROM requisicion_molienda_detalle as rmd
-            JOIN materia_prima as mp on mp.id = rmd.idMatPri
+            JOIN producto as p on p.id = rmd.idMatPri
             JOIN requisicion_molienda_detalle_estado as rmde on rmde.id = rmd.idReqMolDetEst
             JOIN requisicion_molienda as rm on rm.id = rmd.idreqMol
+            JOIN produccion pd on pd.id = rm.idProdc
             WHERE rmd.id = ?
             ";
         // PREPARAMOS LA CONSULTA

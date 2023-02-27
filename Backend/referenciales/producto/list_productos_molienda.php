@@ -13,27 +13,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql =
             "SELECT
         M.id,
-        M.idCat,
-        C.desCat,
         M.idMed,
         ME.simMed,
-        M.codProd, 
         M.nomProd,
-        M.stoActProd,
+        M.codProd2,
         M.esMatPri,
         M.esProFin,
-        M.esProInt,
-        M.cta1,
-        M.cta2
+        M.esProInt
         FROM producto M
-        LEFT JOIN categoria C ON M.idCat = C.id
         LEFT JOIN medida ME ON M.idMed = ME.id
-        WHERE M.esMatPri = ?
+        WHERE M.esProInt = ?
         ";
         // Preparamos la consulta
         $stmt = $pdo->prepare($sql);
-        $esMatPri = 1; // filtramos las materis primas
-        $stmt->bindParam(1, $esMatPri, PDO::PARAM_BOOL);
+        $esProInt = 1; // filtramos los productos de molienda
+        $stmt->bindParam(1, $esProInt, PDO::PARAM_BOOL);
         // Ejecutamos la consulta
         try {
             $stmt->execute();

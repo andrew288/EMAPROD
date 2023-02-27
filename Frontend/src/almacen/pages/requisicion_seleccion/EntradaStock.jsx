@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import FechaPicker from "../../components/FechaPicker";
 import { useLocation } from "react-router-dom";
 import queryString from "query-string";
 // IMPORTACIONES PARA EL FEEDBACK
@@ -9,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { getRequisicionSeleccionDetalleById } from "./../../helpers/requisicion-seleccion/getRequisicionSeleccionDetalleById";
 import { getSalidasDisponiblesForSeleccion } from "./../../helpers/requisicion-seleccion/getSalidasDisponiblesForSeleccion";
 import { createEntradasStockByReqSelDet } from "../../helpers/requisicion-seleccion/createEntradasStockByReqSelDet";
+import FechaPicker from "./../../../components/Fechas/FechaPicker";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {

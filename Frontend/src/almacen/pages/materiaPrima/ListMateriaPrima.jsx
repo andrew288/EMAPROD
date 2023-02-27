@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { FilterCategoriaMateriaPrima } from "../../components/FilterCategoriaMateriaPrima";
-import { getMateriaPrima } from "../../helpers/materia-prima/getMateriasPrimas";
 // IMPORTACIONES PARA TABLE MUI
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -22,6 +20,7 @@ import { deleteMateriaPrima } from "./../../helpers/materia-prima/deleteMateriaP
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import { getMateriaPrima } from "./../../../helpers/Referenciales/producto/getMateriasPrimas";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -238,14 +237,6 @@ const ListMateriaPrima = () => {
             />
           </div>
 
-          {/* FILTRO POR CATEGORIA */}
-          <div className="col-md-3">
-            <label htmlFor="inputPassword4" className="form-label">
-              Categoria
-            </label>
-            <FilterCategoriaMateriaPrima onNewInput={AddNewCategory} />
-          </div>
-
           {/* FILTRO POR NOMBRE */}
           <div className="col-md-4">
             <label htmlFor="inputPassword4" className="form-label">
@@ -289,9 +280,6 @@ const ListMateriaPrima = () => {
                   <TableCell align="left" width={80}>
                     Código
                   </TableCell>
-                  <TableCell align="left" width={150}>
-                    Categoria
-                  </TableCell>
                   <TableCell align="left" width={350}>
                     Nombre
                   </TableCell>
@@ -314,7 +302,6 @@ const ListMateriaPrima = () => {
                       <TableCell component="th" scope="row">
                         {row.codMatPri}
                       </TableCell>
-                      <TableCell align="left">{row.desMatPriCat}</TableCell>
                       <TableCell align="left">{row.nomMatPri}</TableCell>
                       <TableCell align="left">
                         {row.stoMatPri}&nbsp;{row.simMed}

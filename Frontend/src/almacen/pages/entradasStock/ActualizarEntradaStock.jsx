@@ -1,72 +1,67 @@
 import React, { useState } from "react";
-import FechaPicker from "../../components/FechaPicker";
+import FechaPicker from "../../../components/Fechas/FechaPicker";
 import {
   DiaJuliano,
   FormatDateTimeMYSQLNow,
 } from "../../../utils/functions/FormatDate";
-import { FilterMateriaPrima } from "../../components/FilterMateriaPrima";
-import { FilterProveedor } from "../../components/FilterProveedor";
+import { useForm } from "./../../../hooks/useForm";
+import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
+import { FilterProveedor } from "./../../../components/ReferencialesFilters/Proveedor/FilterProveedor";
 
 const ActualizarEntradaStock = () => {
-  const [entrada, setEntrada] = useState({
-    codigoMateriaPrima: "",
-    codigoProveedor: "",
-    fechaEntrada: "",
+  const [entrada, setFormState, onInputChange] = useForm({
+    idProd: 0,
+    idProv: 0,
+    idAlm: 0,
+    fecEntSto: "",
     documentoEntrada: "",
     cantidadEntrada: 0,
   });
 
   const {
-    codigoMateriaPrima,
-    codigoProveedor,
-    fechaEntrada,
+    idProd,
+    idProv,
+    idAlm,
+    fecEntSto,
     documentoEntrada,
     cantidadEntrada,
   } = entrada;
 
   // MANEJADOR DE FORMUALARIO
 
-  const handledForm = ({ target }) => {
-    const { name, value } = target;
-    setEntrada({
-      ...entrada,
-      [name]: value,
-    });
-  };
-
   // INPUT CODIGO MATERIA PRIMA
   const onAddCodigoEntrada = (newCodMateriaPrima) => {
-    setEntrada({ ...entrada, codigoMateriaPrima: newCodMateriaPrima });
+    setFormState({ ...entrada, idProd: newCodMateriaPrima });
   };
 
   // INPUT CODIGO PROVEEDOR
-  const onAddCodigoProveedor = (newCodProveedor) => {
-    setEntrada({ ...entrada, codigoProveedor: newCodProveedor });
+  const onAddidProv = (newCodProveedor) => {
+    setFormState({ ...entrada, idProv: newCodProveedor });
   };
 
   // SETTEAR VALOR DE FECHA DE ENTRADA
-  const onAddFechaEntrada = (newFechaEntrada) => {
-    setEntrada({ ...entrada, fechaEntrada: newFechaEntrada });
+  const onAddfecEntSto = (newfecEntSto) => {
+    setFormState({ ...entrada, fecEntSto: newfecEntSto });
   };
 
   // SUBMIT DE UNA ENTRADA COMUNICACION CON BACKEND
   const onAddEntrada = (event) => {
     event.preventDefault();
 
-    const { codigoMateriaPrima, codigoProveedor, documentoEntrada } = entrada;
+    const { idProd, idProv, documentoEntrada } = entrada;
 
     // VERIFICAMOS SI SE INGRESARON LOS CAMPOS REQUERIDOS
     if (
-      codigoMateriaPrima.length != 0 &&
-      codigoProveedor.length != 0 &&
+      idProd.length != 0 &&
+      idProv.length != 0 &&
       documentoEntrada.length != 0
     ) {
       let ResponseJSON = { ...entrada };
       // VERIFICAMOS SI SE INGRESO UNA FECHA DE ENTRADA
-      if (entrada.fechaEntrada.length == 0) {
+      if (entrada.fecEntSto.length == 0) {
         ResponseJSON = {
           ...ResponseJSON,
-          fechaEntrada: FormatDateTimeMYSQLNow(),
+          fecEntSto: FormatDateTimeMYSQLNow(),
         };
       }
 
@@ -78,8 +73,8 @@ const ActualizarEntradaStock = () => {
         9-11: dia juliano
         12-13: num. ingreso de la misma materia prima
       */
-      const codEntrada = `${codigoMateriaPrima}${codigoProveedor}C${DiaJuliano(
-        ResponseJSON.fechaEntrada
+      const codEntrada = `${idProd}${idProv}C${DiaJuliano(
+        ResponseJSON.fecEntSto
       )}01`;
 
       console.log(ResponseJSON);
@@ -104,10 +99,10 @@ const ActualizarEntradaStock = () => {
             </label>
             <div className="col-md-2">
               <input
-                onChange={handledForm}
-                value={codigoMateriaPrima}
+                onChange={onInputChange}
+                value={idProd}
                 type="text"
-                name="codigoMateriaPrima"
+                name="idProd"
                 className="form-control"
               />
             </div>
@@ -129,17 +124,17 @@ const ActualizarEntradaStock = () => {
             </label>
             <div className="col-md-2">
               <input
-                onChange={handledForm}
-                value={codigoProveedor}
+                onChange={onInputChange}
+                value={idProv}
                 type="text"
-                name="codigoProveedor"
+                name="idProv"
                 className="form-control"
               />
             </div>
             {/* SEARCH NAME PROVEEDOR */}
             <div className="col-md-4">
               <div className="input-group">
-                <FilterProveedor onNewInput={onAddCodigoProveedor} />
+                <FilterProveedor onNewInput={onAddidProv} />
               </div>
             </div>
           </div>
@@ -153,7 +148,7 @@ const ActualizarEntradaStock = () => {
               Fecha de entrada
             </label>
             <div className="col-md-4">
-              <FechaPicker onNewFechaEntrada={onAddFechaEntrada} />
+              <FechaPicker onNewfecEntSto={onAddfecEntSto} />
             </div>
           </div>
 
@@ -167,7 +162,7 @@ const ActualizarEntradaStock = () => {
             </label>
             <div className="col-md-4">
               <input
-                onChange={handledForm}
+                onChange={onInputChange}
                 value={documentoEntrada}
                 type="text"
                 name="documentoEntrada"
@@ -186,7 +181,7 @@ const ActualizarEntradaStock = () => {
             </label>
             <div className="col-md-2">
               <input
-                onChange={handledForm}
+                onChange={onInputChange}
                 value={cantidadEntrada}
                 type="number"
                 name="cantidadEntrada"

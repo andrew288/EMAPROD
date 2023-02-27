@@ -1,6 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import FechaPicker from "../../components/FechaPicker";
-import HoraPicker from "./../../components/HoraPicker";
 import { useLocation } from "react-router-dom";
 import { getRequisicionMoliendaDetalleById } from "./../../helpers/requisicion-molienda/getRequisicionMoliendaDetalleById";
 import queryString from "query-string";
@@ -10,25 +8,27 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { createSalidasStockByReqMolDet } from "./../../helpers/salidas-stock/createSalidasStockByReqMolDet";
+import FechaPicker from "./../../../components/Fechas/FechaPicker";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 const AgregarSalidaStock = () => {
+  // referencia a la tabla
   const refTable = useRef();
 
+  // importacion para extaer la query
   const location = useLocation();
-
   const { idReqMolDet = "" } = queryString.parse(location.search);
 
   // ESTADOS PARA EL FORMULARIO DE SALIDA
   const [salidaMolienda, setSalidaMolienda] = useState({
     idReqMol: 0,
     idReqMolDet: 0,
-    codLotReqMol: "",
+    codLotPro: "",
     idMatPri: 0,
-    codMatPri: "",
+    codProd: "",
     salStoMolDet: [],
     fecSalStoReqMol: "",
     canReqMolDet: 0,
@@ -37,9 +37,9 @@ const AgregarSalidaStock = () => {
 
   const {
     idReqMol,
-    codLotReqMol,
+    codLotPro,
     idMatPri,
-    codMatPri,
+    codProd,
     fecSalStoReqMol,
     canReqMolDet,
     docSalSto,
@@ -105,8 +105,8 @@ const AgregarSalidaStock = () => {
             idReqMol: result[0].idReqMol,
             idReqMolDet: parseInt(idReqMolDet, 10),
             idMatPri: result[0].idMatPri,
-            codLotReqMol: result[0].codLotReqMol,
-            codMatPri: result[0].codMatPri,
+            codLotPro: result[0].codLotPro,
+            codProd: result[0].codProd,
             canReqMolDet: result[0].canReqMolDet,
           });
         } else {
@@ -299,13 +299,13 @@ const AgregarSalidaStock = () => {
         <form className="mt-4">
           <div className="mb-3 row">
             <label htmlFor="codigo-lote" className="col-sm-2 col-form-label">
-              Código del Lote
+              Lote
             </label>
             <div className="col-md-2">
               <input
                 type="text"
-                name="codLotReqMol"
-                value={codLotReqMol}
+                name="codLotPro"
+                value={codLotPro}
                 readOnly
                 className="form-control"
                 onChange={handledForm}
@@ -323,8 +323,8 @@ const AgregarSalidaStock = () => {
             <div className="col-md-2">
               <input
                 type="text"
-                name="codMatPri"
-                value={codMatPri}
+                name="codProd"
+                value={codProd}
                 readOnly
                 className="form-control"
                 onChange={handledForm}

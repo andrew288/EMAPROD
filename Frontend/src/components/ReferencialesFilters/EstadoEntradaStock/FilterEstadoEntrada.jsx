@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import Select from "react-select";
-import { getEstadosEntradasStock } from "./../helpers/entradas-stock/getEstadosEntradaStock";
+import { getEstadosEntradasStock } from "./../../../almacen/helpers/entradas-stock/getEstadosEntradaStock";
 
 export const FilterEstadoEntrada = ({ onNewInput }) => {
   const [result, setResult] = useState([]);

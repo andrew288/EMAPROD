@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { getCategoriasMateriaPrima } from "./../helpers/getCategoriasMateriaPrima";
+import React from "react";
+import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import { getProductosMolienda } from "./../../../helpers/Referenciales/producto/getProductosMolienda";
 
-export const FilterCategoriaMateriaPrima = ({ onNewInput }) => {
+export const FilterProductoMolienda = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
 
-  const obtenerDataCategoriaMateriaPrima = async () => {
-    const resultPeticion = await getCategoriasMateriaPrima();
+  const obtenerDataProductoMolienda = async () => {
+    const resultPeticion = await getProductosMolienda();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.id,
-        label: `${element.desMatPriCat}`,
+        value: element.codProd2,
+        label: element.nomProd,
         id: element.id,
       };
     });
@@ -19,7 +20,7 @@ export const FilterCategoriaMateriaPrima = ({ onNewInput }) => {
   };
 
   useEffect(() => {
-    obtenerDataCategoriaMateriaPrima();
+    obtenerDataProductoMolienda();
   }, []);
 
   const handledChange = (event, value) => {

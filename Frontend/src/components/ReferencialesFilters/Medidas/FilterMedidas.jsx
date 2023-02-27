@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import { getAlmacenes } from "./../helpers/getAlmacenes";
+import { getMedidas } from "./../../../helpers/Referenciales/medida/getMedidas";
 
-export const FilterAlmacen = ({ onNewInput }) => {
+export const FilterMedidas = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
 
-  const getDataAlmacenes = async () => {
-    const resultPeticion = await getAlmacenes();
+  const obtenerDataMedidas = async () => {
+    const resultPeticion = await getMedidas();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.codAlm,
-        label: `${element.nomAlm}`,
-        id: element.id,
+        value: element.id,
+        label: `${element.desMed} (${element.simMed})`,
       };
     });
     setResult(formatSelect);
   };
 
   useEffect(() => {
-    getDataAlmacenes();
+    obtenerDataMedidas();
   }, []);
 
   const handledChange = (event, value) => {

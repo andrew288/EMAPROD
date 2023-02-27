@@ -20,7 +20,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { deleteProveedor } from "./../../helpers/proveedor/deleteProveedor";
-import { getProveedores } from "./../../helpers/proveedor/getProveedores";
+import { getProveedores } from "./../../../helpers/Referenciales/proveedor/getProveedores";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {

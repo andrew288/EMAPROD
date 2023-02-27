@@ -1,24 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { getMedidas } from "./../helpers/getMedidas";
+import React from "react";
+import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import { getEstadoRequisicionMolienda } from "./../../../helpers/Referenciales/entradasStock/getEstadoRequisicionMolienda";
 
-export const FilterMedidas = ({ onNewInput }) => {
+export const FilterEstadoRequisicionMolienda = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
 
-  const obtenerDataMedidas = async () => {
-    const resultPeticion = await getMedidas();
+  const obtenerDataEstadoRequisicionMolienda = async () => {
+    const resultPeticion = await getEstadoRequisicionMolienda();
     const formatSelect = resultPeticion.map((element) => {
       return {
         value: element.id,
-        label: `${element.desMed} (${element.simMed})`,
+        label: element.desReqMolEst,
+        id: element.id,
       };
     });
     setResult(formatSelect);
   };
 
   useEffect(() => {
-    obtenerDataMedidas();
+    obtenerDataEstadoRequisicionMolienda();
   }, []);
 
   const handledChange = (event, value) => {

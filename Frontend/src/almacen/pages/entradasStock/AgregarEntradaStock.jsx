@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useForm } from "./../../../hooks/useForm";
 // IMPORT DE EFECHA PICKER
-import FechaPicker from "../../components/FechaPicker";
-import FechaPickerYear from "./../../components/FechaPickerYear";
+import FechaPicker from "./../../../components/Fechas/FechaPicker";
+import FechaPickerYear from "./../../../components/Fechas/FechaPickerYear";
 // FUNCIONES UTILES
 import {
   DiaJuliano,
@@ -10,9 +10,6 @@ import {
   letraAnio,
 } from "../../../utils/functions/FormatDate";
 // IMPORTACIONES DE FILTROS
-import { FilterMateriaPrima } from "../../components/FilterMateriaPrima";
-import { FilterProveedor } from "../../components/FilterProveedor";
-import { FilterAlmacen } from "./../../components/FilterAlmacen";
 // IMPORTACIONES DE COMPONENTES MUI
 import Checkbox from "@mui/material/Checkbox";
 // IMPORTACIONES PARA EL FEEDBACK
@@ -20,6 +17,9 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { createEntradaStock } from "./../../helpers/entradas-stock/createEntradaStock";
+import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
+import { FilterProveedor } from "./../../../components/ReferencialesFilters/Proveedor/FilterProveedor";
+import { FilterAlmacen } from "./../../../components/ReferencialesFilters/Almacen/FilterAlmacen";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {

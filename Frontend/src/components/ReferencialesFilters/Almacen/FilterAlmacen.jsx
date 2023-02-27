@@ -1,18 +1,17 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import { getProveedores } from "./../helpers/proveedor/getProveedores";
+import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import { getAlmacenes } from "./../../../helpers/Referenciales/almacen/getAlmacenes";
 
-export const FilterProveedor = ({ onNewInput }) => {
+export const FilterAlmacen = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
 
-  const obtenerDataMateriPrima = async () => {
-    const resultPeticion = await getProveedores();
+  const getDataAlmacenes = async () => {
+    const resultPeticion = await getAlmacenes();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.codProv,
-        label: `${element.nomProv} ${element.apeProv}`,
+        value: element.codAlm,
+        label: `${element.nomAlm}`,
         id: element.id,
       };
     });
@@ -20,7 +19,7 @@ export const FilterProveedor = ({ onNewInput }) => {
   };
 
   useEffect(() => {
-    obtenerDataMateriPrima();
+    getDataAlmacenes();
   }, []);
 
   const handledChange = (event, value) => {
