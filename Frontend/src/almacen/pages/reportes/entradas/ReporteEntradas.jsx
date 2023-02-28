@@ -188,7 +188,7 @@ export const ReporteEntradas = () => {
 
   return (
     <>
-      <div className="container">
+      <div className="container-fluid mx-3">
         {/* filtro de entrada */}
         <div className="row mt-3">
           {/* filtro de fecha de la entrada */}
@@ -238,14 +238,14 @@ export const ReporteEntradas = () => {
                   {materiaPrima.map((element) => (
                     <span
                       key={element.value}
-                      className="badge text-bg-primary me-1 py-2 px-1"
+                      className="badge text-bg-primary fs-5 me-2 mb-2 py-2 px-2"
                     >
                       {element.label}
                       <button
                         onClick={() => deleteFilterMateriaPrima(element)}
                         className="badge btn btn-primary ms-1 py-0"
                       >
-                        x
+                        X
                       </button>
                     </span>
                   ))}
@@ -268,7 +268,7 @@ export const ReporteEntradas = () => {
                   {filterProveedor.map((element) => (
                     <span
                       key={element.id}
-                      className="badge text-bg-primary me-1 py-2 px-1"
+                      className="badge text-bg-primary fs-5 me-2 mb-2 py-2 px-2"
                     >
                       {element.label}
                       <button
@@ -277,7 +277,7 @@ export const ReporteEntradas = () => {
                         }
                         className="badge btn btn-primary ms-1 py-0"
                       >
-                        x
+                        X
                       </button>
                     </span>
                   ))}

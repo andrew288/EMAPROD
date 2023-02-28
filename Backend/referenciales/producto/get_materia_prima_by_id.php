@@ -18,41 +18,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($pdo) {
             $sql =
                 "SELECT
-            M.id,
-            M.codMatPri, 
-            M.idMatPriCat,
-            M.desMatPri,
-            C.desMatPriCat,
-            M.idMed,
-            ME.simMed,
-            M.nomMatPri,
-            M.stoMatPri
-            FROM materia_prima M
-            LEFT JOIN materia_prima_categoria C ON M.idMatPriCat = C.id
-            LEFT JOIN medida ME ON M.idMed = ME.id
-            WHERE M.id = ?
+            p.id,
+            p.codProd, 
+            p.idCla,
+            c.desCla,
+            p.idSubCla,
+            sc.desSubCla,
+            p.idMed,
+            me.simMed,
+            p.nomProd
+            FROM producto p
+            JOIN clase c ON p.idCla = c.id
+            JOIN sub_clase sc ON p.idSubCla = sc.id
+            JOIN medida me ON p.idMed = me.id
+            WHERE p.id = ?
             ";
-            // Preparamos la consulta
-            $stmt = $pdo->prepare($sql);
 
-            $stmt->bindParam(1, $idMateriaPrima, PDO::PARAM_INT);
-            // Ejecutamos la consulta
             try {
+                // Preparamos la consulta
+                $stmt = $pdo->prepare($sql);
+
+                $stmt->bindParam(1, $idMateriaPrima, PDO::PARAM_INT);
+                // Ejecutamos la consulta
                 $stmt->execute();
+                // Recorremos los resultados
+                $count_results = 0;
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    array_push($result, $row);
+                    $count_results++;
+                }
+
+                if ($count_results == 0) {
+                    $message_error = "No se pudo encontrar el elemento";
+                    $description_error = "El id proporcionado no corresponde a ninguna materia prima";
+                }
             } catch (Exception $e) {
                 $message_error = "ERROR INTERNO SERVER";
                 $description_error = $e->getMessage();
-            }
-            // Recorremos los resultados
-            $count_results = 0;
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                array_push($result, $row);
-                $count_results++;
-            }
-
-            if ($count_results == 0) {
-                $message_error = "No se pudo encontrar el elemento";
-                $description_error = "El id proporcionado no corresponde a ninguna materia prima";
             }
         } else {
             // No se pudo realizar la conexion a la base de datos

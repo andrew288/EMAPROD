@@ -1,5 +1,5 @@
 import ListSalidaStock from "./ListSalidaStock";
-import AgregarSalidaStock from "./AgregarSalidaStock";
+import { AgregarSalidaStock } from "./AgregarSalidaStock";
 import ActualizarSalidaStock from "./ActualizarSalidaStock";
 
 export const RouterAlmacenSalidasStock = [

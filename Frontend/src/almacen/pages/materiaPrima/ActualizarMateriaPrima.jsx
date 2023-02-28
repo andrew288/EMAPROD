@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 // IMPORTACIONES PARA LA NAVEGACION
 import { useParams, useNavigate } from "react-router-dom";
 // IMPORTACIONES PARA EL MANEJO DE LA DATA
-import { getMateriaPrimaById } from "./../../helpers/materia-prima/getMateriaPrimaById";
 import { updateMateriaPrima } from "./../../helpers/materia-prima/updateMateriaPrima";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 // FILTROS
 import { FilterMedidas } from "./../../../components/ReferencialesFilters/Medidas/FilterMedidas";
+import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {

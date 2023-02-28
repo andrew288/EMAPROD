@@ -19,12 +19,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $docSalSto = $data["docSalSto"];
     $canReqMolDet = $data["canReqMolDet"];
     $salStoMolDet = $data["salStoMolDet"];
-    $idEstSalStoMol = 1;
+    $idEstSalStoMol = 1; // completado
 
     if ($pdo) {
         $sql = "";
+        // RECORREMOS TODAS LAS ENTRADAS SELECCIONADAS PARA LA SALIDA
         foreach ($salStoMolDet as $item) {
-
             try {
                 // INICIAMOS UNA TRANSACCION
                 $pdo->beginTransaction();
@@ -37,9 +37,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // CREAMOS LA CONSULTA
                 $sql =
                     "INSERT
-            salida_stock_molienda
-            (idEntSto, idReqMol, idMatPri, idEstSalStoMol, docSalSto, canSalReqMol)
-            VALUES (?,?,?,?,?,$canSalReqMol)";
+                salida_stock_molienda
+                (idEntSto, idReqMol, idMatPri, idEstSalStoMol, docSalSto, canSalReqMol)
+                VALUES (?,?,?,?,?,$canSalReqMol)";
 
                 $stmt = $pdo->prepare($sql);
                 $stmt->bindParam(1, $idEntSto, PDO::PARAM_INT);
@@ -51,28 +51,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // EJECUTAMOS LA CREACION DE UNA SALIDA
                 $stmt->execute();
 
-
                 // CONSULTA DE ENTRADA STOCK
                 $canTotDisEntSto = 0;
                 $idEntStoEst = 0;
                 $canResAftOpe = 0;
+                $idAlmacen = 0; // id del almacen para realizar la actualizacion
 
                 $sql_consult_entrada_stock =
                     "SELECT 
-                canTotDis 
-                FROM entrada_stock
-                WHERE id = ?";
+                    canTotDis,
+                    idAlm
+                    FROM entrada_stock
+                    WHERE id = ?";
                 $stmt_consulta_entrada_stock = $pdo->prepare($sql_consult_entrada_stock);
                 $stmt_consulta_entrada_stock->bindParam(1, $idEntSto, PDO::PARAM_INT);
                 $stmt_consulta_entrada_stock->execute();
 
                 while ($row = $stmt_consulta_entrada_stock->fetch(PDO::FETCH_ASSOC)) {
                     $canTotDisEntSto += $row["canTotDis"];
+                    $idAlmacen = $row["idAlm"];
                 }
 
                 $canResAftOpe =  $canTotDisEntSto - $canSalReqMol;
 
-                if ($canResAftOpe == 0) {
+                if ($canResAftOpe == 0) { // SI LA CANTIDAD RESTANTE ES 0
                     $idEntStoEst = 2; // ESTADO DE ENTRADA AGOTADA O TERMINADA
                 } else {
                     $idEntStoEst = 1; // ESTADO DE ENTRADA DISPONIBLE
@@ -81,24 +83,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // ACTUALIZAMOS LA ENTRADA STOCK
                 $sql_update_entrada_stock =
                     "UPDATE
-                entrada_stock
-                SET canTotDis = $canResAftOpe, idEntStoEst = ?
-                WHERE id = ?
-                ";
+                    entrada_stock
+                    SET canTotDis = $canResAftOpe, idEntStoEst = ?
+                    WHERE id = ?
+                    ";
                 $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);
                 $stmt_update_entrada_stock->bindParam(1, $idEntStoEst, PDO::PARAM_INT);
                 $stmt_update_entrada_stock->bindParam(2, $idEntSto, PDO::PARAM_INT);
                 $stmt_update_entrada_stock->execute();
 
-                // ACTUALIZAMOS EL STOCK TOTAL DE LA MATERIA PRIMA
-                $sql_update_materia_prima =
-                    "UPDATE materia_prima
-                SET stoMatPri = stoMatPri - $canSalReqMol
-                WHERE id = ?";
+                // ACTUALIZAMOS EL ALMACEN CORRESPONDIENTE A LA ENTRADA
+                $sql_update_almacen_stock =
+                    "UPDATE almacen_stock
+                    SET canSto = canSto - $canSalReqMol, canStoDis = canStoDis - $canSalReqMol
+                    WHERE idAlm = ? AND idProd = ?";
 
-                $stmt_update_materia_prima = $pdo->prepare($sql_update_materia_prima);
-                $stmt_update_materia_prima->bindParam(1, $idMatPri, PDO::PARAM_INT);
-                $stmt_update_materia_prima->execute();
+                $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
+                $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
+                $stmt_update_almacen_stock->bindParam(2, $idMatPri, PDO::PARAM_INT);
+                $stmt_update_almacen_stock->execute();
+
+                // ACTUALIZAMOS EL STOCK TOTAL DE LA MATERIA PRIMA
+                // $sql_update_materia_prima =
+                //     "UPDATE materia_prima
+                // SET stoMatPri = stoMatPri - $canSalReqMol
+                // WHERE id = ?";
+
+                // $stmt_update_materia_prima = $pdo->prepare($sql_update_materia_prima);
+                // $stmt_update_materia_prima->bindParam(1, $idMatPri, PDO::PARAM_INT);
+                // $stmt_update_materia_prima->execute();
 
                 // TERMINAMOS LA TRANSACCION
                 $pdo->commit();
@@ -107,7 +120,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $message_error = "ERROR INTERNO SERVER: fallo en inserción de salidas";
                 $description_error = $e->getMessage();
             }
-            // SE TERMINA LA ITERACION Y SE CONTINUA CON LA SIGUIENTE SALIDA
         }
 
         // ACTUALIZAMOS LOS ESTADOS DE LA REQUISICION MOLIENDA MAESTRO Y DETALLE

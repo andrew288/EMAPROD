@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 // IMPORTACIONES PARA LA NAVEGACION
 import { useParams, useNavigate } from "react-router-dom";
 // IMPORTACIONES PARA EL MANEJO DE LA DATA
-import { FilterCategoriaProducto } from "../../components/FilterCategoriaProducto";
 import { updateProducto } from "./../../helpers/producto/updateProducto";
 import { getProductoById } from "../../helpers/producto/getProductoById";
 // IMPORTACIONES PARA EL FEEDBACK
@@ -158,15 +157,6 @@ export const ActualizarProducto = () => {
                 name="nomProd"
                 className="form-control"
               />
-            </div>
-          </div>
-          {/* CATEGORIA */}
-          <div className="mb-3 row">
-            <label htmlFor="categoria" className="col-sm-2 col-form-label">
-              Categoria
-            </label>
-            <div className="col-md-2">
-              <FilterCategoriaProducto onNewInput={onAddCategoriaProducto} />
             </div>
           </div>
           {/* DESCRIPCION */}

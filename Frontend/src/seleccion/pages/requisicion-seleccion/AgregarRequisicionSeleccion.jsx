@@ -13,8 +13,8 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { FilterMateriaPrimaSeleccionWhitId } from "./../../components/FilterMateriaPrimaSeleccionWhitId";
-import { getMateriaPrimaById } from "./../../../almacen/helpers/materia-prima/getMateriaPrimaById";
 import { createRequisicionSeleccionWithDetalle } from "./../../helpers/requisicion/createRequisicionSeleccionWithDetalle";
+import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {

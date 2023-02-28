@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import { FilterCategoriaProducto } from "./../../components/FilterCategoriaProducto";
 import { createProducto } from "./../../helpers/producto/createProducto";
 
 // CONFIGURACION DE FEEDBACK
@@ -129,15 +128,6 @@ export const AgregarProducto = () => {
                 name="nomProd"
                 className="form-control"
               />
-            </div>
-          </div>
-          {/* CATEGORIA */}
-          <div className="mb-3 row">
-            <label htmlFor="categoria" className="col-sm-2 col-form-label">
-              Categoria
-            </label>
-            <div className="col-md-2">
-              <FilterCategoriaProducto onNewInput={onAddCategoriaProducto} />
             </div>
           </div>
           {/* DESCRIPCION */}

@@ -1,23 +1,29 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { getRequisicionMoliendaDetalleById } from "./../../helpers/requisicion-molienda/getRequisicionMoliendaDetalleById";
+import { getRequisicionMoliendaDetalleById } from "../../helpers/requisicion-molienda/getRequisicionMoliendaDetalleById";
 import queryString from "query-string";
-import { getEntradasDisponibles } from "./../../helpers/salidas-stock/getEntradasDisponibles";
+import { getEntradasDisponibles } from "../../helpers/salidas-stock/getEntradasDisponibles";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
-import { createSalidasStockByReqMolDet } from "./../../helpers/salidas-stock/createSalidasStockByReqMolDet";
-import FechaPicker from "./../../../components/Fechas/FechaPicker";
+import { createSalidasStockByReqMolDet } from "../../helpers/salidas-stock/createSalidasStockByReqMolDet";
+import FechaPicker from "../../../components/Fechas/FechaPicker";
+// IMPORTACIONES PARA TABLE
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import { RowEntradaDisponible } from "../../components/RowEntradaDisponible";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
-const AgregarSalidaStock = () => {
-  // referencia a la tabla
-  const refTable = useRef();
-
+export const AgregarSalidaStock = () => {
   // importacion para extaer la query
   const location = useLocation();
   const { idReqMolDet = "" } = queryString.parse(location.search);
@@ -29,6 +35,7 @@ const AgregarSalidaStock = () => {
     codLotPro: "",
     idMatPri: 0,
     codProd: "",
+    nomProd: "",
     salStoMolDet: [],
     fecSalStoReqMol: "",
     canReqMolDet: 0,
@@ -40,6 +47,7 @@ const AgregarSalidaStock = () => {
     codLotPro,
     idMatPri,
     codProd,
+    nomProd,
     fecSalStoReqMol,
     canReqMolDet,
     docSalSto,
@@ -93,65 +101,78 @@ const AgregarSalidaStock = () => {
   // TRAER DATOS DE REQUISICION MOLIENDA DETALLE
   const traerDatosRequisicionMoliendaDetalle = async () => {
     if (idReqMolDet.length !== 0) {
-      try {
-        const resultData = await getRequisicionMoliendaDetalleById(idReqMolDet);
-        const { message_error, description_error, result } = resultData;
+      const resultData = await getRequisicionMoliendaDetalleById(idReqMolDet);
+      const { message_error, description_error, result } = resultData;
 
-        if (message_error.length === 0) {
-          // SETEAMOS EL CONTADOR
-          setcount(result[0].canReqMolDet);
-          setSalidaMolienda({
-            ...salidaMolienda,
-            idReqMol: result[0].idReqMol,
-            idReqMolDet: parseInt(idReqMolDet, 10),
-            idMatPri: result[0].idMatPri,
-            codLotPro: result[0].codLotPro,
-            codProd: result[0].codProd,
-            canReqMolDet: result[0].canReqMolDet,
-          });
-        } else {
-          console.log("Se proporciono un id inexistente");
-          setfeedbackMessages({
-            style_message: "error",
-            feedback_description_error: description_error,
-          });
-          handleClickFeeback();
-        }
-        setdisableButton(false);
-      } catch (e) {
-        console.log(e);
+      if (message_error.length === 0) {
+        // SETEAMOS EL CONTADOR
+        setcount(result[0].canReqMolDet);
+        setSalidaMolienda({
+          ...salidaMolienda,
+          idReqMol: result[0].idReqMol,
+          idReqMolDet: parseInt(idReqMolDet, 10),
+          nomProd: result[0].nomProd,
+          idMatPri: result[0].idMatPri,
+          codLotPro: result[0].codLotPro,
+          codProd: result[0].codProd,
+          canReqMolDet: result[0].canReqMolDet,
+        });
+      } else {
+        setfeedbackMessages({
+          style_message: "error",
+          feedback_description_error: description_error,
+        });
+        handleClickFeeback();
       }
+      setdisableButton(false);
     }
   };
 
   // TRAER DATOS DE ENTRADAS DISPONIBLES PARA LA REQUISICION MOLIENDA DETALLE
   const traerDatosEntradasDisponibles = async () => {
-    const { result } = await getEntradasDisponibles(idMatPri);
-    setentradasDisponibles(result);
+    const resultPeticion = await getEntradasDisponibles(idMatPri);
+    const { message_error, description_error, result } = resultPeticion;
+    if (message_error.length === 0) {
+      if (result.length === 0) {
+        // no hay entradas disponibles
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error: "No hay entradas disponibles",
+        });
+        handleClickFeeback();
+      } else {
+        // establecemos las entradas disponibles
+        setentradasDisponibles(result);
+      }
+    } else {
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
   };
 
   // Habilitar input de envio
-  const habilitarInputCantidad = (idPosElement, { id, canTotDis }) => {
-    let inputSelected =
-      refTable.current.children[idPosElement].childNodes[4].childNodes[0]
-        .childNodes[1].childNodes[0];
-
-    let checkState =
-      refTable.current.children[idPosElement].childNodes[4].childNodes[0]
-        .childNodes[0];
-
+  const onChangeCheckedEntrada = (
+    isChecked,
+    valueEntrada,
+    valueInput,
+    idEntrada,
+    setInputValue
+  ) => {
     // Obtenemos la cantidad actual de la entrada
-    let cantidadDisponible = parseInt(canTotDis, 10);
+    let cantidadDisponible = parseInt(valueEntrada, 10);
+    // Obtenemos la cantidad actual del input de entrada
+    let cantidadInputEntrada = parseInt(valueInput, 10);
     console.log(count);
 
     // Verificamos si la casilla fue seleccionada
-    if (checkState.checked) {
-      // Habilitamos el input
-      inputSelected.disabled = false;
+    if (isChecked) {
       // si la cantidad requerida es mayor o igual a la cantidad de la entrada
       if (count >= cantidadDisponible) {
         // Actualizamos el input con toda la cantidad de su entrada
-        inputSelected.value = cantidadDisponible;
+        setInputValue(cantidadDisponible);
         // Actualizamos la cantidad requerida
         setcount(count - cantidadDisponible);
 
@@ -159,9 +180,8 @@ const AgregarSalidaStock = () => {
         let aux = [...salStoMolDet];
         console.log(aux);
         aux.push({
-          idEntSto: id,
+          idEntSto: idEntrada,
           canSalReqMol: cantidadDisponible,
-          // canTotDis: canTotDis,
         });
         setSalidaMolienda({
           ...salidaMolienda,
@@ -174,18 +194,19 @@ const AgregarSalidaStock = () => {
       else {
         // si la cantidad requerida es igual a 0
         if (count === 0) {
-          inputSelected.value = 0;
+          setInputValue(0);
           console.log("COUNT: " + 0);
         }
         // si la cantidad requerida es menor a la cantidad de la entrada
         else {
-          inputSelected.value = count;
+          // inputSelected.value = count;
+          setInputValue(count);
           setcount(0);
           // Añadimos la informacion a la salida detalle
           let aux = [...salStoMolDet];
           console.log(aux);
           aux.push({
-            idEntSto: id,
+            idEntSto: idEntrada,
             canSalReqMol: count,
             // canTotDis: canTotDis,
           });
@@ -197,11 +218,11 @@ const AgregarSalidaStock = () => {
         }
       }
     } else {
-      inputSelected.disabled = true;
-      setcount(count + parseInt(inputSelected.value, 10));
+      // inputSelected.disabled = true;
+      setcount(count + cantidadInputEntrada);
       // Eliminamos la informacion deseleccionada
       let aux = salStoMolDet.filter((element) => {
-        if (element.idEntSto !== id) {
+        if (element.idEntSto !== idEntrada) {
           return true;
         } else {
           return false;
@@ -212,11 +233,12 @@ const AgregarSalidaStock = () => {
         ...salidaMolienda,
         salStoMolDet: aux,
       });
-      console.log("COUNT: " + (count + parseInt(inputSelected.value, 10)));
-      inputSelected.value = 0;
+      console.log("COUNT: " + (count + cantidadInputEntrada));
+      setInputValue(0);
     }
   };
 
+  // ******** ENVIAR SALIDA *********
   const crearSalidasStockByRequisicionMoliendaDetalle = async () => {
     console.log(salidaMolienda);
     const { message_error, description_error } =
@@ -237,16 +259,10 @@ const AgregarSalidaStock = () => {
     setdisableButton(false);
   };
 
-  // enviar salida
   const onSubmitSalidaStock = (e) => {
     e.preventDefault();
     // CONDICIONES DE ENVIO
-    if (
-      docSalSto.length === 0 ||
-      salStoMolDet.length === 0 ||
-      idReqMol === 0 ||
-      idMatPri === 0
-    ) {
+    if (salStoMolDet.length === 0 || idReqMol === 0 || idMatPri === 0) {
       // MANEJAMOS FORMULARIOS INCOMPLETOS
       if (salStoMolDet.length === 0) {
         setfeedbackMessages({
@@ -296,166 +312,181 @@ const AgregarSalidaStock = () => {
     <>
       <div className="container">
         <h1 className="mt-4 text-center">Registrar salida</h1>
-        <form className="mt-4">
+        <form className="mt-4 form-inline">
           <div className="mb-3 row">
-            <label htmlFor="codigo-lote" className="col-sm-2 col-form-label">
-              Lote
-            </label>
-            <div className="col-md-2">
-              <input
-                type="text"
-                name="codLotPro"
-                value={codLotPro}
-                readOnly
-                className="form-control"
-                onChange={handledForm}
-              />
-            </div>
-          </div>
-
-          <div className="mb-3 row">
-            <label
-              htmlFor="codigo-materia-prima"
-              className="col-sm-2 col-form-label"
-            >
-              Código de la materia prima
-            </label>
-            <div className="col-md-2">
-              <input
-                type="text"
-                name="codProd"
-                value={codProd}
-                readOnly
-                className="form-control"
-                onChange={handledForm}
-              />
-            </div>
-          </div>
-
-          <div className="mb-3 row">
-            <label
-              htmlFor="codigo-materia-prima"
-              className="col-sm-2 col-form-label"
-            >
-              Código de entrada
-            </label>
-            <div className="col-md-3">
-              <div className="input-group">
-                <div className="input-group-append">
-                  <button
-                    onClick={traerDatosEntradasDisponibles}
-                    className="btn btn-outline-secondary"
-                    type="button"
-                    id="agregarCodigoProveedor"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      className="bi bi-search"
-                      viewBox="0 0 16 16"
-                    >
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                    </svg>
-                  </button>
+            <div className="card d-flex">
+              <h6 className="card-header" id="response-serie-number-sale">
+                Requisicion Molienda
+              </h6>
+              <div className="card-body">
+                <label htmlFor="codigo-lote" className="col-form-label">
+                  <b>Código de lote</b>
+                </label>
+                <div className="col-md-2">
+                  <input
+                    type="text"
+                    name="codLotPro"
+                    value={codLotPro}
+                    readOnly
+                    className="form-control"
+                    onChange={handledForm}
+                  />
                 </div>
               </div>
             </div>
-            <div className="table-responsive mt-4">
-              <table className="table text-center">
-                <thead className="table-success ">
-                  <tr>
-                    <th scope="col">Cod. Ingreso</th>
-                    <th scope="col">N° Ingreso</th>
-                    <th scope="col">Fecha ingreso</th>
-                    <th scope="col">Cantidad</th>
-                    <th scope="col">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody ref={refTable}>
-                  {entradasDisponibles.map((element, i) => (
-                    <tr key={element.id}>
-                      <td>{element.codEntSto}</td>
-                      <td>{element.refNumIngEntSto}</td>
-                      <td>{element.fecEntSto}</td>
-                      <td>{element.canTotDis}</td>
-                      <td className="col-2">
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            value=""
-                            onChange={() => {
-                              habilitarInputCantidad(i, { ...element });
-                            }}
-                            id="flexCheckDefault"
-                          />
-                          <div
-                            className="form-check-label"
-                            htmlFor="flexCheckDefault"
-                          >
-                            <input
-                              className="form-control"
-                              type="number"
-                              placeholder="0"
-                              disabled={true}
-                            />
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
+
           <div className="mb-3 row">
-            <label
-              htmlFor="fecha-salida-stock"
-              className="col-sm-2 col-form-label"
-            >
-              Fecha de salida
-            </label>
-            <div className="col-md-3">
-              <FechaPicker />
+            <div className="card d-flex">
+              <h6 className="card-header" id="response-serie-number-sale">
+                Materia Prima
+              </h6>
+              <div className="card-body">
+                <div className="row">
+                  <div className="form-group col-md-2">
+                    <label
+                      htmlFor="codigo-materia-prima"
+                      className="col-form-label"
+                    >
+                      <b>Nombre</b>
+                    </label>
+                    <input
+                      type="text"
+                      name="nomProd"
+                      value={nomProd}
+                      readOnly
+                      className="form-control"
+                      onChange={handledForm}
+                    />
+                  </div>
+                  <div className="form-group col-md-2">
+                    <label
+                      htmlFor="codigo-materia-prima"
+                      className="col-form-label"
+                    >
+                      <b>Codigo Sigo</b>
+                    </label>
+                    <input
+                      type="text"
+                      name="codProd"
+                      value={codProd}
+                      readOnly
+                      className="form-control"
+                      onChange={handledForm}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="mb-3 row">
-            <label
-              htmlFor="documento-salida"
-              className="col-sm-2 col-form-label"
-            >
-              Documento
-            </label>
-            <div className="col-md-3">
-              <input
-                type="text"
-                name="docSalSto"
-                value={docSalSto}
-                className="form-control"
-                onChange={handledForm}
-              />
-            </div>
-          </div>
+            <div className="card d-flex">
+              <h6 className="card-header" id="response-serie-number-sale">
+                Datos de salida
+              </h6>
+              <div className="card-body">
+                <label
+                  htmlFor="codigo-materia-prima"
+                  className="col-form-label"
+                >
+                  <b>Entradas disponibles</b>
+                </label>
+                <button
+                  onClick={traerDatosEntradasDisponibles}
+                  className="btn btn-outline-secondary ms-3"
+                  type="button"
+                  id="agregarCodigoProveedor"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-search"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                  </svg>
+                </button>
 
-          <div className="mb-3 row">
-            <label
-              htmlFor="cantidad-salida"
-              className="col-sm-2 col-form-label"
-            >
-              Cantidad Salida
-            </label>
-            <div className="col-md-2">
-              <input
-                type="number"
-                name="canReqMolDet"
-                value={canReqMolDet}
-                readOnly
-                className="form-control"
-                onChange={handledForm}
-              />
+                {/* TABLA DE ENTRADAS DISPONIBLES */}
+                <div className="table-responsive mt-4">
+                  <table className="table text-center">
+                    <thead className="table-success ">
+                      <tr>
+                        <th scope="col">Almacen</th>
+                        <th scope="col">Codigo</th>
+                        <th scope="col">N° Ingreso</th>
+                        <th scope="col">Fecha ingreso</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entradasDisponibles.map((element, i) => (
+                        <RowEntradaDisponible
+                          key={element.id}
+                          entrada={element}
+                          onChangeInputValue={onChangeCheckedEntrada}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* CANTIDAD DE SALIDA */}
+                <div className="mb-3 row">
+                  <label
+                    htmlFor="cantidad-salida"
+                    className="col-sm-2 col-form-label"
+                  >
+                    <b>Cantidad Salida</b>
+                  </label>
+                  <div className="col-md-2">
+                    <input
+                      type="number"
+                      name="canReqMolDet"
+                      value={canReqMolDet}
+                      readOnly
+                      className="form-control"
+                      onChange={handledForm}
+                    />
+                  </div>
+                </div>
+
+                {/* FECHA DE SALIDA */}
+                <div className="mb-3 row">
+                  <label
+                    htmlFor="fecha-salida-stock"
+                    className="col-sm-2 col-form-label"
+                  >
+                    <b>Fecha de salida</b>
+                  </label>
+                  <div className="col-md-3">
+                    <FechaPicker />
+                  </div>
+                </div>
+
+                {/* DOCUMENTO */}
+                <div className="mb-3 row">
+                  <label
+                    htmlFor="documento-salida"
+                    className="col-sm-2 col-form-label"
+                  >
+                    <b>Documento</b>
+                  </label>
+                  <div className="col-md-3">
+                    <input
+                      type="text"
+                      name="docSalSto"
+                      autoComplete="off"
+                      value={docSalSto}
+                      className="form-control"
+                      onChange={handledForm}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           {/* BOTONES DE CANCELAR Y GUARDAR */}
@@ -465,7 +496,7 @@ const AgregarSalidaStock = () => {
               onClick={onNavigateBack}
               className="btn btn-secondary me-2"
             >
-              Cancelar
+              Volver
             </button>
             <button
               type="submit"
@@ -496,5 +527,3 @@ const AgregarSalidaStock = () => {
     </>
   );
 };
-
-export default AgregarSalidaStock;

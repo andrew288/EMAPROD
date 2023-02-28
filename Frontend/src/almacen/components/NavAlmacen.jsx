@@ -37,14 +37,14 @@ const NavAlmacen = () => {
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               {/* REQUISICIONES */}
               <li className="nav-item dropdown">
-                <Link
-                  className="nav-link dropdown-toggle"
+                <button
+                  className="btn btn-lg dropdown-toggle"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   Requisiciones
-                </Link>
+                </button>
                 <ul className="dropdown-menu">
                   <li>
                     <Link
@@ -67,14 +67,14 @@ const NavAlmacen = () => {
 
               {/* MATERIAS PRIMAS */}
               <li className="nav-item dropdown">
-                <Link
-                  className="nav-link dropdown-toggle"
+                <button
+                  className="btn btn-lg dropdown-toggle"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   Materia Prima
-                </Link>
+                </button>
                 <ul className="dropdown-menu">
                   <li>
                     <Link
@@ -97,14 +97,14 @@ const NavAlmacen = () => {
 
               {/* PROVEEDORES */}
               <li className="nav-item dropdown">
-                <Link
-                  className="nav-link dropdown-toggle"
+                <button
+                  className="btn btn-lg dropdown-toggle"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   Proveedor
-                </Link>
+                </button>
                 <ul className="dropdown-menu">
                   <li>
                     <Link className="dropdown-item" to={"/almacen/proveedor"}>
@@ -124,14 +124,14 @@ const NavAlmacen = () => {
 
               {/* ENTRADAS STOCK */}
               <li className="nav-item dropdown">
-                <Link
-                  className="nav-link dropdown-toggle"
+                <button
+                  className="btn btn-lg dropdown-toggle"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   Entradas Stock
-                </Link>
+                </button>
                 <ul className="dropdown-menu">
                   <li>
                     <Link

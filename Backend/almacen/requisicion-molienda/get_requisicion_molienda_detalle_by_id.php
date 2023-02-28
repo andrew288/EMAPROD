@@ -23,6 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             pd.codLotPro,
             p.nomProd,
             p.codProd,
+            p.codProd2,
             rmd.idReqMolDetEst,
             rmde.desReqMolDetEst,
             rmd.canReqMolDet

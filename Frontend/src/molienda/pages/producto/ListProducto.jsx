@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { getProductos } from "./../../helpers/producto/getProductos";
-import { FilterCategoriaProducto } from "./../../components/FilterCategoriaProducto";
 // IMPORTACIONES PARA TABLE MUI
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -217,14 +216,6 @@ export const ListProducto = () => {
               name="filterNomProd"
               className="form-control"
             />
-          </div>
-
-          {/* FILTRO POR CATEGORIA */}
-          <div className="col-md-3">
-            <label htmlFor="inputPassword4" className="form-label">
-              Categoria
-            </label>
-            <FilterCategoriaProducto onNewInput={AddNewCategory} />
           </div>
 
           {/* BOTON AGREGAR PRODUCTO */}

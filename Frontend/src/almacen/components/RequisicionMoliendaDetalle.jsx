@@ -6,8 +6,8 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import TablePagination from "@mui/material/TablePagination";
 import { Link } from "react-router-dom";
+import "../styles/style-modal.css";
 
 export const RequisicionMoliendaDetalle = ({ detalle, onClose }) => {
   return (
@@ -73,12 +73,28 @@ export const RequisicionMoliendaDetalle = ({ detalle, onClose }) => {
                         </TableCell>
                         <TableCell align="left">{row.canReqMolDet}</TableCell>
                         <TableCell align="left">
-                          {row.desReqMolDetEst}
+                          <span
+                            className={
+                              row.idReqMolDetEst === 1
+                                ? "badge text-bg-danger"
+                                : "badge text-bg-success"
+                            }
+                          >
+                            {row.desReqMolDetEst}
+                          </span>
                         </TableCell>
                         <TableCell align="left">
                           <div className="btn-toolbar">
                             <Link
-                              className="btn btn-warning me-2 btn-sm"
+                              className={
+                                row.idReqMolDetEst !== 1
+                                  ? "btn btn-secondary me-2 btn-lg"
+                                  : "btn btn-warning me-2 btn-lg"
+                              }
+                              style={{
+                                pointerEvents:
+                                  row.idReqMolDetEst !== 1 ? "none" : "",
+                              }}
                               data-toggle="modal"
                               to={`/almacen/salidas-stock/crear?idReqMolDet=${row.id}`}
                             >
@@ -94,12 +110,12 @@ export const RequisicionMoliendaDetalle = ({ detalle, onClose }) => {
                               </svg>
                             </Link>
                             <button
-                              // disabled={
-                              //   row.idReqMolEst == 2 || row.idReqMolEst == 3
-                              //     ? true
-                              //     : false
-                              // }
-                              className="btn btn-success btn-sm"
+                              disabled={row.idReqMolDetEst !== 1 ? true : false}
+                              className={
+                                row.idReqMolDetEst !== 1
+                                  ? "btn btn-secondary btn-lg"
+                                  : "btn btn-success btn-lg"
+                              }
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -119,16 +135,6 @@ export const RequisicionMoliendaDetalle = ({ detalle, onClose }) => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              {/* PAGINACION DE LA TABLA */}
-              {/* <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={dataRequisicionTemp.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              /> */}
             </Paper>
           </div>
           <div className="modal-footer">

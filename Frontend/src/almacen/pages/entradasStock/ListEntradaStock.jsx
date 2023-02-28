@@ -288,7 +288,7 @@ const ListEntradaStock = () => {
 
   return (
     <>
-      <div className="container">
+      <div className="container-fluid">
         {/* FILTROS Y EXPORTACION */}
         <div className="row d-flex mt-4">
           <div className="col-6">
@@ -405,7 +405,7 @@ const ListEntradaStock = () => {
                       <div className="d-flex justify-content-center">
                         <Checkbox
                           {...label}
-                          defaultChecked
+                          defaultChecked={false}
                           onChange={onChangeSeleccionado}
                         />
                       </div>

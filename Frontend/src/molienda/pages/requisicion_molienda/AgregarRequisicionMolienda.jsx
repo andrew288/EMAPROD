@@ -12,12 +12,12 @@ import TablePagination from "@mui/material/TablePagination";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
-import { FilterMateriaPrimaWhitId } from "./../../components/FilterMateriaPrimaWhitId";
-import { FilterProducto } from "./../../components/FilterProducto";
 import { FilterFormula } from "./../../components/FilterFormula";
 import { getFormulaWithDetalleById } from "./../../helpers/formula/getFormulaWithDetalleById";
-import { getMateriaPrimaById } from "./../../../almacen/helpers/materia-prima/getMateriaPrimaById";
+import { getMateriaPrimaById } from "../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { createRequisicionWithDetalle } from "./../../helpers/requisicion/createRequisicionWithDetalle";
+import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
+import { FilterProductoMolienda } from "./../../../components/ReferencialesFilters/Producto/FilterProductoMolienda";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -380,7 +380,7 @@ export const AgregarRequisicionMolienda = () => {
               />
             </div>
             <div className="col-md-3">
-              <FilterProducto onNewInput={onAddProducto} />
+              <FilterProductoMolienda onNewInput={onAddProducto} />
             </div>
           </div>
           {/* CANTIDAD REQUISICION */}
@@ -444,7 +444,7 @@ export const AgregarRequisicionMolienda = () => {
               <label htmlFor="inputPassword4" className="form-label">
                 Materia Prima
               </label>
-              <FilterMateriaPrimaWhitId onNewInput={onMateriaPrimaId} />
+              <FilterMateriaPrima onNewInput={onMateriaPrimaId} />
             </div>
 
             {/* AGREGAR CANTIDAD*/}

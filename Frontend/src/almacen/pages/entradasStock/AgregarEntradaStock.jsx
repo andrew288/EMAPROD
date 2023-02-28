@@ -326,7 +326,7 @@ const AgregarEntradaStock = () => {
               onClick={onNavigateBack}
               className="btn btn-secondary me-2"
             >
-              Cancelar
+              Volver
             </button>
             <button
               type="submit"

@@ -282,7 +282,7 @@ export const ListRequisicionMolienda = () => {
 
   return (
     <>
-      <div className="container">
+      <div className="container-fluid">
         {/* FILTROS Y EXPORTACION */}
         <div className="row d-flex mt-4">
           <div className="col-6">
@@ -405,19 +405,19 @@ export const ListRequisicionMolienda = () => {
                         onNewInput={onChangeEstadoRequisicionMolienda}
                       />
                     </TableCell>
-                    <TableCell align="left" width={160}>
+                    <TableCell align="left" width={140}>
                       <b>Fecha requerido</b>
                       <FechaPickerDay
                         onNewfecEntSto={onChangeDateFechaPedido}
                       />
                     </TableCell>
-                    <TableCell align="left" width={160}>
+                    <TableCell align="left" width={140}>
                       <b>Fecha terminado</b>
                       <FechaPickerDay
                         onNewfecEntSto={onChangeDateFechaTerminado}
                       />
                     </TableCell>
-                    <TableCell align="left" width={50}>
+                    <TableCell align="left" width={100}>
                       <b>Acciones</b>
                     </TableCell>
                   </TableRow>
@@ -444,7 +444,21 @@ export const ListRequisicionMolienda = () => {
                         </TableCell>
                         <TableCell align="left">{row.nomProd}</TableCell>
                         <TableCell align="left">{row.klgLotReqMol}</TableCell>
-                        <TableCell align="center">{row.desReqMolEst}</TableCell>
+                        <TableCell align="center">
+                          <span
+                            className={
+                              row.idReqMolEst === 1
+                                ? "badge text-bg-danger"
+                                : row.idReqMolEst === 2
+                                ? "badge text-bg-warning"
+                                : row.idReqMolEst === 3
+                                ? "badge text-bg-primary"
+                                : "badge text-bg-success"
+                            }
+                          >
+                            {row.desReqMolEst}
+                          </span>
+                        </TableCell>
                         <TableCell align="left">{row.fecPedReqMol}</TableCell>
                         <TableCell align="left">
                           {row.fecTerReqMol === null
@@ -457,7 +471,7 @@ export const ListRequisicionMolienda = () => {
                               onClick={() => {
                                 showRequisicionMoliendaDetalle(i);
                               }}
-                              className="btn btn-primary me-2 btn-sm"
+                              className="btn btn-primary me-2 btn"
                               data-toggle="modal"
                             >
                               <svg
@@ -478,7 +492,7 @@ export const ListRequisicionMolienda = () => {
                               //     ? true
                               //     : false
                               // }
-                              className="btn btn-success btn-sm"
+                              className="btn btn-success btn"
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
