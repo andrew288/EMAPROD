@@ -315,90 +315,104 @@ export const AgregarRequisicionMolienda = () => {
 
   return (
     <>
-      <div className="container">
+      <div className="container-fluid mx-3">
         <h1 className="mt-4 text-center">Agregar Requisicion</h1>
-        <div className=" container mt-4">
-          <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
-            {/* FILTRO POR FORMULA */}
-            <div className="col-md-5">
-              <label htmlFor="inputPassword4" className="form-label">
-                Formula
-              </label>
-              <FilterFormula onNewInput={onFilterFormula} />
-            </div>
-            {/* BOTON AGREGAR DATOS FORMULA */}
-            <div className="col-md-3 d-flex justify-content-end ms-auto">
-              <button
-                // onClick={handleAddNewMateriPrimaDetalle}
-                onClick={handleCompleteFormFormula}
-                className="btn btn-primary"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-plus-circle-fill me-2"
-                  viewBox="0 0 16 16"
+
+        {/* CONTROL PARA JALAR DE FORMULA */}
+        <div className="row mt-4 mx-4">
+          <div className="card d-flex">
+            <h6 className="card-header">Plantilla de formula</h6>
+            <div className="card-body d-flex justify-content-between align-items-center">
+              {/* FILTRO POR FORMULA */}
+              <div className="col-md-5">
+                <label htmlFor="inputPassword4" className="form-label">
+                  Formula
+                </label>
+                <FilterFormula onNewInput={onFilterFormula} />
+              </div>
+              {/* BOTON AGREGAR DATOS FORMULA */}
+              <div className="col-md-3">
+                <button
+                  // onClick={handleAddNewMateriPrimaDetalle}
+                  onClick={handleCompleteFormFormula}
+                  className="btn btn-primary"
                 >
-                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
-                </svg>
-                Agregar
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-plus-circle-fill me-2"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+                  </svg>
+                  Jalar datos de formula
+                </button>
+              </div>
             </div>
-          </form>
+          </div>
         </div>
-        <form className="mt-4">
-          {/* NUMERO DE LOTE */}
-          <div className="mb-3 row">
-            <label htmlFor="nombre" className="col-sm-2 col-form-label">
-              Numero de Lote
-            </label>
-            <div className="col-md-2">
-              <input
-                type="text"
-                name="codLotReqMol"
-                onChange={handledForm}
-                value={codLotReqMol}
-                className="form-control"
-              />
-            </div>
-          </div>
-          {/* PRODUCTO */}
-          <div className="mb-3 row">
-            <label htmlFor="nombre" className="col-sm-2 col-form-label">
-              Producto
-            </label>
-            <div className="col-md-3">
-              <input
-                type="text"
-                name="nomProd"
-                // onChange={handledForm}
-                value={nomProd}
-                className="form-control"
-                readOnly
-              />
-            </div>
-            <div className="col-md-3">
-              <FilterProductoMolienda onNewInput={onAddProducto} />
-            </div>
-          </div>
-          {/* CANTIDAD REQUISICION */}
-          <div className="mb-3 row">
-            <label htmlFor="categoria" className="col-sm-2 col-form-label">
-              Cantidad
-            </label>
-            <div className="col-md-2 d-flex">
-              <input
-                type="number"
-                name="canLotReqMol"
-                min={1}
-                readOnly
-                onChange={handledForm}
-                value={canLotReqMol}
-                className="form-control me-2"
-              />
-              {/* <button
+
+        {/* DATOS DE LA REQUISICION */}
+        <div className="row mt-4 mx-4">
+          <div className="card d-flex">
+            <h6 className="card-header">Datos de la requisicion</h6>
+            <div className="card-body">
+              <form>
+                {/* NUMERO DE LOTE */}
+                <div className="mb-3 row">
+                  <label htmlFor="nombre" className="col-sm-2 col-form-label">
+                    Numero de Lote
+                  </label>
+                  <div className="col-md-2">
+                    <input
+                      type="text"
+                      name="codLotReqMol"
+                      onChange={handledForm}
+                      value={codLotReqMol}
+                      className="form-control"
+                    />
+                  </div>
+                </div>
+                {/* PRODUCTO */}
+                <div className="mb-3 row">
+                  <label htmlFor="nombre" className="col-sm-2 col-form-label">
+                    Producto
+                  </label>
+                  <div className="col-md-3">
+                    <input
+                      type="text"
+                      name="nomProd"
+                      // onChange={handledForm}
+                      value={nomProd}
+                      className="form-control"
+                      readOnly
+                    />
+                  </div>
+                  <div className="col-md-3">
+                    <FilterProductoMolienda onNewInput={onAddProducto} />
+                  </div>
+                </div>
+                {/* CANTIDAD REQUISICION */}
+                <div className="mb-3 row">
+                  <label
+                    htmlFor="categoria"
+                    className="col-sm-2 col-form-label"
+                  >
+                    Cantidad
+                  </label>
+                  <div className="col-md-2 d-flex">
+                    <input
+                      type="number"
+                      name="canLotReqMol"
+                      min={1}
+                      readOnly
+                      onChange={handledForm}
+                      value={canLotReqMol}
+                      className="form-control me-2"
+                    />
+                    {/* <button
                 onClick={(e) => updateCantidades(e)}
                 className="btn btn-success"
               >
@@ -417,24 +431,27 @@ export const AgregarRequisicionMolienda = () => {
                   <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
                 </svg>
               </button> */}
+                  </div>
+                </div>
+                {/* KILOGRAMOS POR LOTE */}
+                <div className="mb-3 row">
+                  <label htmlFor="stock" className="col-sm-2 col-form-label">
+                    Kilogramos de lote
+                  </label>
+                  <div className="col-md-2">
+                    <input
+                      type="number"
+                      name="klgLotReqMol"
+                      onChange={handledForm}
+                      value={klgLotReqMol}
+                      className="form-control"
+                    />
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
-          {/* KILOGRAMOS POR LOTE */}
-          <div className="mb-3 row">
-            <label htmlFor="stock" className="col-sm-2 col-form-label">
-              Kilogramos de lote
-            </label>
-            <div className="col-md-2">
-              <input
-                type="number"
-                name="klgLotReqMol"
-                onChange={handledForm}
-                value={klgLotReqMol}
-                className="form-control"
-              />
-            </div>
-          </div>
-        </form>
+        </div>
 
         <div className="container mt-5">
           <h3 className="">Agregar Detalle</h3>

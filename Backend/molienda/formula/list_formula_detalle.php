@@ -2,6 +2,7 @@
 include_once "../../common/cors.php";
 header('Content-Type: application/json; charset=utf-8');
 require('../../common/conexion.php');
+require_once('../../common/utils.php');
 
 $pdo = getPDO();
 $result = [];
@@ -12,7 +13,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
-    $idFor = $data["id"];
 
     if ($pdo) {
         $sql =
@@ -27,25 +27,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             f.fecActFor
             FROM formula f
             JOIN producto as p on p.id = f.idProd
-            WHERE f.id = ?
+            ORDER BY f.fecCreFor DESC
             ";
         try {
             // PREPARAMOS LA CONSULTA
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(1, $idFor, PDO::PARAM_INT);
             $stmt->execute();
             $sql_detalle = "";
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $idFor = $row["id"];
                 $row["forDet"] = [];
 
                 $sql_detalle =
                     "SELECT
                 fd.id,
                 fd.idMatPri,
-                p.codProd,
                 p.nomProd,
-                m.simMed,
                 c.desCla,
                 sc.desSubCla,
                 fd.canMatPriFor
@@ -53,7 +51,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 JOIN producto as p on p.id = fd.idMatPri
                 JOIN clase as c on p.idCla = c.id
                 JOIN sub_clase as sc on p.idSubCla = sc.id
-                JOIN medida as m on p.idMed = m.id 
                 WHERE fd.idFor = ?
                 ";
 

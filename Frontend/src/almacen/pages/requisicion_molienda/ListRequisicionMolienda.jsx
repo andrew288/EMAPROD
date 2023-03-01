@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 // IMPORTACIONES PARA TABLE MUI
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -25,7 +25,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export const ListRequisicionMolienda = () => {
-  const refTable = useRef();
   // ESTADOS PARA LOS FILTROS PERSONALIZADOS
   const [dataRequisicion, setdataRequisicion] = useState([]);
   const [dataRequisicionTemp, setdataRequisicionTemp] = useState([]);

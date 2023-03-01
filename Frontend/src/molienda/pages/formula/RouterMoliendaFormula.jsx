@@ -12,7 +12,7 @@ export const RouterMoliendaFormula = [
     element: <AgregarFormula />,
   },
   {
-    path: "actualizar/:id",
+    path: "actualizar/:idFor",
     element: <ActualizarFormula />,
   },
 ];

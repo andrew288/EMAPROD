@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import { TextField } from "@mui/material";
 
 export const RowDetalleFormula = ({
   detalle,
@@ -8,8 +9,6 @@ export const RowDetalleFormula = ({
   onChangeFormulaDetalle,
 }) => {
   const [disabledInput, setdisabledInput] = useState(true);
-
-  const onChangeInputValue = () => {};
 
   return (
     <TableRow
@@ -28,16 +27,19 @@ export const RowDetalleFormula = ({
       </TableCell>
       <TableCell align="left">{detalle.nomProd}</TableCell>
       <TableCell align="left">
-        <input
-          onChange={(e) => {
-            onChangeFormulaDetalle(e);
-          }}
-          type="number"
-          name="inputCantidad"
-          value={detalle.cantidad}
-          disabled={disabledInput}
-        />
-        &nbsp;{detalle.simMed}
+        <div className="d-inline-flex align-items-center">
+          <TextField
+            size="small"
+            onChange={(e) => {
+              onChangeFormulaDetalle(e, detalle.idMatPri);
+            }}
+            type="number"
+            name="inputCantidad"
+            value={detalle.canMatPriFor}
+            disabled={disabledInput}
+          />
+          <label className="ms-2">{detalle.simMed}</label>
+        </div>
       </TableCell>
       <TableCell align="left">
         <div className="btn-toolbar">

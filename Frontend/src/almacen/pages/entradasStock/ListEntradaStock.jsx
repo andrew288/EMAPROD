@@ -88,6 +88,7 @@ const ListEntradaStock = () => {
   const obtenerDataEntradaStock = async (body = {}) => {
     // hacer validaciones correpondientes
     const resultPeticion = await getEntradasStock(body);
+    console.log(resultPeticion);
     const { message_error, description_error, result } = resultPeticion;
     if (message_error.length === 0) {
       setdataEntSto(result);

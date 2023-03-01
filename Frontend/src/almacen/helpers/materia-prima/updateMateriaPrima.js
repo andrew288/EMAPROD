@@ -12,11 +12,6 @@ export const updateMateriaPrima = async (idMateriaPrima, body) => {
             ...body,
             id: idMateriaPrima,
         },
-        {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }
     );
     return data;
 }
