@@ -10,6 +10,13 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TablePagination from "@mui/material/TablePagination";
+//IMPORTACIONES PARA DIALOG DELETE
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
@@ -18,6 +25,8 @@ import { getFormulaWithDetalleById } from "./../../helpers/formula/getFormulaWit
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { RowDetalleFormula } from "./../../components/RowDetalleFormula";
 import { updateFormulaDetalle } from "./../../helpers/formula/updateFormulaDetalle";
+import { DialogDeleteDetalle } from "../../components/DialogDeleteDetalle";
+import { deleteDetalleFormula } from "./../../helpers/formula/deleteDetalleFormula";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -44,6 +53,10 @@ export const ActualizarFormula = () => {
     cantidadMateriaPrima: 0,
   });
   const { idMateriaPrima, cantidadMateriaPrima } = materiaPrimaDetalle;
+
+  // ESTADOS PARA EL DIALOG DELETE
+  const [mostrarDialog, setMostrarDialog] = useState(false);
+  const [itemSeleccionado, setItemSeleccionado] = useState(null);
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
   const [feedbackCreate, setfeedbackCreate] = useState(false);
@@ -170,6 +183,8 @@ export const ActualizarFormula = () => {
     });
   };
 
+  // MANEJADOR DE ELIMINACION DE DETALLE DE FORMULA
+
   // MANEJADOR PARA ACTUALIZAR REQUISICION
   const handledFormularioDetalle = ({ target }, idItem) => {
     const { value } = target;
@@ -258,6 +273,66 @@ export const ActualizarFormula = () => {
     } else {
       setfeedbackMessages({
         style_message: "warning",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+  };
+
+  // ****** DELETE DETALLE DE FORMULA *******
+  const closeDialogDeleteDetalle = () => {
+    // ocultamos el modal
+    setMostrarDialog(false);
+    // dejamos el null la data del detalle
+    setItemSeleccionado(null);
+  };
+
+  // MOSTRAR Y OCULTAR DETALLE DE REQUISICION MOLIENDA
+  const showDialogDeleteItem = (idMatPri) => {
+    const formulaDetalle = forDet.filter((element) => {
+      if (element.idMatPri === idMatPri) {
+        return element;
+      } else {
+        return false;
+      }
+    });
+    // seteamos la data de la requisicion seleccionada
+    setItemSeleccionado(formulaDetalle[0]);
+    // mostramos el modal
+    setMostrarDialog(true);
+  };
+
+  // ELIMINAR DETALLE DE FORMULA
+  const deleteItemSelected = async (idForDet) => {
+    // primero realizamos la eliminacion
+    const resultPeticion = await deleteDetalleFormula(idForDet);
+    const { message_error, description_error } = resultPeticion;
+    if (message_error.length === 0) {
+      // actualizamos el detalle de la formula
+      const nuevoDetalleFormula = forDet.filter((element) => {
+        if (element.id !== idForDet) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+
+      setformula({
+        ...formula,
+        forDet: nuevoDetalleFormula,
+      });
+      // cerramos el modal
+      closeDialogDeleteDetalle();
+      // mostramos el feedback
+      setfeedbackMessages({
+        style_message: "success",
+        feedback_description_error:
+          "Se elimino el detalle de la formula con exito",
+      });
+      handleClickFeeback();
+    } else {
+      setfeedbackMessages({
+        style_message: "error",
         feedback_description_error: description_error,
       });
       handleClickFeeback();
@@ -416,14 +491,14 @@ export const ActualizarFormula = () => {
                         <TableCell align="left" width={70}>
                           <b>Codigo</b>
                         </TableCell>
+                        <TableCell align="left" width={160}>
+                          <b>Nombre</b>
+                        </TableCell>
                         <TableCell align="left" width={100}>
                           <b>Clase</b>
                         </TableCell>
                         <TableCell align="left" width={120}>
                           <b>Sub clase</b>
-                        </TableCell>
-                        <TableCell align="left" width={160}>
-                          <b>Nombre</b>
                         </TableCell>
                         <TableCell align="left" width={120}>
                           <b>Cantidad</b>
@@ -443,7 +518,7 @@ export const ActualizarFormula = () => {
                           <RowDetalleFormula
                             key={row.idMatPri}
                             detalle={row}
-                            onDeleteDetalleFormula={deleteDetalleMateriaPrima}
+                            onDeleteDetalleFormula={showDialogDeleteItem}
                             onChangeFormulaDetalle={handledFormularioDetalle}
                           />
                         ))}
@@ -484,6 +559,16 @@ export const ActualizarFormula = () => {
           </button>
         </div>
       </div>
+
+      {/* DIALOG DELETE DETALLE */}
+      {mostrarDialog && (
+        <DialogDeleteDetalle
+          itemDelete={itemSeleccionado}
+          onClose={closeDialogDeleteDetalle}
+          onDeleteItemSelected={deleteItemSelected}
+        />
+      )}
+
       {/* FEEDBACK AGREGAR MATERIA PRIMA */}
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}

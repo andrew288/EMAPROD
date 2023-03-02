@@ -10,14 +10,21 @@ $description_error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($pdo) {
-        $sql = "SELECT * FROM proveedor";
-        // Preparamos la consulta
-        $stmt = $pdo->prepare($sql);
-        // Ejecutamos la consulta
-        $stmt->execute();
-        // Recorremos los resultados
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            array_push($result, $row);
+        $sql = "SELECT * FROM produccion_tipo";
+
+        try {
+
+            // Preparamos la consulta
+            $stmt = $pdo->prepare($sql);
+            // Ejecutamos la consulta
+            $stmt->execute();
+            // Recorremos los resultados
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                array_push($result, $row);
+            }
+        } catch (PDOException $e) {
+            $message_error = "Error Interno Server: error al traer los datos de tipos de produccion";
+            $description_error = $e->getMessage();
         }
     } else {
         // No se pudo realizar la conexion a la base de datos

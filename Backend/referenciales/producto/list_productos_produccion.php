@@ -19,10 +19,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         M.codProd2,
         M.esMatPri,
         M.esProFin,
-        M.esProInt
+        M.esProProd
         FROM producto M
         LEFT JOIN medida ME ON M.idMed = ME.id
-        WHERE M.esProInt = ?
+        WHERE M.esProProd = ?
         ";
         // Preparamos la consulta
         $stmt = $pdo->prepare($sql);
@@ -46,13 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Retornamos el resultado
-    $return['message_error'] = $message_error;
-    $return['description_error'] = $description_error;
-    $return['result'] = $result;
-    echo json_encode($return);
-} else {
-    $message_error = "No se realizo una peticion post";
-    $description_error = "No se realizo una peticion post";
     $return['message_error'] = $message_error;
     $return['description_error'] = $description_error;
     $return['result'] = $result;

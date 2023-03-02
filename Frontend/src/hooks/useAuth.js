@@ -20,6 +20,9 @@ export const AuthProvider = ({ children }) => {
                 case 2: navigate("/molienda", { replace: true });
                     break;
                 case 3: navigate("/seleccion", { replace: true });
+                    break;
+                case 4: navigate("/produccion", { replace: true });
+                    break;
             };
         }, 100)
     };

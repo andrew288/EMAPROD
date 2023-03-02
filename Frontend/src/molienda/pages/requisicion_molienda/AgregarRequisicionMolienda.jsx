@@ -17,7 +17,7 @@ import { getFormulaWithDetalleById } from "./../../helpers/formula/getFormulaWit
 import { getMateriaPrimaById } from "../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { createRequisicionWithDetalle } from "./../../helpers/requisicion/createRequisicionWithDetalle";
 import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
-import { FilterProductoMolienda } from "./../../../components/ReferencialesFilters/Producto/FilterProductoMolienda";
+import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -391,7 +391,7 @@ export const AgregarRequisicionMolienda = () => {
                     />
                   </div>
                   <div className="col-md-3">
-                    <FilterProductoMolienda onNewInput={onAddProducto} />
+                    <FilterProductoProduccion onNewInput={onAddProducto} />
                   </div>
                 </div>
                 {/* CANTIDAD REQUISICION */}
@@ -610,7 +610,7 @@ export const AgregarRequisicionMolienda = () => {
             onClick={onNavigateBack}
             className="btn btn-secondary me-2"
           >
-            Cancelar
+            Volver
           </button>
           <button
             type="submit"

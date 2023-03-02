@@ -2,17 +2,17 @@ import React from "react";
 import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import { getProveedores } from "./../../../helpers/Referenciales/proveedor/getProveedores";
+import { getProductosProduccion } from "./../../../helpers/Referenciales/producto/getProductosProduccion";
 
-export const FilterProveedor = ({ onNewInput }) => {
+export const FilterProductoProduccion = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
 
-  const obtenerDataProveedor = async () => {
-    const resultPeticion = await getProveedores();
+  const obtenerDataProductoProduccion = async () => {
+    const resultPeticion = await getProductosProduccion();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.codProv,
-        label: `${element.nomProv} ${element.apeProv}`,
+        value: element.codProd2,
+        label: element.nomProd,
         id: element.id,
       };
     });
@@ -20,7 +20,7 @@ export const FilterProveedor = ({ onNewInput }) => {
   };
 
   useEffect(() => {
-    obtenerDataProveedor();
+    obtenerDataProductoProduccion();
   }, []);
 
   const handledChange = (event, value) => {

@@ -34,9 +34,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             "SELECT
             rm.id,
             rm.idProdc,
-            pc.codLotPro,
-            pc.esProPol,
-            pc.esProLiq,
+            pc.codLotProd,
+            pc.idProdTip,
+            pct.desProdTip,
+            pc.klgLotProd,
+            pc.canLotProd,
             rm.idReqMolEst,
             rme.desReqMolEst,
             rm.idProdt,
@@ -48,6 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             FROM requisicion_molienda rm
             JOIN producto as p on p.id = rm.idProdt
             JOIN produccion pc  on pc.id = rm.idProdc
+            JOIN produccion_tipo pct on pct.id = pc.idProdTip
             JOIN requisicion_molienda_estado as rme on rme.id = rm.idReqMolEst
             WHERE DATE(rm.fecPedReqMol) BETWEEN '$fechaInicio' AND '$fechaFin'
             ORDER BY rm.fecPedReqMol DESC

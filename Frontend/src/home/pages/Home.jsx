@@ -7,14 +7,14 @@ const Home = () => {
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container px-lg-5">
-          <div class="container-fluid">
-            <Link class="navbar-brand" to={""}>
+          <div className="container-fluid">
+            <Link className="navbar-brand" to={""}>
               <img
                 src={logo}
                 alt="Logo"
                 width="70"
                 height="60"
-                class="d-inline-block align-text-top"
+                className="d-inline-block align-text-top"
               />
             </Link>
           </div>
@@ -48,6 +48,7 @@ const Home = () => {
       <section className="pt-4">
         <div className="container px-lg-5">
           <div className="row gx-lg-5">
+            {/* MODULO DE ALMACEN */}
             <div className="col-lg-6 col-xxl-4 mb-5">
               <div className="card bg-light border-0 h-100">
                 <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
@@ -61,6 +62,7 @@ const Home = () => {
                 </div>
               </div>
             </div>
+            {/* MODULO DE MOLIENDA */}
             <div className="col-lg-6 col-xxl-4 mb-5">
               <div className="card bg-light border-0 h-100">
                 <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
@@ -74,14 +76,29 @@ const Home = () => {
                 </div>
               </div>
             </div>
+            {/* MODULO DE SELECCION */}
             <div className="col-lg-6 col-xxl-4 mb-5">
               <div className="card bg-light border-0 h-100">
                 <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
                     <i className="bi bi-collection"></i>
                   </div>
-                  <h2 className="fs-4 fw-bold">Selección</h2>
+                  <h2 className="fs-4 fw-bold">Seleccion</h2>
                   <Link to="seleccion" className="btn  btn-primary">
+                    Ingresar
+                  </Link>
+                </div>
+              </div>
+            </div>
+            {/* MODULO DE PRODUCCION */}
+            <div className="col-lg-6 col-xxl-4 mb-5">
+              <div className="card bg-light border-0 h-100">
+                <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                  <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                    <i className="bi bi-collection"></i>
+                  </div>
+                  <h2 className="fs-4 fw-bold">Produccion</h2>
+                  <Link to="produccion" className="btn  btn-primary">
                     Ingresar
                   </Link>
                 </div>

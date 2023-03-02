@@ -8,6 +8,7 @@ import Home from "./home/pages/Home";
 import { RouterAlmacen } from './almacen/router/router';
 import { RouterMolienda } from './molienda/router/router';
 import { RouterSeleccion } from './seleccion/router/router';
+import { RouterProduccion } from './produccion/router/router';
 
 // PLANTILLA NOT FOUND
 import NotFound from './pages/NotFound';
@@ -17,6 +18,7 @@ import { AuthLayout } from "./components/AuthLayout";
 import { ProtectedLayoutAlmacen } from "./components/ProtectedLayoutAlmacen";
 import { ProtectedLayoutMolienda } from './components/ProtectedLayoutMolienda';
 import { ProtectedLayoutSeleccion } from './components/ProtectedLayoutSeleccion';
+import { ProtectedLayoutProduccion } from "./components/ProtectedLayoutProduccion";
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +48,11 @@ export const router = createBrowserRouter([
         element: <ProtectedLayoutSeleccion />,
         children: RouterSeleccion,
       },
+      {
+        path: "/produccion",
+        element: <ProtectedLayoutProduccion />,
+        children: RouterProduccion
+      }
     ],
   },
 ]);

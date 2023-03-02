@@ -13,10 +13,10 @@ import TablePagination from "@mui/material/TablePagination";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { createFormulaWithDetalle } from "./../../helpers/formula/createFormulaWithDetalle";
-import { FilterProductoMolienda } from "./../../../components/ReferencialesFilters/Producto/FilterProductoMolienda";
 import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
 import { RowDetalleFormula } from "../../components/RowDetalleFormula";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
+import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -272,7 +272,7 @@ export const AgregarFormula = () => {
                     Producto
                   </label>
                   <div className="col-md-3">
-                    <FilterProductoMolienda onNewInput={onAddProducto} />
+                    <FilterProductoProduccion onNewInput={onAddProducto} />
                   </div>
                 </div>
                 {/* NOMBRE FORMULA */}

@@ -15,9 +15,10 @@ import { useForm } from "./../../../hooks/useForm";
 import { TextField } from "@mui/material";
 import FechaPickerDay from "./../../../components/Fechas/FechaPickerDay";
 import FechaPickerMonth from "./../../../components/Fechas/FechaPickerMonth";
-import { FilterProductoMolienda } from "./../../../components/ReferencialesFilters/Producto/FilterProductoMolienda";
 import { FilterEstadoRequisicionMolienda } from "./../../../components/ReferencialesFilters/EstadoRequisicionMolienda/FilterEstadoRequisicionMolienda";
 import { RequisicionMoliendaDetalle } from "./../../components/RequisicionMoliendaDetalle";
+import { FilterTipoProduccion } from "../../../components/ReferencialesFilters/TipoProduccion/FilterTipoProduccion";
+import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -83,6 +84,10 @@ export const ListRequisicionMolienda = () => {
     filter(label, "filterProducto");
   };
 
+  const onChangeTipoProduccion = ({ label }) => {
+    filter(label, "filterTipoProduccion");
+  };
+
   const onChangeEstadoRequisicionMolienda = ({ label }) => {
     filter(label, "filterEstado");
   };
@@ -127,6 +132,21 @@ export const ListRequisicionMolienda = () => {
       case "filterLoteProduccion":
         resultSearch = dataRequisicion.filter((element) => {
           if (
+            element.codLotProd
+              .toString()
+              .toLowerCase()
+              .includes(terminoBusqueda.toLowerCase())
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        setdataRequisicionTemp(resultSearch);
+        break;
+      case "filterTipoProduccion":
+        resultSearch = dataRequisicion.filter((element) => {
+          if (
             element.codLotPro
               .toString()
               .toLowerCase()
@@ -139,21 +159,6 @@ export const ListRequisicionMolienda = () => {
         });
         setdataRequisicionTemp(resultSearch);
         break;
-      // case "filterTipoProduccion":
-      //   resultSearch = dataRequisicion.filter((element) => {
-      //     if (
-      //       element.codLotPro
-      //         .toString()
-      //         .toLowerCase()
-      //         .includes(terminoBusqueda.toLowerCase())
-      //     ) {
-      //       return true;
-      //     } else {
-      //       return false;
-      //     }
-      //   });
-      //   setdataRequisicionTemp(resultSearch);
-      //   break;
       case "filterProducto":
         resultSearch = dataRequisicion.filter((element) => {
           if (
@@ -172,7 +177,7 @@ export const ListRequisicionMolienda = () => {
       case "filterPeso":
         resultSearch = dataRequisicion.filter((element) => {
           if (
-            element.klgLotReqMol
+            element.klgLotProd
               .toString()
               .toLowerCase()
               .includes(terminoBusqueda.toLowerCase())
@@ -365,22 +370,13 @@ export const ListRequisicionMolienda = () => {
                     </TableCell>
                     <TableCell align="left" width={100}>
                       <b>Tipo</b>
-                      <TextField
-                        name="filterTipoProduccion"
-                        onChange={handleFormFilter}
-                        size="small"
-                        autoComplete="off"
-                        InputProps={{
-                          style: {
-                            color: "black",
-                            background: "white",
-                          },
-                        }}
+                      <FilterTipoProduccion
+                        onNewInput={onChangeTipoProduccion}
                       />
                     </TableCell>
                     <TableCell align="left" width={140}>
                       <b>Producto</b>
-                      <FilterProductoMolienda onNewInput={onChangeProducto} />
+                      <FilterProductoProduccion onNewInput={onChangeProducto} />
                     </TableCell>
                     <TableCell align="left" width={80}>
                       <b>Peso</b>
@@ -432,17 +428,11 @@ export const ListRequisicionMolienda = () => {
                         }}
                       >
                         <TableCell component="th" scope="row">
-                          {row.codLotPro}
+                          {row.codLotProd}
                         </TableCell>
-                        <TableCell align="left">
-                          {row.esProPol === 1
-                            ? "Polvos"
-                            : row.esProLiq === 1
-                            ? "Liquidos"
-                            : ""}
-                        </TableCell>
+                        <TableCell align="left">{row.desProdTip}</TableCell>
                         <TableCell align="left">{row.nomProd}</TableCell>
-                        <TableCell align="left">{row.klgLotReqMol}</TableCell>
+                        <TableCell align="left">{row.klgLotProd}</TableCell>
                         <TableCell align="center">
                           <span
                             className={

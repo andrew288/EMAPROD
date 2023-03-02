@@ -13,10 +13,10 @@ import TablePagination from "@mui/material/TablePagination";
 import MuiAlert from "@mui/material/Alert";
 import { getFormulaDetalle } from "./../../helpers/formula/getFormulaDetalle";
 import { TextField } from "@mui/material";
-import { FilterProductoMolienda } from "./../../../components/ReferencialesFilters/Producto/FilterProductoMolienda";
 import FechaPickerDay from "./../../../components/Fechas/FechaPickerDay";
 import { FormulaDetalle } from "./../../components/FormulaDetalle";
 import { Link } from "react-router-dom";
+import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -246,7 +246,7 @@ export const ListFormulas = () => {
                   >
                     <TableCell align="left" width={80}>
                       <b>Producto</b>
-                      <FilterProductoMolienda onNewInput={onChangeProducto} />
+                      <FilterProductoProduccion onNewInput={onChangeProducto} />
                     </TableCell>
                     <TableCell align="left" width={150}>
                       <b>Nombre formula</b>
