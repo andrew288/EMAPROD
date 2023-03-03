@@ -148,9 +148,9 @@ const AgregarEntradaStock = () => {
         feedback_description_error: description_error,
       });
       handleClickFeeback();
+      // habilitamos el boton de crear
+      setdisableButton(false);
     }
-    // habilitamos el boton de crear
-    setdisableButton(false);
   };
 
   // SUBMIT DE UNA formState COMUNICACION CON BACKEND

@@ -2,26 +2,25 @@ import React from "react";
 import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import { getTiposProduccion } from "./../../../helpers/Referenciales/tipo_produccion/getTiposProduccion";
+import { getEstadoFinProgramadoProduccion } from "./../../../helpers/Referenciales/produccion/getEstadoFinProgramadoProduccion";
 
-export const FilterTipoProduccion = ({ onNewInput }) => {
+export const FilterEstadoFinProgramadoProduccion = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
 
-  const obtenerDataTipoProduccion = async () => {
-    const resultPeticion = await getTiposProduccion();
+  const obtenerDataEstadoFinProgramadoProduccion = async () => {
+    const resultPeticion = await getEstadoFinProgramadoProduccion();
     const formatSelect = resultPeticion.map((element) => {
       return {
         value: element.id,
-        label: element.desProdTip,
+        label: element.desProdFinProgEst,
         id: element.id,
-        cod: element.codTipProd,
       };
     });
     setResult(formatSelect);
   };
 
   useEffect(() => {
-    obtenerDataTipoProduccion();
+    obtenerDataEstadoFinProgramadoProduccion();
   }, []);
 
   const handledChange = (event, value) => {

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FilterProductoMolienda } from "../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
 import { FilterTipoProduccion } from "./../../../components/ReferencialesFilters/TipoProduccion/FilterTipoProduccion";
 // IMPORTACIONES PARA EL FEEDBACK
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import FechaPicker2 from "./../../../components/Fechas/FechaPicker2";
 import FechaPicker from "../../../components/Fechas/FechaPicker";
 import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
+import { createProduccionLote } from "./../../helpers/produccion_lote/createProduccionLote";
+import { Checkbox } from "@mui/material";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -19,6 +19,7 @@ export const CrearProduccionLote = () => {
   const [produccionLote, setproduccionLote] = useState({
     idProdt: 0,
     idProdTip: 0,
+    esEnv: 0,
     codLotProd: "",
     klgLotProd: 1500,
     canLotProd: 1,
@@ -30,6 +31,7 @@ export const CrearProduccionLote = () => {
   const {
     idProdt,
     idProdTip,
+    esEnv,
     codLotProd,
     klgLotProd,
     canLotProd,
@@ -87,10 +89,20 @@ export const CrearProduccionLote = () => {
   };
 
   // EVENTO DE TIPO DE PRODUCCION
-  const onAddTipoProduccion = ({ value }) => {
+  const onAddTipoProduccion = ({ id, cod }) => {
     setproduccionLote({
       ...produccionLote,
-      idProdTip: value,
+      idProdTip: id,
+      codTipProd: cod,
+    });
+  };
+
+  // EVENTO DE ES SOLO ENVASADO
+  const onChangeEsEnvasado = (e, value) => {
+    const valueCheck = value ? 1 : 0;
+    setproduccionLote({
+      ...produccionLote,
+      esEnv: valueCheck,
     });
   };
 
@@ -104,8 +116,24 @@ export const CrearProduccionLote = () => {
   };
 
   // CREAR LOTE DE PRODUCCION
-  const crearProduccionLote = () => {
+  const crearProduccionLote = async () => {
     console.log(produccionLote);
+    const resultPeticion = await createProduccionLote(produccionLote);
+    const { message_error, description_error, result } = resultPeticion;
+
+    if (message_error.length === 0) {
+      // regresamos a la anterior vista
+      onNavigateBack();
+    } else {
+      // hubo error en la insercion
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+      // habilitamos el boton de crear
+      setdisableButton(false);
+    }
   };
 
   // SUBMIT FORMULARIO DE REQUISICION (M-D)
@@ -193,15 +221,22 @@ export const CrearProduccionLote = () => {
                   </div>
                 </div>
 
-                <div className="mb-3 row">
+                <div className="mb-3 row d-flex align-items-center">
                   {/* PRODUCTO */}
-                  <div className="col-md-4">
+                  <div className="col-md-4 me-4">
                     <label htmlFor="nombre" className="form-label">
                       <b>Producto</b>
                     </label>
                     <FilterProductoProduccion
                       onNewInput={onAddProductoMolienda}
                     />
+                  </div>
+                  {/* PRODUCTO */}
+                  <div className="col-md-2">
+                    <label htmlFor="nombre" className="form-label">
+                      <b>Solo envasado</b>
+                      <Checkbox onChange={onChangeEsEnvasado} />
+                    </label>
                   </div>
                 </div>
               </form>
@@ -215,13 +250,13 @@ export const CrearProduccionLote = () => {
                   <label htmlFor="nombre" className="form-label">
                     <b>Fecha de inicio programado</b>
                   </label>
-                  <FechaPicker onNewFechaEntrada={onAddFechaInicioProgramado} />
+                  <FechaPicker onNewfecEntSto={onAddFechaInicioProgramado} />
                 </div>
                 <div className="col-md-3">
                   <label htmlFor="nombre" className="form-label">
                     <b>Fecha de fin programado</b>
                   </label>
-                  <FechaPicker onNewFechaEntrada={onAddFechaFinProgramado} />
+                  <FechaPicker onNewfecEntSto={onAddFechaFinProgramado} />
                 </div>
                 <div className="col-md-6">
                   <label htmlFor="nombre" className="form-label">

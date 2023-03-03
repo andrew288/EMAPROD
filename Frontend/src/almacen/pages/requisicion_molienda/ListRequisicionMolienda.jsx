@@ -58,13 +58,6 @@ export const ListRequisicionMolienda = () => {
     setfeedbackDelete(true);
   };
 
-  const handleCloseFeedback = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setfeedbackDelete(false);
-  };
-
   // MANEJADORES DE LA PAGINACION
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -147,7 +140,7 @@ export const ListRequisicionMolienda = () => {
       case "filterTipoProduccion":
         resultSearch = dataRequisicion.filter((element) => {
           if (
-            element.codLotPro
+            element.desProdTip
               .toString()
               .toLowerCase()
               .includes(terminoBusqueda.toLowerCase())
@@ -272,7 +265,6 @@ export const ListRequisicionMolienda = () => {
   const showRequisicionMoliendaDetalle = (idPosElement) => {
     const requisicionMoliendaDetalle =
       dataRequisicionTemp[idPosElement].reqMolDet;
-    console.log(requisicionMoliendaDetalle);
     // seteamos la data de la requisicion seleccionada
     setDetalleSeleccionado(requisicionMoliendaDetalle);
     // mostramos el modal

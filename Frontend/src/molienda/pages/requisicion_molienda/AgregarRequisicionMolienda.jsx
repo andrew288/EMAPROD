@@ -18,6 +18,7 @@ import { getMateriaPrimaById } from "../../../helpers/Referenciales/producto/get
 import { createRequisicionWithDetalle } from "./../../helpers/requisicion/createRequisicionWithDetalle";
 import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
 import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
+import { FilterLoteProduccion } from "./../../components/FilterLoteProduccion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -26,6 +27,9 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 export const AgregarRequisicionMolienda = () => {
   const refTable = useRef();
+
+  // ESTADO PARA LOS DATOS DEL FILTRO POR LOTE PRODUCCION
+  const [produccionLote, setProduccionLote] = useState();
   // ESTADO PARA LOS DATOS DEL FILTRO POR FORMULA
   const [formula, setformula] = useState({
     idFormula: 0,
@@ -255,6 +259,9 @@ export const AgregarRequisicionMolienda = () => {
     });
   };
 
+  // FILTER POR PRODUCCION LOTE
+  const onProduccionLote = (valueId) => {};
+
   // FUNCION PARA AUMENTAR SEGUN CANTIDAD
   // const updateCantidades = (e) => {
   //   e.preventDefault();
@@ -317,19 +324,19 @@ export const AgregarRequisicionMolienda = () => {
     <>
       <div className="container-fluid mx-3">
         <h1 className="mt-4 text-center">Agregar Requisicion</h1>
-
-        {/* CONTROL PARA JALAR DE FORMULA */}
+        {/* DATOS DE LA PRODUCCION */}
         <div className="row mt-4 mx-4">
           <div className="card d-flex">
-            <h6 className="card-header">Plantilla de formula</h6>
+            <h6 className="card-header">Lote de produccion</h6>
             <div className="card-body d-flex justify-content-between align-items-center">
               {/* FILTRO POR FORMULA */}
               <div className="col-md-5">
                 <label htmlFor="inputPassword4" className="form-label">
-                  Formula
+                  Lote de produccion
                 </label>
-                <FilterFormula onNewInput={onFilterFormula} />
+                <FilterLoteProduccion onNewInput={onFilterFormula} />
               </div>
+
               {/* BOTON AGREGAR DATOS FORMULA */}
               <div className="col-md-3">
                 <button
@@ -347,7 +354,7 @@ export const AgregarRequisicionMolienda = () => {
                   >
                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
                   </svg>
-                  Jalar datos de formula
+                  Jalar datos de produccion
                 </button>
               </div>
             </div>
@@ -357,7 +364,7 @@ export const AgregarRequisicionMolienda = () => {
         {/* DATOS DE LA REQUISICION */}
         <div className="row mt-4 mx-4">
           <div className="card d-flex">
-            <h6 className="card-header">Datos de la requisicion</h6>
+            <h6 className="card-header">Datos del lote de produccion</h6>
             <div className="card-body">
               <form>
                 {/* NUMERO DE LOTE */}
@@ -368,6 +375,7 @@ export const AgregarRequisicionMolienda = () => {
                   <div className="col-md-2">
                     <input
                       type="text"
+                      disabled
                       name="codLotReqMol"
                       onChange={handledForm}
                       value={codLotReqMol}
@@ -384,14 +392,11 @@ export const AgregarRequisicionMolienda = () => {
                     <input
                       type="text"
                       name="nomProd"
-                      // onChange={handledForm}
+                      disabled
                       value={nomProd}
                       className="form-control"
                       readOnly
                     />
-                  </div>
-                  <div className="col-md-3">
-                    <FilterProductoProduccion onNewInput={onAddProducto} />
                   </div>
                 </div>
                 {/* CANTIDAD REQUISICION */}
@@ -406,31 +411,10 @@ export const AgregarRequisicionMolienda = () => {
                     <input
                       type="number"
                       name="canLotReqMol"
-                      min={1}
-                      readOnly
-                      onChange={handledForm}
+                      disabled
                       value={canLotReqMol}
                       className="form-control me-2"
                     />
-                    {/* <button
-                onClick={(e) => updateCantidades(e)}
-                className="btn btn-success"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-arrow-clockwise"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
-                  />
-                  <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
-                </svg>
-              </button> */}
                   </div>
                 </div>
                 {/* KILOGRAMOS POR LOTE */}
@@ -441,6 +425,7 @@ export const AgregarRequisicionMolienda = () => {
                   <div className="col-md-2">
                     <input
                       type="number"
+                      disabled
                       name="klgLotReqMol"
                       onChange={handledForm}
                       value={klgLotReqMol}
@@ -449,6 +434,55 @@ export const AgregarRequisicionMolienda = () => {
                   </div>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+
+        {/* CONTROL PARA JALAR DE FORMULA */}
+        <div className="row mt-4 mx-4">
+          <div className="card d-flex">
+            <h6 className="card-header">Plantilla de formula</h6>
+            <div className="card-body d-flex justify-content-between align-items-center">
+              {/* FILTRO POR FORMULA */}
+              <div className="col-md-5">
+                <label htmlFor="inputPassword4" className="form-label">
+                  Formula
+                </label>
+                <FilterFormula onNewInput={onFilterFormula} />
+              </div>
+              {/* BOTON AGREGAR DATOS FORMULA */}
+              <div className="col-md-7 d-flex justify-content-end">
+                <button
+                  // onClick={handleAddNewMateriPrimaDetalle}
+                  onClick={handleCompleteFormFormula}
+                  className="btn btn-primary me-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-plus-circle-fill me-2"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+                  </svg>
+                  Jalar datos de formula
+                </button>
+                <button className="btn btn-success">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-search me-2"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                  </svg>
+                  Buscar formula apropiada
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -9,6 +9,5 @@ export const createRequisicionWithDetalle = async (body) => {
     const { data } = await axios.post(url, {
         ...body,
     });
-    console.log(data);
     return data;
 }
