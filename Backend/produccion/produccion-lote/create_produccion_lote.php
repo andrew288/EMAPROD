@@ -94,7 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $codProd = "PL" . $codTipProd . "00000001";
             } else {
                 while ($row = $stmt_consult_produccion->fetch(PDO::FETCH_ASSOC)) {
-                    $numberProduccion = intval($row["numberCodProd"]);
+                    $numberProduccion = intval($row["numberCodProd"]) + 1; // el siguiente numeral
                 }
                 $codProd = "PL" . $codTipProd . str_pad(strval($numberProduccion), 8, "0", STR_PAD_LEFT);
             }

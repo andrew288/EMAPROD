@@ -17,8 +17,10 @@ import { getFormulaWithDetalleById } from "./../../helpers/formula/getFormulaWit
 import { getMateriaPrimaById } from "../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { createRequisicionWithDetalle } from "./../../helpers/requisicion/createRequisicionWithDetalle";
 import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
-import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
 import { FilterLoteProduccion } from "./../../components/FilterLoteProduccion";
+import { getLoteProduccionById } from "./../../helpers/requisicion/getLoteProduccionById";
+import { RowDetalleFormula } from "../../components/RowDetalleFormula";
+import { getFormulaWithDetalleByPrioridad } from "./../../helpers/formula/getFormulaWithDetalleByPrioridad";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -29,32 +31,30 @@ export const AgregarRequisicionMolienda = () => {
   const refTable = useRef();
 
   // ESTADO PARA LOS DATOS DEL FILTRO POR LOTE PRODUCCION
-  const [produccionLote, setProduccionLote] = useState();
+  const [produccionLote, setProduccionLote] = useState({
+    idProd: 0,
+    codLotProd: "",
+    klgLotProd: "",
+    canLotProd: "",
+    nomProd: "",
+  });
+  const { idProd, codLotProd, klgLotProd, canLotProd, nomProd } =
+    produccionLote;
+
   // ESTADO PARA LOS DATOS DEL FILTRO POR FORMULA
   const [formula, setformula] = useState({
-    idFormula: 0,
+    idFor: 0,
   });
 
-  const { idFormula } = formula;
+  const { idFor } = formula;
+
   // ESTADOS PARA LOS DATOS DE REQUISICION
   const [requisicion, setRequisicion] = useState({
-    codLotReqMol: "",
-    idProd: 0,
-    nomProd: "",
-    canLotReqMol: 1,
-    klgLotReqMol: 0,
-    idReqMolEst: 1,
+    idProdc: 0,
+    idProdt: 0,
     reqMolDet: [], // DETALLE DE REQUISICION MOLIENDA
   });
-  const {
-    codLotReqMol,
-    idProd,
-    nomProd,
-    canLotReqMol,
-    klgLotReqMol,
-    idReqMolEst,
-    reqMolDet,
-  } = requisicion;
+  const { idProdc, idProdt, reqMolDet } = requisicion;
 
   // ESTADOS PARA DATOS DE DETALLE FORMULA (DETALLE)
   const [materiaPrimaDetalle, setmateriaPrimaDetalle] = useState({
@@ -105,29 +105,11 @@ export const AgregarRequisicionMolienda = () => {
     setPage(0);
   };
 
-  // CONTROLADOR DE FORMULARIO
-  const handledForm = ({ target }) => {
-    const { name, value } = target;
-    setRequisicion({
-      ...requisicion,
-      [name]: value,
-    });
-  };
-
-  // EVENTO DE ASOCIAR FORMULA A UN PRODUCTO
-  const onAddProducto = ({ value, label }) => {
-    setRequisicion({
-      ...requisicion,
-      idProd: value,
-      nomProd: label,
-    });
-  };
-
   // MANEJADOR DE AGREGAR MATERIA PRIMA A DETALLE DE FORMULA
-  const onMateriaPrimaId = (value) => {
+  const onMateriaPrimaId = ({ id }) => {
     setmateriaPrimaDetalle({
       ...materiaPrimaDetalle,
-      idMateriaPrima: value,
+      idMateriaPrima: id,
     });
   };
 
@@ -158,24 +140,19 @@ export const AgregarRequisicionMolienda = () => {
   };
 
   // ACTUALIZAR DETALLE DE REQUISICION
-  const updateDetalleRequisicion = (idPosElement) => {
-    console.log("update");
-    let inputSelected =
-      refTable.current.children[idPosElement].childNodes[2].childNodes[0];
-
-    if (inputSelected.disabled) {
-      inputSelected.disabled = false;
-    } else {
-      inputSelected.disabled = true;
-    }
-  };
-
   // MANEJADOR PARA ACTUALIZAR REQUISICION
-  const handledFormularioDetalle = ({ target }, index) => {
+  const handledFormularioDetalle = ({ target }, idItem) => {
     const { value } = target;
-    let editFormDetalle = [...reqMolDet];
-    const aux = { ...reqMolDet[index], canMatPriFor: value };
-    editFormDetalle[index] = aux;
+    const editFormDetalle = reqMolDet.map((element) => {
+      if (element.idMatPri === idItem) {
+        return {
+          ...element,
+          canMatPriFor: value,
+        };
+      } else {
+        return element;
+      }
+    });
 
     setRequisicion({
       ...requisicion,
@@ -190,12 +167,8 @@ export const AgregarRequisicionMolienda = () => {
       await createRequisicionWithDetalle(requisicion);
 
     if (message_error.length === 0) {
-      console.log("Se creo exitosamente");
-      setfeedbackMessages({
-        style_message: "success",
-        feedback_description_error: "Se creó exitosamente",
-      });
-      handleClickFeeback();
+      // regresamos a la anterior vista
+      onNavigateBack();
     } else {
       console.log("No se pudo crear");
       setfeedbackMessages({
@@ -210,7 +183,8 @@ export const AgregarRequisicionMolienda = () => {
   // SUBMIT FORMULARIO DE REQUISICION (M-D)
   const handleSubmitRequisicion = (e) => {
     e.preventDefault();
-    if (codLotReqMol.length === 0 || idProd === 0 || reqMolDet.length === 0) {
+    console.log(reqMolDet);
+    if (idProdc === 0 || reqMolDet.length === 0) {
       setfeedbackMessages({
         style_message: "warning",
         feedback_description_error:
@@ -218,7 +192,7 @@ export const AgregarRequisicionMolienda = () => {
       });
       handleClickFeeback();
     } else {
-      setdisableButton(true);
+      // setdisableButton(true);
       // LLAMAMOS A LA FUNCION CREAR REQUISICION
       crearRequisicion();
       // RESETEAMOS LOS VALORES
@@ -227,20 +201,26 @@ export const AgregarRequisicionMolienda = () => {
 
   // FUNCION ASINCRONA PARA TRAER A LA FORMULA Y SUS DETALLES
   const traerDatosFormulaDetalle = async () => {
-    const { result } = await getFormulaWithDetalleById(idFormula);
-    const { desFor, forDet, idProd, lotKgrFor, nomFor, nomProd } = result;
-    setRequisicion({
-      ...requisicion,
-      idProd: idProd,
-      nomProd: nomProd,
-      reqMolDet: forDet,
-      klgLotReqMol: lotKgrFor,
-    });
+    const resultPeticion = await getFormulaWithDetalleById(idFor);
+    const { message_error, description_error, result } = resultPeticion;
+    if (message_error.length === 0) {
+      const { forDet } = result[0];
+      setRequisicion({
+        ...requisicion,
+        reqMolDet: forDet,
+      });
+    } else {
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
   };
   // MANEJADOR COMPLETAR FORMULARIO SEGUN FORMULA
   const handleCompleteFormFormula = (e) => {
     e.preventDefault();
-    if (idFormula === 0) {
+    if (idFor === 0) {
       setfeedbackMessages({
         style_message: "warning",
         feedback_description_error: "Escoge una formula",
@@ -252,29 +232,104 @@ export const AgregarRequisicionMolienda = () => {
   };
 
   // FILTER POR FORMULA
-  const onFilterFormula = (valueId) => {
+  const onFormula = (valueId) => {
     setformula({
       ...formula,
-      idFormula: valueId,
+      idFor: valueId,
     });
   };
 
-  // FILTER POR PRODUCCION LOTE
-  const onProduccionLote = (valueId) => {};
+  // FUNCION ASINCRONA PARA TRAER LA FORMULA APROPIADA
+  const traerDatosFormulaDetalleApropiada = async () => {
+    /*
+      FORMULA QUE CORRESPONDA AL PESO Y PRODUCTO REQUERIDOS
+    */
+    const body = {
+      idProd: requisicion.idProdt,
+      lotKgrFor: klgLotProd,
+    };
+    const resultPeticion = await getFormulaWithDetalleByPrioridad(body);
+    const { message_error, description_error, result } = resultPeticion;
+    if (message_error.length === 0) {
+      if (result.length === 0) {
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error:
+            "No se encontro ninguna formula apropiada",
+        });
+        handleClickFeeback();
+      } else {
+        // seteamos la data
+        const { forDet } = result[0];
+        setRequisicion({
+          ...requisicion,
+          reqMolDet: forDet,
+        });
 
-  // FUNCION PARA AUMENTAR SEGUN CANTIDAD
-  // const updateCantidades = (e) => {
-  //   e.preventDefault();
-  //   console.log("Actualizar cantidades");
-  //   console.log(canLotReqMol);
-  //   if (canLotReqMol > 0) {
-  //   }
-  // };
+        // mostramos feedback
+        setfeedbackMessages({
+          style_message: "success",
+          feedback_description_error: "Se encontro una formula apropiada",
+        });
+        handleClickFeeback();
+      }
+    } else {
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+  };
+
+  // FUNCION ASINCRONA PARA TRAER AL LOTE DE PRODUCCION Y SUS DATOS
+  const traerDatosLoteProduccion = async () => {
+    const { result } = await getLoteProduccionById(idProd);
+    const { id, idProdt, codLotProd, nomProd, canLotProd, klgLotProd } =
+      result[0];
+
+    // seteamos el estado de los datos de produccion lote
+    setProduccionLote({
+      ...produccionLote,
+      idProdt: idProdt,
+      codLotProd: codLotProd,
+      nomProd: nomProd,
+      canLotProd: canLotProd,
+      klgLotProd: klgLotProd,
+    });
+
+    // seteamos el estado de los datos de requisicion
+    setRequisicion({
+      ...requisicion,
+      idProdc: id,
+      idProdt: idProdt,
+    });
+  };
+
+  const handleCompleteDatosProduccionLote = (e) => {
+    e.preventDefault();
+    if (idProd === 0) {
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: "Escoge un lote de produccion",
+      });
+      handleClickFeeback();
+    } else {
+      traerDatosLoteProduccion();
+    }
+  };
+
+  // FILTER POR PRODUCCION LOTE
+  const onProduccionLote = (valueId) => {
+    setProduccionLote({
+      ...produccionLote,
+      idProd: valueId,
+    });
+  };
 
   // AGREGAR MATERIA PRIMA A DETALLE DE REQUISICION
   const handleAddNewMateriPrimaDetalle = async (e) => {
     e.preventDefault();
-
     // PRIMERO VERIFICAMOS QUE LOS INPUTS TENGAN DATOS
     if (idMateriaPrima !== 0 && cantidadMateriaPrima > 0) {
       // PRIMERO VERIFICAMOS SI EXISTE ALGUNA COINCIDENCIA DE LO INGRESADO
@@ -289,27 +344,38 @@ export const AgregarRequisicionMolienda = () => {
         handleClickFeeback();
       } else {
         // HACEMOS UNA CONSULTA A LA MATERIA PRIMA Y DESESTRUCTURAMOS
-        const result = await getMateriaPrimaById(idMateriaPrima);
-        const { id, codMatPri, nomMatPri, simMed } = result[0];
+        const resultPeticion = await getMateriaPrimaById(idMateriaPrima);
+        const { message_error, description_error, result } = resultPeticion;
 
-        // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
-        const detalleFormulaMateriaPrima = {
-          idMatPri: id,
-          codMatPri: codMatPri,
-          nomMatPri: nomMatPri,
-          simMed: simMed,
-          canMatPriFor: cantidadMateriaPrima,
-        };
+        if (message_error.length === 0) {
+          const { id, codProd, desCla, desSubCla, nomProd, simMed } = result[0];
+          // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
+          const detalleFormulaMateriaPrima = {
+            idMatPri: id,
+            codProd: codProd,
+            desCla: desCla,
+            desSubCla: desSubCla,
+            nomProd: nomProd,
+            simMed: simMed,
+            canMatPriFor: cantidadMateriaPrima,
+          };
 
-        // SETEAMOS SU ESTADO PARA QUE PUEDA SER MOSTRADO EN LA TABLA DE DETALLE
-        const dataMateriaPrimaDetalle = [
-          ...reqMolDet,
-          detalleFormulaMateriaPrima,
-        ];
-        setRequisicion({
-          ...requisicion,
-          reqMolDet: dataMateriaPrimaDetalle,
-        });
+          // SETEAMOS SU ESTADO PARA QUE PUEDA SER MOSTRADO EN LA TABLA DE DETALLE
+          const dataMateriaPrimaDetalle = [
+            ...reqMolDet,
+            detalleFormulaMateriaPrima,
+          ];
+          setRequisicion({
+            ...requisicion,
+            reqMolDet: dataMateriaPrimaDetalle,
+          });
+        } else {
+          setfeedbackMessages({
+            style_message: "error",
+            feedback_description_error: description_error,
+          });
+          handleClickFeeback();
+        }
       }
     } else {
       setfeedbackMessages({
@@ -329,19 +395,18 @@ export const AgregarRequisicionMolienda = () => {
           <div className="card d-flex">
             <h6 className="card-header">Lote de produccion</h6>
             <div className="card-body d-flex justify-content-between align-items-center">
-              {/* FILTRO POR FORMULA */}
+              {/* FILTRO POR LOTE DE PRODUCCION */}
               <div className="col-md-5">
                 <label htmlFor="inputPassword4" className="form-label">
                   Lote de produccion
                 </label>
-                <FilterLoteProduccion onNewInput={onFilterFormula} />
+                <FilterLoteProduccion onNewInput={onProduccionLote} />
               </div>
 
-              {/* BOTON AGREGAR DATOS FORMULA */}
+              {/* BOTON AGREGAR DATOS LOTE DE PRODUCCION */}
               <div className="col-md-3">
                 <button
-                  // onClick={handleAddNewMateriPrimaDetalle}
-                  onClick={handleCompleteFormFormula}
+                  onClick={handleCompleteDatosProduccionLote}
                   className="btn btn-primary"
                 >
                   <svg
@@ -366,275 +431,218 @@ export const AgregarRequisicionMolienda = () => {
           <div className="card d-flex">
             <h6 className="card-header">Datos del lote de produccion</h6>
             <div className="card-body">
-              <form>
-                {/* NUMERO DE LOTE */}
-                <div className="mb-3 row">
-                  <label htmlFor="nombre" className="col-sm-2 col-form-label">
-                    Numero de Lote
-                  </label>
-                  <div className="col-md-2">
-                    <input
-                      type="text"
-                      disabled
-                      name="codLotReqMol"
-                      onChange={handledForm}
-                      value={codLotReqMol}
-                      className="form-control"
-                    />
-                  </div>
+              {/* NUMERO DE LOTE */}
+              <div className="mb-3 row">
+                <label htmlFor="nombre" className="col-sm-2 col-form-label">
+                  Numero de Lote
+                </label>
+                <div className="col-md-2">
+                  <input disabled value={codLotProd} className="form-control" />
                 </div>
-                {/* PRODUCTO */}
-                <div className="mb-3 row">
-                  <label htmlFor="nombre" className="col-sm-2 col-form-label">
-                    Producto
-                  </label>
-                  <div className="col-md-3">
-                    <input
-                      type="text"
-                      name="nomProd"
-                      disabled
-                      value={nomProd}
-                      className="form-control"
-                      readOnly
-                    />
-                  </div>
+              </div>
+              {/* PRODUCTO */}
+              <div className="mb-3 row">
+                <label htmlFor="nombre" className="col-sm-2 col-form-label">
+                  Producto
+                </label>
+                <div className="col-md-3">
+                  <input disabled value={nomProd} className="form-control" />
                 </div>
-                {/* CANTIDAD REQUISICION */}
-                <div className="mb-3 row">
-                  <label
-                    htmlFor="categoria"
-                    className="col-sm-2 col-form-label"
-                  >
-                    Cantidad
-                  </label>
-                  <div className="col-md-2 d-flex">
-                    <input
-                      type="number"
-                      name="canLotReqMol"
-                      disabled
-                      value={canLotReqMol}
-                      className="form-control me-2"
-                    />
-                  </div>
+              </div>
+              {/* CANTIDAD REQUISICION */}
+              <div className="mb-3 row">
+                <label htmlFor="categoria" className="col-sm-2 col-form-label">
+                  Cantidad
+                </label>
+                <div className="col-md-2 d-flex">
+                  <input
+                    disabled
+                    value={canLotProd}
+                    className="form-control me-2"
+                  />
                 </div>
-                {/* KILOGRAMOS POR LOTE */}
-                <div className="mb-3 row">
-                  <label htmlFor="stock" className="col-sm-2 col-form-label">
-                    Kilogramos de lote
-                  </label>
-                  <div className="col-md-2">
-                    <input
-                      type="number"
-                      disabled
-                      name="klgLotReqMol"
-                      onChange={handledForm}
-                      value={klgLotReqMol}
-                      className="form-control"
-                    />
-                  </div>
+              </div>
+              {/* KILOGRAMOS POR LOTE */}
+              <div className="mb-3 row">
+                <label htmlFor="stock" className="col-sm-2 col-form-label">
+                  Kilogramos de lote
+                </label>
+                <div className="col-md-2">
+                  <input disabled value={klgLotProd} className="form-control" />
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>
 
         {/* CONTROL PARA JALAR DE FORMULA */}
-        <div className="row mt-4 mx-4">
-          <div className="card d-flex">
-            <h6 className="card-header">Plantilla de formula</h6>
-            <div className="card-body d-flex justify-content-between align-items-center">
-              {/* FILTRO POR FORMULA */}
-              <div className="col-md-5">
-                <label htmlFor="inputPassword4" className="form-label">
-                  Formula
-                </label>
-                <FilterFormula onNewInput={onFilterFormula} />
-              </div>
-              {/* BOTON AGREGAR DATOS FORMULA */}
-              <div className="col-md-7 d-flex justify-content-end">
-                <button
-                  // onClick={handleAddNewMateriPrimaDetalle}
-                  onClick={handleCompleteFormFormula}
-                  className="btn btn-primary me-2"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-plus-circle-fill me-2"
-                    viewBox="0 0 16 16"
+        {codLotProd.length !== 0 && (
+          <div className="row mt-4 mx-4">
+            <div className="card d-flex">
+              <h6 className="card-header">Plantilla de formula</h6>
+              <div className="card-body d-flex justify-content-between align-items-center">
+                {/* FILTRO POR FORMULA */}
+                <div className="col-md-5">
+                  <label className="form-label">Formula</label>
+                  <div className="col d-flex">
+                    <div className="col-9">
+                      <FilterFormula onNewInput={onFormula} />
+                    </div>
+                    <div className="col-3">
+                      <button
+                        onClick={handleCompleteFormFormula}
+                        className="btn btn-primary ms-2"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          fill="currentColor"
+                          className="bi bi-plus-circle-fill me-2"
+                          viewBox="0 0 16 16"
+                        >
+                          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+                        </svg>
+                        Jalar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {/* BOTON AGREGAR DATOS FORMULA */}
+                <div className="col-md-7 d-flex justify-content-end">
+                  <button
+                    onClick={traerDatosFormulaDetalleApropiada}
+                    className="btn btn-success"
                   >
-                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
-                  </svg>
-                  Jalar datos de formula
-                </button>
-                <button className="btn btn-success">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-search me-2"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                  </svg>
-                  Buscar formula apropiada
-                </button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      className="bi bi-search me-2"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                    </svg>
+                    Buscar formula apropiada
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
-        <div className="container mt-5">
-          <h3 className="">Agregar Detalle</h3>
-          <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
-            {/* AGREGAR MATERIA PRIMA */}
-            <div className="col-md-3">
-              <label htmlFor="inputPassword4" className="form-label">
-                Materia Prima
-              </label>
-              <FilterMateriaPrima onNewInput={onMateriaPrimaId} />
-            </div>
+        <div className="row mt-4 mx-4">
+          <div className="card d-flex">
+            <h6 className="card-header">
+              <b>Detalle de la requisicion</b>
+            </h6>
+            <div className="card-body">
+              <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
+                {/* AGREGAR MATERIA PRIMA */}
+                <div className="col-md-3">
+                  <label htmlFor="inputPassword4" className="form-label">
+                    Materia Prima
+                  </label>
+                  <FilterMateriaPrima onNewInput={onMateriaPrimaId} />
+                </div>
 
-            {/* AGREGAR CANTIDAD*/}
-            <div className="col-md-4">
-              <label htmlFor="inputPassword4" className="form-label">
-                Cantidad
-              </label>
-              <input
-                type="number"
-                onChange={handleCantidadMateriaPrima}
-                value={cantidadMateriaPrima}
-                name="cantidadMateriaPrima"
-                className="form-control"
-              />
-            </div>
-            {/* BOTON AGREGAR MATERIA PRIMA */}
-            <div className="col-md-3 d-flex justify-content-end ms-auto">
-              <button
-                onClick={handleAddNewMateriPrimaDetalle}
-                className="btn btn-primary"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-plus-circle-fill me-2"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
-                </svg>
-                Agregar
-              </button>
-            </div>
-          </form>
-          {/* TABLA DE RESULTADOS */}
-          <Paper>
-            <TableContainer>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="left" width={80}>
-                      Código
-                    </TableCell>
-                    <TableCell align="left" width={350}>
-                      Nombre
-                    </TableCell>
-                    <TableCell align="left" width={150}>
-                      Stock
-                    </TableCell>
-                    <TableCell align="left" width={150}>
-                      Estado
-                    </TableCell>
-                    <TableCell align="left" width={150}>
-                      Acciones
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody ref={refTable}>
-                  {reqMolDet
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, i) => (
+                {/* AGREGAR CANTIDAD*/}
+                <div className="col-md-4">
+                  <label htmlFor="inputPassword4" className="form-label">
+                    Cantidad
+                  </label>
+                  <input
+                    type="number"
+                    onChange={handleCantidadMateriaPrima}
+                    value={cantidadMateriaPrima}
+                    name="cantidadMateriaPrima"
+                    className="form-control"
+                  />
+                </div>
+                {/* BOTON AGREGAR MATERIA PRIMA */}
+                <div className="col-md-3 d-flex justify-content-end ms-auto">
+                  <button
+                    onClick={handleAddNewMateriPrimaDetalle}
+                    className="btn btn-primary"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      className="bi bi-plus-circle-fill me-2"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+                    </svg>
+                    Agregar
+                  </button>
+                </div>
+              </form>
+              {/* TABLA DE RESULTADOS */}
+              <Paper>
+                <TableContainer>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
                       <TableRow
-                        key={row.idMatPri}
                         sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
+                          "& th": {
+                            color: "rgba(96, 96, 96)",
+                            backgroundColor: "#f5f5f5",
+                          },
                         }}
                       >
-                        <TableCell component="th" scope="row">
-                          {row.codMatPri}
+                        <TableCell align="left" width={100}>
+                          <b>Codigo</b>
                         </TableCell>
-                        <TableCell align="left">{row.nomMatPri}</TableCell>
-                        <TableCell align="left">
-                          <input
-                            id={`input-cantidad-${row.idMatPri}`}
-                            onChange={(e) => {
-                              handledFormularioDetalle(e, i);
-                            }}
-                            type="number"
-                            value={row.canMatPriFor}
-                            disabled={true}
-                          />
-                          &nbsp;{row.simMed}
+                        <TableCell align="left" width={120}>
+                          <b>Clase</b>
                         </TableCell>
-                        <TableCell align="left">Requerido</TableCell>
-                        <TableCell align="left">
-                          <div className="btn-toolbar">
-                            <button
-                              onClick={() => {
-                                updateDetalleRequisicion(i);
-                              }}
-                              className="btn btn-success me-2"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                className="bi bi-pencil-fill"
-                                viewBox="0 0 16 16"
-                              >
-                                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => {
-                                deleteDetalleRequisicion(row.idMatPri);
-                              }}
-                              className="btn btn-danger"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                className="bi bi-trash-fill"
-                                viewBox="0 0 16 16"
-                              >
-                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                              </svg>
-                            </button>
-                          </div>
+                        <TableCell align="left" width={140}>
+                          <b>Sub clase</b>
+                        </TableCell>
+                        <TableCell align="left" width={200}>
+                          <b>Nombre</b>
+                        </TableCell>
+                        <TableCell align="left" width={150}>
+                          <b>Cantidad</b>
+                        </TableCell>
+                        <TableCell align="left" width={150}>
+                          <b>Acciones</b>
                         </TableCell>
                       </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            {/* PAGINACION DE LA TABLA */}
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={reqMolDet.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </Paper>
+                    </TableHead>
+                    <TableBody ref={refTable}>
+                      {reqMolDet
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map((row, i) => (
+                          <RowDetalleFormula
+                            key={row.idMatPri}
+                            detalle={row}
+                            onDeleteDetalleFormula={deleteDetalleRequisicion}
+                            onChangeFormulaDetalle={handledFormularioDetalle}
+                          />
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                {/* PAGINACION DE LA TABLA */}
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={reqMolDet.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </Paper>
+            </div>
+          </div>
         </div>
 
         {/* BOTONES DE CANCELAR Y GUARDAR */}

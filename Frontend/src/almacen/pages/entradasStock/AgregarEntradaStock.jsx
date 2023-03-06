@@ -131,9 +131,6 @@ const AgregarEntradaStock = () => {
       diaJulEntSto: DiaJuliano(requestJSON.fecEntSto),
       letAniEntSto: letraAnio(requestJSON.fecEntSto),
     };
-
-    console.log(requestJSON);
-
     // AHORA ENVIAMOS LA DATA AL BACKEND
     const { message_error, description_error } = await createEntradaStock(
       requestJSON

@@ -12,6 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
     $idProd = $data["idProd"];
+    $idTipFor = $data["idTipFor"];
     $nomFor = $data["nomFor"];
     $desFor = $data["desFor"];
     $lotKgrFor = $data["lotKgrFor"];
@@ -37,16 +38,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sql =
                 "INSERT INTO
                 formula
-                (idProd, nomFor, desFor, lotKgrFor)
-                VALUES (?,?,?,$lotKgrFor);
+                (idProd, idTipFor, nomFor, desFor, lotKgrFor)
+                VALUES (?,?,?,?,$lotKgrFor);
                 ";
 
             try {
                 // PREPARAMOS LA CONSULTA
                 $stmt = $pdo->prepare($sql);
                 $stmt->bindParam(1, $idProd, PDO::PARAM_INT);
-                $stmt->bindParam(2, $nomFor, PDO::PARAM_STR);
-                $stmt->bindParam(3, $desFor, PDO::PARAM_STR);
+                $stmt->bindParam(2, $idTipFor, PDO::PARAM_INT);
+                $stmt->bindParam(3, $nomFor, PDO::PARAM_STR);
+                $stmt->bindParam(4, $desFor, PDO::PARAM_STR);
 
                 $pdo->beginTransaction();
                 $stmt->execute();
@@ -66,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     foreach ($forDet as $fila) {
                         // EXTRAEMOS LOS VALORES
                         $idMatPri = $fila["idMatPri"];
-                        $canMatPriFor = $fila["cantidad"];
+                        $canMatPriFor = $fila["canMatPriFor"];
 
                         // CREAMOS LA SENTENCIA
                         $sql_detalle = "INSERT INTO 

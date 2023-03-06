@@ -17,6 +17,7 @@ import FechaPickerDay from "./../../../components/Fechas/FechaPickerDay";
 import { FormulaDetalle } from "./../../components/FormulaDetalle";
 import { Link } from "react-router-dom";
 import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
+import { FilterTipoFormula } from "../../../components/ReferencialesFilters/Formula/FilterTipoFormula";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -75,6 +76,10 @@ export const ListFormulas = () => {
     filter(label, "filterProducto");
   };
 
+  const onChangeTipoFormula = ({ label }) => {
+    filter(label, "filterTipoFormula");
+  };
+
   const onChangeDateFechaCreado = (newDate) => {
     const dateFilter = newDate.split(" ");
     filter(dateFilter[0], "filterFechaCreado");
@@ -120,10 +125,10 @@ export const ListFormulas = () => {
         });
         setdataFormulaTemp(resultSearch);
         break;
-      case "filterDescripcionFormula":
+      case "filterTipoFormula":
         resultSearch = dataFormula.filter((element) => {
           if (
-            element.desFor
+            element.desTipFor
               .toString()
               .toLowerCase()
               .includes(terminoBusqueda.toLowerCase())
@@ -264,19 +269,8 @@ export const ListFormulas = () => {
                       />
                     </TableCell>
                     <TableCell align="left" width={150}>
-                      <b>Descripcion formula</b>
-                      <TextField
-                        name="filterDescripcionFormula"
-                        onChange={handleFormFilter}
-                        size="small"
-                        autoComplete="off"
-                        InputProps={{
-                          style: {
-                            color: "black",
-                            background: "white",
-                          },
-                        }}
-                      />
+                      <b>Tipo formula</b>
+                      <FilterTipoFormula onNewInput={onChangeTipoFormula} />
                     </TableCell>
                     <TableCell align="left" width={80}>
                       <b>Peso</b>
@@ -325,7 +319,7 @@ export const ListFormulas = () => {
                           {row.nomProd}
                         </TableCell>
                         <TableCell align="left">{row.nomFor}</TableCell>
-                        <TableCell align="left">{row.desFor}</TableCell>
+                        <TableCell align="left">{row.desTipFor}</TableCell>
                         <TableCell align="left">{row.lotKgrFor}</TableCell>
                         <TableCell align="left">{row.fecCreFor}</TableCell>
                         <TableCell align="left">{row.fecActFor}</TableCell>

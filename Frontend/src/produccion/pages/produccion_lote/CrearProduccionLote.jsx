@@ -117,7 +117,6 @@ export const CrearProduccionLote = () => {
 
   // CREAR LOTE DE PRODUCCION
   const crearProduccionLote = async () => {
-    console.log(produccionLote);
     const resultPeticion = await createProduccionLote(produccionLote);
     const { message_error, description_error, result } = resultPeticion;
 

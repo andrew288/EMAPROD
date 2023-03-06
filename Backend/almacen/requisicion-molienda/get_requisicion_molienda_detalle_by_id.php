@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             rmd.id,
             rmd.idMatPri,
             rmd.idReqMol,
-            pd.codLotPro,
+            pd.codLotProd,
             p.nomProd,
             p.codProd,
             p.codProd2,

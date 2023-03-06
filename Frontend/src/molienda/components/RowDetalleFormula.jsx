@@ -19,13 +19,13 @@ export const RowDetalleFormula = ({
       <TableCell component="th" scope="row">
         {detalle.codProd}
       </TableCell>
-      <TableCell align="left">{detalle.nomProd}</TableCell>
       <TableCell component="th" scope="row">
         {detalle.desCla}
       </TableCell>
       <TableCell component="th" scope="row">
         {detalle.desSubCla}
       </TableCell>
+      <TableCell align="left">{detalle.nomProd}</TableCell>
       <TableCell align="left">
         <div className="d-inline-flex align-items-center">
           <TextField

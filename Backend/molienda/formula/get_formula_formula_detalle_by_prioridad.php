@@ -12,7 +12,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
-    $idFor = $data["id"];
+    $idProd = $data["idProd"];
+    $lotKgrFor = $data["lotKgrFor"];
 
     if ($pdo) {
         $sql =
@@ -29,17 +30,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             JOIN producto as p on p.id = f.idProd
             JOIN clase c ON p.idCla = c.id
             JOIN sub_clase sc ON p.idSubCla = sc.id
-            WHERE f.id = ?
+            WHERE f.idProd = ? AND f.lotKgrFor = $lotKgrFor
             ";
         try {
             // PREPARAMOS LA CONSULTA
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(1, $idFor, PDO::PARAM_INT);
+            $stmt->bindParam(1, $idProd, PDO::PARAM_INT);
             $stmt->execute();
             $sql_detalle = "";
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $row["forDet"] = [];
+                $idFor = $row["id"];
 
                 $sql_detalle =
                     "SELECT

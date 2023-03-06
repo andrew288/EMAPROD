@@ -19,6 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             "SELECT
             f.id,
             f.idProd,
+            f.idTipFor,
+            ft.desTipFor,
             p.nomProd,
             f.nomFor,
             f.desFor,
@@ -27,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             f.fecActFor
             FROM formula f
             JOIN producto as p on p.id = f.idProd
+            JOIN formula_tipo as ft on ft.id = f.idTipFor 
             ORDER BY f.fecCreFor DESC
             ";
         try {

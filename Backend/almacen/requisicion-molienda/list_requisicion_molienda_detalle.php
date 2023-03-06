@@ -43,8 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             rme.desReqMolEst,
             rm.idProdt,
             p.nomProd,
-            rm.canLotReqMol,
-            rm.klgLotReqMol,
             rm.fecPedReqMol,
             rm.fecTerReqMol
             FROM requisicion_molienda rm

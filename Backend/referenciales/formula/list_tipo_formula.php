@@ -10,29 +10,11 @@ $description_error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($pdo) {
-        $sql =
-            "SELECT
-            f.id,
-            f.idProd,
-            f.idTipFor,
-            ft.desTipFor,
-            p.nomProd,
-            f.nomFor,
-            f.desFor,
-            f.lotKgrFor
-            FROM formula as f
-            JOIN producto as p on p.id = f.idProd
-            JOIN formula_tipo as ft on ft.id = f.idTipFor 
-        ";
+        $sql = "SELECT * FROM formula_tipo";
         // Preparamos la consulta
         $stmt = $pdo->prepare($sql);
         // Ejecutamos la consulta
-        try {
-            $stmt->execute();
-        } catch (Exception $e) {
-            $message_error = "ERROR INTERNO SERVER";
-            $description_error = $e->getMessage();
-        }
+        $stmt->execute();
         // Recorremos los resultados
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             array_push($result, $row);

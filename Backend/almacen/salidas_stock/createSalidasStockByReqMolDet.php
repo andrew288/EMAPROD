@@ -76,21 +76,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 if ($canResAftOpe == 0) { // SI LA CANTIDAD RESTANTE ES 0
                     $idEntStoEst = 2; // ESTADO DE ENTRADA AGOTADA O TERMINADA
+                    $fecFinSto = date('Y-m-d H:i:s');
+
+                    // ACTUALIZAMOS LA ENTRADA STOCK CON FECHA DE FINALIZACION
+                    $sql_update_entrada_stock =
+                        "UPDATE
+                        entrada_stock
+                        SET canTotDis = $canResAftOpe, idEntStoEst = ?, fecFinSto = ?
+                        WHERE id = ?
+                        ";
+                    $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);
+                    $stmt_update_entrada_stock->bindParam(1, $idEntStoEst, PDO::PARAM_INT);
+                    $stmt_update_entrada_stock->bindParam(2, $fecFinSto);
+                    $stmt_update_entrada_stock->bindParam(3, $idEntSto, PDO::PARAM_INT);
+                    $stmt_update_entrada_stock->execute();
                 } else {
                     $idEntStoEst = 1; // ESTADO DE ENTRADA DISPONIBLE
+
+                    // ACTUALIZAMOS LA ENTRADA STOCK
+                    $sql_update_entrada_stock =
+                        "UPDATE
+                        entrada_stock
+                        SET canTotDis = $canResAftOpe, idEntStoEst = ?
+                        WHERE id = ?
+                        ";
+                    $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);
+                    $stmt_update_entrada_stock->bindParam(1, $idEntStoEst, PDO::PARAM_INT);
+                    $stmt_update_entrada_stock->bindParam(2, $idEntSto, PDO::PARAM_INT);
+                    $stmt_update_entrada_stock->execute();
                 }
 
-                // ACTUALIZAMOS LA ENTRADA STOCK
-                $sql_update_entrada_stock =
-                    "UPDATE
-                    entrada_stock
-                    SET canTotDis = $canResAftOpe, idEntStoEst = ?
-                    WHERE id = ?
-                    ";
-                $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);
-                $stmt_update_entrada_stock->bindParam(1, $idEntStoEst, PDO::PARAM_INT);
-                $stmt_update_entrada_stock->bindParam(2, $idEntSto, PDO::PARAM_INT);
-                $stmt_update_entrada_stock->execute();
 
                 // ACTUALIZAMOS EL ALMACEN CORRESPONDIENTE A LA ENTRADA
                 $sql_update_almacen_stock =

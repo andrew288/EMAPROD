@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         M.codProd2,
         M.esMatPri,
         M.esProFin,
-        M.esProInt
+        M.esProProd
         FROM producto M
         LEFT JOIN medida ME ON M.idMed = ME.id
         WHERE M.esMatPri = ?

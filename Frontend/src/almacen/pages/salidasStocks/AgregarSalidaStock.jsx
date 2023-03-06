@@ -32,7 +32,7 @@ export const AgregarSalidaStock = () => {
   const [salidaMolienda, setSalidaMolienda] = useState({
     idReqMol: 0,
     idReqMolDet: 0,
-    codLotPro: "",
+    codLotProd: "",
     idMatPri: 0,
     codProd: "",
     nomProd: "",
@@ -44,7 +44,7 @@ export const AgregarSalidaStock = () => {
 
   const {
     idReqMol,
-    codLotPro,
+    codLotProd,
     idMatPri,
     codProd,
     nomProd,
@@ -113,7 +113,7 @@ export const AgregarSalidaStock = () => {
           idReqMolDet: parseInt(idReqMolDet, 10),
           nomProd: result[0].nomProd,
           idMatPri: result[0].idMatPri,
-          codLotPro: result[0].codLotPro,
+          codLotProd: result[0].codLotProd,
           codProd: result[0].codProd,
           canReqMolDet: result[0].canReqMolDet,
         });
@@ -325,8 +325,8 @@ export const AgregarSalidaStock = () => {
                 <div className="col-md-2">
                   <input
                     type="text"
-                    name="codLotPro"
-                    value={codLotPro}
+                    name="codLotProd"
+                    value={codLotProd}
                     readOnly
                     className="form-control"
                     onChange={handledForm}

@@ -17,6 +17,7 @@ import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/P
 import { RowDetalleFormula } from "../../components/RowDetalleFormula";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
+import { FilterTipoFormula } from "./../../../components/ReferencialesFilters/Formula/FilterTipoFormula";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -27,12 +28,13 @@ export const AgregarFormula = () => {
   // ESTADOS PARA DATOS DE FORMULARO FORMULA (MAESTRO)
   const [formula, setformula] = useState({
     idProd: 0,
+    idTipFor: 0,
     nomFor: "",
     desFor: "",
     lotKgrFor: 1500,
     forDet: [], // DETALLE DE FORMULAS
   });
-  const { idProd, nomFor, desFor, lotKgrFor, forDet } = formula;
+  const { idProd, idTipFor, nomFor, desFor, lotKgrFor, forDet } = formula;
 
   // ESTADOS PARA DATOS DE DETALLE FORMULA (DETALLE)
   const [materiaPrimaDetalle, setmateriaPrimaDetalle] = useState({
@@ -202,6 +204,13 @@ export const AgregarFormula = () => {
     });
   };
 
+  const onAddTipoFormula = ({ id }) => {
+    setformula({
+      ...formula,
+      idTipFor: id,
+    });
+  };
+
   // ESTADOS PARA LA PAGINACIÓN
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -239,6 +248,7 @@ export const AgregarFormula = () => {
     e.preventDefault();
     if (
       nomFor.length === 0 ||
+      idTipFor === 0 ||
       idProd === 0 ||
       lotKgrFor < 0 ||
       forDet.length === 0
@@ -275,6 +285,15 @@ export const AgregarFormula = () => {
                     <FilterProductoProduccion onNewInput={onAddProducto} />
                   </div>
                 </div>
+                {/* TIPO DE FORMULA */}
+                <div className="mb-3 row">
+                  <label htmlFor="nombre" className="col-sm-2 col-form-label">
+                    Tipo de formula
+                  </label>
+                  <div className="col-md-3">
+                    <FilterTipoFormula onNewInput={onAddTipoFormula} />
+                  </div>
+                </div>
                 {/* NOMBRE FORMULA */}
                 <div className="mb-3 row">
                   <label
@@ -287,6 +306,7 @@ export const AgregarFormula = () => {
                     <input
                       type="text"
                       name="nomFor"
+                      autoComplete="off"
                       onChange={handledForm}
                       value={nomFor}
                       className="form-control"

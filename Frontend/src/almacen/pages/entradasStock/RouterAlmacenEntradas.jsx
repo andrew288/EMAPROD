@@ -12,7 +12,7 @@ export const RouterAlmacenEntradaStock = [
     element: <AgregarEntradaStock />,
   },
   {
-    path: "actualizar",
+    path: "actualizar/:id",
     element: <ActualizarEntradaStock />,
   },
 ];
