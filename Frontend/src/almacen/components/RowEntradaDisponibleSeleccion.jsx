@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Checkbox } from "@mui/material";
 
-export const RowEntradaDisponible = ({ entrada, onChangeInputValue }) => {
+export const RowEntradaDisponibleSeleccion = ({
+  entrada,
+  onChangeInputValue,
+}) => {
   const [inputValue, setinputValue] = useState(0);
   const [checked, setChecked] = useState(false);
 
@@ -11,20 +14,19 @@ export const RowEntradaDisponible = ({ entrada, onChangeInputValue }) => {
     // mandamos a realizar los cambios
     onChangeInputValue(
       isChecked,
-      entrada.canTotDis,
+      entrada.canPorSel,
       inputValue,
       entrada.id,
       setinputValue
     );
   };
-
   return (
     <tr>
       <td>{entrada.nomAlm}</td>
       <td>{entrada.codEntSto}</td>
-      <td>{entrada.refNumIngEntSto}</td>
+      <td>{entrada.canSel}</td>
+      <td>{entrada.canPorSel}</td>
       <td>{entrada.fecEntSto}</td>
-      <td>{entrada.canTotDis}</td>
       <td className="col-2">
         <div className="d-flex">
           <Checkbox

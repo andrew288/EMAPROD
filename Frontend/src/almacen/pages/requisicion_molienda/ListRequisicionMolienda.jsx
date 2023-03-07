@@ -317,7 +317,6 @@ export const ListRequisicionMolienda = () => {
   const obtenerDataRequisicionMolienda = async (body = {}) => {
     const resultPeticion = await getRequisicionMoliendaWithDetalle(body);
     const { message_error, description_error, result } = resultPeticion;
-    console.log(result);
     if (message_error.length === 0) {
       setdataRequisicion(result);
       setdataRequisicionTemp(result);

@@ -5,11 +5,11 @@ import queryString from "query-string";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
-import { createSalidasStockByReqMolDet } from "./../../helpers/salidas-stock/createSalidasStockByReqMolDet";
 import { getRequisicionSeleccionDetalleById } from "./../../helpers/requisicion-seleccion/getRequisicionSeleccionDetalleById";
 import { getEntradasDisponiblesForSeleccion } from "./../../helpers/requisicion-seleccion/getEntradasDisponiblesForSeleccion";
 import { createSalidasStockByReqSelDet } from "./../../helpers/requisicion-seleccion/createSalidasStockByReqSelDet";
 import FechaPicker from "./../../../components/Fechas/FechaPicker";
+import { RowEntradaDisponibleSeleccion } from "./../../components/RowEntradaDisponibleSeleccion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -26,9 +26,10 @@ export const SalidaStock = () => {
   const [salidaSeleccion, setsalidaSeleccion] = useState({
     idReqSel: 0,
     idReqSelDet: 0,
-    codReqSel: "",
+    codLotSel: "",
     idMatPri: 0,
-    codMatPri: "",
+    codProd: "",
+    nomProd: "",
     salStoSelDet: [],
     fecSalStoReqSel: "",
     canReqSelDet: 0,
@@ -36,9 +37,10 @@ export const SalidaStock = () => {
 
   const {
     idReqSel,
-    codReqSel,
+    codLotSel,
     idMatPri,
-    codMatPri,
+    codProd,
+    nomProd,
     fecSalStoReqSel,
     canReqSelDet,
     salStoSelDet,
@@ -104,9 +106,10 @@ export const SalidaStock = () => {
             ...salidaSeleccion,
             idReqSel: result[0].idReqSel,
             idReqSelDet: parseInt(idReqSelDet, 10),
+            nomProd: result[0].nomProd,
             idMatPri: result[0].idMatPri,
-            codReqSel: result[0].codReqSel,
-            codMatPri: result[0].codMatPri,
+            codLotSel: result[0].codLotSel,
+            codProd: result[0].codProd,
             canReqSelDet: result[0].canReqSelDet,
           });
         } else {
@@ -131,27 +134,25 @@ export const SalidaStock = () => {
   };
 
   // Habilitar input de envio
-  const habilitarInputCantidad = (idPosElement, { id, canPorSel }) => {
-    let inputSelected =
-      refTable.current.children[idPosElement].childNodes[4].childNodes[0]
-        .childNodes[1].childNodes[0];
-
-    let checkState =
-      refTable.current.children[idPosElement].childNodes[4].childNodes[0]
-        .childNodes[0];
-
+  const onChangeCheckedEntrada = (
+    isChecked,
+    valueEntrada,
+    valueInput,
+    idEntrada,
+    setInputValue
+  ) => {
     // Obtenemos la cantidad actual de la entrada
-    let cantidadDisponible = parseInt(canPorSel, 10);
+    let cantidadDisponible = parseInt(valueEntrada, 10);
+    // Obtenemos la cantidad actual del input de entrada
+    let cantidadInputEntrada = parseInt(valueInput, 10);
     console.log(count);
 
     // Verificamos si la casilla fue seleccionada
-    if (checkState.checked) {
-      // Habilitamos el input
-      inputSelected.disabled = false;
+    if (isChecked) {
       // si la cantidad requerida es mayor o igual a la cantidad de la entrada
       if (count >= cantidadDisponible) {
         // Actualizamos el input con toda la cantidad de su entrada
-        inputSelected.value = cantidadDisponible;
+        setInputValue(cantidadDisponible);
         // Actualizamos la cantidad requerida
         setcount(count - cantidadDisponible);
 
@@ -159,9 +160,8 @@ export const SalidaStock = () => {
         let aux = [...salStoSelDet];
         console.log(aux);
         aux.push({
-          idEntSto: id,
+          idEntSto: idEntrada,
           canSalReqSel: cantidadDisponible,
-          // canTotDis: canTotDis,
         });
         setsalidaSeleccion({
           ...salidaSeleccion,
@@ -174,18 +174,19 @@ export const SalidaStock = () => {
       else {
         // si la cantidad requerida es igual a 0
         if (count === 0) {
-          inputSelected.value = 0;
+          setInputValue(0);
           console.log("COUNT: " + 0);
         }
         // si la cantidad requerida es menor a la cantidad de la entrada
         else {
-          inputSelected.value = count;
+          // inputSelected.value = count;
+          setInputValue(count);
           setcount(0);
           // Añadimos la informacion a la salida detalle
           let aux = [...salStoSelDet];
           console.log(aux);
           aux.push({
-            idEntSto: id,
+            idEntSto: idEntrada,
             canSalReqSel: count,
             // canTotDis: canTotDis,
           });
@@ -197,11 +198,11 @@ export const SalidaStock = () => {
         }
       }
     } else {
-      inputSelected.disabled = true;
-      setcount(count + parseInt(inputSelected.value, 10));
+      // inputSelected.disabled = true;
+      setcount(count + cantidadInputEntrada);
       // Eliminamos la informacion deseleccionada
       let aux = salStoSelDet.filter((element) => {
-        if (element.idEntSto !== id) {
+        if (element.idEntSto !== idEntrada) {
           return true;
         } else {
           return false;
@@ -212,28 +213,28 @@ export const SalidaStock = () => {
         ...salidaSeleccion,
         salStoSelDet: aux,
       });
-      console.log("COUNT: " + (count + parseInt(inputSelected.value, 10)));
-      inputSelected.value = 0;
+      console.log("COUNT: " + (count + cantidadInputEntrada));
+      setInputValue(0);
     }
   };
 
   const crearSalidasStockByRequisicionSeleccionDetalle = async () => {
     console.log(salidaSeleccion);
-    const { message_error, description_error } =
-      await createSalidasStockByReqSelDet(salidaSeleccion);
+    // const { message_error, description_error } =
+    //   await createSalidasStockByReqSelDet(salidaSeleccion);
 
-    if (message_error.length === 0) {
-      console.log("Se agregaron las salidas exitosamente");
-      // Volvemos a la vista de requisiciones
-      onNavigateBack();
-    } else {
-      console.log("No se pudo crear");
-      setfeedbackMessages({
-        style_message: "error",
-        feedback_description_error: description_error,
-      });
-      handleClickFeeback();
-    }
+    // if (message_error.length === 0) {
+    //   console.log("Se agregaron las salidas exitosamente");
+    //   // Volvemos a la vista de requisiciones
+    //   onNavigateBack();
+    // } else {
+    //   console.log("No se pudo crear");
+    //   setfeedbackMessages({
+    //     style_message: "error",
+    //     feedback_description_error: description_error,
+    //   });
+    //   handleClickFeeback();
+    // }
     setdisableButton(false);
   };
 
@@ -289,169 +290,167 @@ export const SalidaStock = () => {
 
   return (
     <>
-      <div className="container">
+      <div className="container-fluid px-4">
         <h1 className="mt-4 text-center">Registrar salida de seleccion</h1>
-        <form className="mt-4">
+        <form className="mt-4 form-inline">
           <div className="mb-3 row">
-            <label htmlFor="codigo-lote" className="col-sm-2 col-form-label">
-              Código del Lote
-            </label>
-            <div className="col-md-2">
-              <input
-                type="text"
-                name="codReqSel"
-                value={codReqSel}
-                readOnly
-                className="form-control"
-                onChange={handledForm}
-              />
-            </div>
-          </div>
-
-          <div className="mb-3 row">
-            <label
-              htmlFor="codigo-materia-prima"
-              className="col-sm-2 col-form-label"
-            >
-              Código de la materia prima
-            </label>
-            <div className="col-md-2">
-              <input
-                type="text"
-                name="codMatPri"
-                value={codMatPri}
-                readOnly
-                className="form-control"
-                onChange={handledForm}
-              />
-            </div>
-          </div>
-
-          <div className="mb-3 row">
-            <label
-              htmlFor="codigo-materia-prima"
-              className="col-sm-2 col-form-label"
-            >
-              Código de entrada
-            </label>
-            <div className="col-md-3">
-              <div className="input-group">
-                <div className="input-group-append">
-                  <button
-                    onClick={traerDatosEntradasDisponibles}
-                    className="btn btn-outline-secondary"
-                    type="button"
-                    id="agregarCodigoProveedor"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      className="bi bi-search"
-                      viewBox="0 0 16 16"
-                    >
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                    </svg>
-                  </button>
+            <div className="card d-flex">
+              <h6 className="card-header" id="response-serie-number-sale">
+                Requisicion Seleccion
+              </h6>
+              <div className="card-body">
+                <label htmlFor="codigo-lote" className="col-form-label">
+                  <b>Código de lote</b>
+                </label>
+                <div className="col-md-2">
+                  <input
+                    type="text"
+                    name="codLotSel"
+                    value={codLotSel}
+                    readOnly
+                    className="form-control"
+                    onChange={handledForm}
+                  />
                 </div>
               </div>
             </div>
-            <div className="table-responsive mt-4">
-              <table className="table text-center">
-                <thead className="table-success ">
-                  <tr>
-                    <th scope="col">Cod. Ingreso</th>
-                    <th scope="col">Cantidad seleccionada</th>
-                    <th scope="col">Cantidad por seleccionar</th>
-                    <th scope="col">Fecha ingreso</th>
-                    <th scope="col">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody ref={refTable}>
-                  {entradasDisponibles.map((element, i) => (
-                    <tr key={element.id}>
-                      <td>{element.codEntSto}</td>
-                      <td>{element.canSel}</td>
-                      <td>{element.canPorSel}</td>
-                      <td>{element.fecEntSto}</td>
-                      <td className="col-2">
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            value=""
-                            onChange={() => {
-                              habilitarInputCantidad(i, { ...element });
-                            }}
-                            id="flexCheckDefault"
-                          />
-                          <div
-                            className="form-check-label"
-                            htmlFor="flexCheckDefault"
-                          >
-                            <input
-                              className="form-control"
-                              type="number"
-                              placeholder="0"
-                              disabled={true}
-                            />
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
-          <div className="mb-3 row">
-            <label
-              htmlFor="fecha-salida-stock"
-              className="col-sm-2 col-form-label"
-            >
-              Fecha de salida
-            </label>
-            <div className="col-md-3">
-              <FechaPicker />
-            </div>
-          </div>
-          {/* <div className="mb-3 row">
-            <label
-              htmlFor="documento-salida"
-              className="col-sm-2 col-form-label"
-            >
-              Documento
-            </label>
-            <div className="col-md-3">
-              <input
-                type="text"
-                name="docSalSto"
-                value={docSalSto}
-                className="form-control"
-                onChange={handledForm}
-              />
-            </div>
-          </div> */}
 
           <div className="mb-3 row">
-            <label
-              htmlFor="cantidad-salida"
-              className="col-sm-2 col-form-label"
-            >
-              Cantidad Salida
-            </label>
-            <div className="col-md-2">
-              <input
-                type="number"
-                name="canReqSelDet"
-                value={canReqSelDet}
-                readOnly
-                className="form-control"
-                onChange={handledForm}
-              />
+            <div className="card d-flex">
+              <h6 className="card-header" id="response-serie-number-sale">
+                Materia Prima
+              </h6>
+              <div className="card-body">
+                <div className="row">
+                  <div className="form-group col-md-2">
+                    <label
+                      htmlFor="codigo-materia-prima"
+                      className="col-form-label"
+                    >
+                      <b>Nombre</b>
+                    </label>
+                    <input
+                      type="text"
+                      name="nomProd"
+                      value={nomProd}
+                      readOnly
+                      className="form-control"
+                      onChange={handledForm}
+                    />
+                  </div>
+                  <div className="form-group col-md-2">
+                    <label
+                      htmlFor="codigo-materia-prima"
+                      className="col-form-label"
+                    >
+                      <b>Codigo Sigo</b>
+                    </label>
+                    <input
+                      type="text"
+                      name="codProd"
+                      value={codProd}
+                      readOnly
+                      className="form-control"
+                      onChange={handledForm}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+
+          <div className="mb-3 row">
+            <div className="card d-flex">
+              <h6 className="card-header" id="response-serie-number-sale">
+                Datos de salida
+              </h6>
+              <div className="card-body">
+                <label
+                  htmlFor="codigo-materia-prima"
+                  className="col-form-label"
+                >
+                  <b>Entradas disponibles</b>
+                </label>
+                <button
+                  onClick={traerDatosEntradasDisponibles}
+                  className="btn btn-outline-secondary ms-3"
+                  type="button"
+                  id="agregarCodigoProveedor"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-search"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                  </svg>
+                </button>
+
+                {/* TABLA DE ENTRADAS DISPONIBLES */}
+                <div className="table-responsive mt-4">
+                  <table className="table text-center">
+                    <thead className="table-success">
+                      <tr>
+                        <th scope="col">Almacen</th>
+                        <th scope="col">Codigo</th>
+                        <th scope="col">Seleccionado</th>
+                        <th scope="col">Por seleccionar</th>
+                        <th scope="col">Fecha ingreso</th>
+                        <th scope="col">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entradasDisponibles.map((element, i) => (
+                        <RowEntradaDisponibleSeleccion
+                          key={element.id}
+                          entrada={element}
+                          onChangeInputValue={onChangeCheckedEntrada}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* CANTIDAD DE SALIDA */}
+                <div className="mb-3 row">
+                  <label
+                    htmlFor="cantidad-salida"
+                    className="col-sm-2 col-form-label"
+                  >
+                    Cantidad Salida
+                  </label>
+                  <div className="col-md-2">
+                    <input
+                      type="number"
+                      name="canReqSelDet"
+                      value={canReqSelDet}
+                      readOnly
+                      className="form-control"
+                      onChange={handledForm}
+                    />
+                  </div>
+                </div>
+
+                {/* FECHA DE SALIDA */}
+                <div className="mb-3 row">
+                  <label
+                    htmlFor="fecha-salida-stock"
+                    className="col-sm-2 col-form-label"
+                  >
+                    Fecha de salida
+                  </label>
+                  <div className="col-md-3">
+                    <FechaPicker />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* BOTONES DE CANCELAR Y GUARDAR */}
           <div className="btn-toolbar">
             <button
@@ -459,7 +458,7 @@ export const SalidaStock = () => {
               onClick={onNavigateBack}
               className="btn btn-secondary me-2"
             >
-              Cancelar
+              Volver
             </button>
             <button
               type="submit"

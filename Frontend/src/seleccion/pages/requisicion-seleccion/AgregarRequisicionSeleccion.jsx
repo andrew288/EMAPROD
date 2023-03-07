@@ -12,25 +12,22 @@ import TablePagination from "@mui/material/TablePagination";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
-import { FilterMateriaPrimaSeleccionWhitId } from "./../../components/FilterMateriaPrimaSeleccionWhitId";
 import { createRequisicionSeleccionWithDetalle } from "./../../helpers/requisicion/createRequisicionSeleccionWithDetalle";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
+import { FilterMateriaPrimaPorSeleccionar } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrimaPorSeleccionar";
+import { RowDetalleRequisicionSeleccion } from "../../components/RowDetalleRequisicionSeleccion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 export const AgregarRequisicionSeleccion = () => {
-  const refTable = useRef();
-
   // ESTADOS PARA LOS DATOS DE REQUISICION
   const [requisicion, setRequisicion] = useState({
-    codReqSel: "",
-    canReqSel: 1,
-    idReqSelEst: 1,
+    codLotSel: "",
     reqSelDet: [], // DETALLE DE REQUISICION MOLIENDA
   });
-  const { codReqSel, canReqSel, idReqSelEst, reqSelDet } = requisicion;
+  const { codLotSel, reqSelDet } = requisicion;
 
   // ESTADOS PARA DATOS DE DETALLE FORMULA (DETALLE)
   const [materiaPrimaDetalle, setmateriaPrimaDetalle] = useState({
@@ -91,10 +88,10 @@ export const AgregarRequisicionSeleccion = () => {
   };
 
   // MANEJADOR DE AGREGAR MATERIA PRIMA A DETALLE DE FORMULA
-  const onMateriaPrimaId = (value) => {
+  const onMateriaPrimaId = ({ id }) => {
     setmateriaPrimaDetalle({
       ...materiaPrimaDetalle,
-      idMateriaPrima: value,
+      idMateriaPrima: id,
     });
   };
 
@@ -125,24 +122,19 @@ export const AgregarRequisicionSeleccion = () => {
   };
 
   // ACTUALIZAR DETALLE DE REQUISICION
-  const updateDetalleRequisicion = (idPosElement) => {
-    console.log("update");
-    let inputSelected =
-      refTable.current.children[idPosElement].childNodes[2].childNodes[0];
-
-    if (inputSelected.disabled) {
-      inputSelected.disabled = false;
-    } else {
-      inputSelected.disabled = true;
-    }
-  };
-
   // MANEJADOR PARA ACTUALIZAR REQUISICION
-  const handledFormularioDetalle = ({ target }, index) => {
+  const handledFormularioDetalle = ({ target }, idItem) => {
     const { value } = target;
-    let editFormDetalle = [...reqSelDet];
-    const aux = { ...reqSelDet[index], canMatPriFor: value };
-    editFormDetalle[index] = aux;
+    const editFormDetalle = reqSelDet.map((element) => {
+      if (element.idMatPri === idItem) {
+        return {
+          ...element,
+          canMatPriFor: value,
+        };
+      } else {
+        return element;
+      }
+    });
 
     setRequisicion({
       ...requisicion,
@@ -152,19 +144,13 @@ export const AgregarRequisicionSeleccion = () => {
 
   // FUNCION ASINCRONA PARA CREAR LA REQUISICION CON SU DETALLE
   const crearRequisicion = async () => {
-    console.log(requisicion);
     const { message_error, description_error } =
       await createRequisicionSeleccionWithDetalle(requisicion);
 
     if (message_error.length === 0) {
-      console.log("Se creo exitosamente");
-      setfeedbackMessages({
-        style_message: "success",
-        feedback_description_error: "Se creó exitosamente",
-      });
-      handleClickFeeback();
+      // retornamos a la anterior vista
+      onNavigateBack();
     } else {
-      console.log("No se pudo crear");
       setfeedbackMessages({
         style_message: "error",
         feedback_description_error: description_error,
@@ -177,7 +163,7 @@ export const AgregarRequisicionSeleccion = () => {
   // SUBMIT FORMULARIO DE REQUISICION (M-D)
   const handleSubmitRequisicion = (e) => {
     e.preventDefault();
-    if (codReqSel.length === 0 || reqSelDet.length === 0) {
+    if (codLotSel.length === 0 || reqSelDet.length === 0) {
       setfeedbackMessages({
         style_message: "warning",
         feedback_description_error:
@@ -185,7 +171,7 @@ export const AgregarRequisicionSeleccion = () => {
       });
       handleClickFeeback();
     } else {
-      // setdisableButton(true);
+      setdisableButton(true);
       // LLAMAMOS A LA FUNCION CREAR REQUISICION
       crearRequisicion();
       // RESETEAMOS LOS VALORES
@@ -210,25 +196,37 @@ export const AgregarRequisicionSeleccion = () => {
         handleClickFeeback();
       } else {
         // HACEMOS UNA CONSULTA A LA MATERIA PRIMA Y DESESTRUCTURAMOS
-        const result = await getMateriaPrimaById(idMateriaPrima);
-        const { id, codMatPri, nomMatPri, simMed } = result[0];
-        // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
-        const detalleFormulaMateriaPrima = {
-          idMatPri: id,
-          codMatPri: codMatPri,
-          nomMatPri: nomMatPri,
-          simMed: simMed,
-          canMatPriFor: cantidadMateriaPrima,
-        };
-        // SETEAMOS SU ESTADO PARA QUE PUEDA SER MOSTRADO EN LA TABLA DE DETALLE
-        const dataMateriaPrimaDetalle = [
-          ...reqSelDet,
-          detalleFormulaMateriaPrima,
-        ];
-        setRequisicion({
-          ...requisicion,
-          reqSelDet: dataMateriaPrimaDetalle,
-        });
+        const resultPeticion = await getMateriaPrimaById(idMateriaPrima);
+        const { message_error, description_error, result } = resultPeticion;
+
+        if (message_error.length === 0) {
+          const { id, codProd, desCla, desSubCla, nomProd, simMed } = result[0];
+          // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
+          const detalleFormulaMateriaPrima = {
+            idMatPri: id,
+            codProd: codProd,
+            desCla: desCla,
+            desSubCla: desSubCla,
+            nomProd: nomProd,
+            simMed: simMed,
+            canMatPriFor: cantidadMateriaPrima,
+          };
+          // SETEAMOS SU ESTADO PARA QUE PUEDA SER MOSTRADO EN LA TABLA DE DETALLE
+          const dataMateriaPrimaDetalle = [
+            ...reqSelDet,
+            detalleFormulaMateriaPrima,
+          ];
+          setRequisicion({
+            ...requisicion,
+            reqSelDet: dataMateriaPrimaDetalle,
+          });
+        } else {
+          setfeedbackMessages({
+            style_message: "error",
+            feedback_description_error: description_error,
+          });
+          handleClickFeeback();
+        }
       }
     } else {
       setfeedbackMessages({
@@ -241,201 +239,158 @@ export const AgregarRequisicionSeleccion = () => {
 
   return (
     <>
-      <div className="container">
+      <div className="container-fluid mx-3">
         <h1 className="mt-4 text-center">Agregar Requisicion</h1>
-        <form className="mt-4">
-          {/* NUMERO DE LOTE */}
-          <div className="mb-3 row">
-            <label htmlFor="nombre" className="col-sm-2 col-form-label">
-              Numero de Lote
-            </label>
-            <div className="col-md-2">
-              <input
-                type="text"
-                name="codReqSel"
-                onChange={handledForm}
-                value={codReqSel}
-                className="form-control"
-              />
+        {/* DATOS DE LA REQUISICION */}
+        <div className="row mt-4 mx-4">
+          <div className="card d-flex">
+            <h6 className="card-header">Datos de la requisicion</h6>
+            <div className="card-body d-flex justify-content-between align-items-center">
+              <div className="col-md-5">
+                <form>
+                  <label htmlFor="nombre" className="col-form-label">
+                    Numero de Lote
+                  </label>
+                  <div className="col-md-3">
+                    <input
+                      type="text"
+                      name="codLotSel"
+                      onChange={handledForm}
+                      value={codLotSel}
+                      className="form-control"
+                    />
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
-          {/* CANTIDAD REQUISICION */}
-          <div className="mb-3 row">
-            <label htmlFor="categoria" className="col-sm-2 col-form-label">
-              Cantidad
-            </label>
-            <div className="col-md-2">
-              <input
-                type="number"
-                name="canReqSel"
-                onChange={handledForm}
-                value={canReqSel}
-                className="form-control"
-              />
-            </div>
-          </div>
-        </form>
+        </div>
+        <div className="row mt-4 mx-4">
+          <div className="card d-flex">
+            <h6 className="card-header">
+              <b>Detalle de la requisicion</b>
+            </h6>
+            <div className="card-body">
+              <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
+                {/* AGREGAR MATERIA PRIMA */}
+                <div className="col-md-3">
+                  <label htmlFor="inputPassword4" className="form-label">
+                    Materia Prima
+                  </label>
+                  <FilterMateriaPrimaPorSeleccionar
+                    onNewInput={onMateriaPrimaId}
+                  />
+                </div>
 
-        <div className="container mt-5">
-          <h3 className="">Agregar Detalle</h3>
-          <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
-            {/* AGREGAR MATERIA PRIMA */}
-            <div className="col-md-3">
-              <label htmlFor="inputPassword4" className="form-label">
-                Materia Prima
-              </label>
-              <FilterMateriaPrimaSeleccionWhitId
-                onNewInput={onMateriaPrimaId}
-              />
-            </div>
-
-            {/* AGREGAR CANTIDAD*/}
-            <div className="col-md-4">
-              <label htmlFor="inputPassword4" className="form-label">
-                Cantidad
-              </label>
-              <input
-                type="number"
-                onChange={handleCantidadMateriaPrima}
-                value={cantidadMateriaPrima}
-                name="cantidadMateriaPrima"
-                className="form-control"
-              />
-            </div>
-            {/* BOTON AGREGAR MATERIA PRIMA */}
-            <div className="col-md-3 d-flex justify-content-end ms-auto">
-              <button
-                onClick={handleAddNewMateriPrimaDetalle}
-                className="btn btn-primary"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-plus-circle-fill me-2"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
-                </svg>
-                Agregar
-              </button>
-            </div>
-          </form>
-          {/* TABLA DE RESULTADOS */}
-          <Paper>
-            <TableContainer>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="left" width={80}>
-                      Código
-                    </TableCell>
-                    <TableCell align="left" width={350}>
-                      Nombre
-                    </TableCell>
-                    <TableCell align="left" width={150}>
-                      Stock
-                    </TableCell>
-                    <TableCell align="left" width={150}>
-                      Estado
-                    </TableCell>
-                    <TableCell align="left" width={150}>
-                      Acciones
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody ref={refTable}>
-                  {reqSelDet
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, i) => (
+                {/* AGREGAR CANTIDAD*/}
+                <div className="col-md-4">
+                  <label htmlFor="inputPassword4" className="form-label">
+                    Cantidad
+                  </label>
+                  <input
+                    type="number"
+                    onChange={handleCantidadMateriaPrima}
+                    value={cantidadMateriaPrima}
+                    name="cantidadMateriaPrima"
+                    className="form-control"
+                  />
+                </div>
+                {/* BOTON AGREGAR MATERIA PRIMA */}
+                <div className="col-md-3 d-flex justify-content-end ms-auto">
+                  <button
+                    onClick={handleAddNewMateriPrimaDetalle}
+                    className="btn btn-primary"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      className="bi bi-plus-circle-fill me-2"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+                    </svg>
+                    Agregar
+                  </button>
+                </div>
+              </form>
+              <Paper>
+                <TableContainer>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
                       <TableRow
-                        key={row.idMatPri}
                         sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
+                          "& th": {
+                            color: "rgba(96, 96, 96)",
+                            backgroundColor: "#f5f5f5",
+                          },
                         }}
                       >
-                        <TableCell component="th" scope="row">
-                          {row.codMatPri}
+                        <TableCell align="left" width={100}>
+                          <b>Codigo</b>
                         </TableCell>
-                        <TableCell align="left">{row.nomMatPri}</TableCell>
-                        <TableCell align="left">
-                          <input
-                            id={`input-cantidad-${row.idMatPri}`}
-                            onChange={(e) => {
-                              handledFormularioDetalle(e, i);
-                            }}
-                            type="number"
-                            value={row.canMatPriFor}
-                            disabled={true}
-                          />
-                          &nbsp;{row.simMed}
+                        <TableCell align="left" width={120}>
+                          <b>Clase</b>
                         </TableCell>
-                        <TableCell align="left">Requerido</TableCell>
-                        <TableCell align="left">
-                          <div className="btn-toolbar">
-                            <button
-                              onClick={() => {
-                                updateDetalleRequisicion(i);
-                              }}
-                              className="btn btn-success me-2"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                className="bi bi-pencil-fill"
-                                viewBox="0 0 16 16"
-                              >
-                                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => {
-                                deleteDetalleRequisicion(row.idMatPri);
-                              }}
-                              className="btn btn-danger"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                className="bi bi-trash-fill"
-                                viewBox="0 0 16 16"
-                              >
-                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                              </svg>
-                            </button>
-                          </div>
+                        <TableCell align="left" width={140}>
+                          <b>Sub clase</b>
+                        </TableCell>
+                        <TableCell align="left" width={200}>
+                          <b>Nombre</b>
+                        </TableCell>
+                        <TableCell align="left" width={150}>
+                          <b>Cantidad</b>
+                        </TableCell>
+                        <TableCell align="left" width={150}>
+                          <b>Acciones</b>
                         </TableCell>
                       </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            {/* PAGINACION DE LA TABLA */}
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={reqSelDet.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </Paper>
+                    </TableHead>
+                    <TableBody>
+                      {reqSelDet
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map((row, i) => (
+                          <RowDetalleRequisicionSeleccion
+                            key={row.idMatPri}
+                            detalle={row}
+                            onDeleteDetalleRequisicion={
+                              deleteDetalleRequisicion
+                            }
+                            onChangeDetalleRequisicion={
+                              handledFormularioDetalle
+                            }
+                          />
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                {/* PAGINACION DE LA TABLA */}
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={reqSelDet.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </Paper>
+            </div>
+          </div>
         </div>
 
         {/* BOTONES DE CANCELAR Y GUARDAR */}
-        <div className="btn-toolbar mt-4">
+        <div className="btn-toolbar mt-4 ms-4">
           <button
             type="button"
             onClick={onNavigateBack}
             className="btn btn-secondary me-2"
           >
-            Cancelar
+            Volver
           </button>
           <button
             type="submit"

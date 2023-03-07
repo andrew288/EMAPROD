@@ -28,8 +28,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export const AgregarRequisicionMolienda = () => {
-  const refTable = useRef();
-
   // ESTADO PARA LOS DATOS DEL FILTRO POR LOTE PRODUCCION
   const [produccionLote, setProduccionLote] = useState({
     idProd: 0,
@@ -613,7 +611,7 @@ export const AgregarRequisicionMolienda = () => {
                         </TableCell>
                       </TableRow>
                     </TableHead>
-                    <TableBody ref={refTable}>
+                    <TableBody>
                       {reqMolDet
                         .slice(
                           page * rowsPerPage,

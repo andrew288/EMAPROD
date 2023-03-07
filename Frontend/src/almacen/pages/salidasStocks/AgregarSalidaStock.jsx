@@ -240,16 +240,13 @@ export const AgregarSalidaStock = () => {
 
   // ******** ENVIAR SALIDA *********
   const crearSalidasStockByRequisicionMoliendaDetalle = async () => {
-    console.log(salidaMolienda);
     const { message_error, description_error } =
       await createSalidasStockByReqMolDet(salidaMolienda);
 
     if (message_error.length === 0) {
-      console.log("Se agregaron las salidas exitosamente");
       // Volvemos a la vista de requisiciones
       onNavigateBack();
     } else {
-      console.log("No se pudo crear");
       setfeedbackMessages({
         style_message: "error",
         feedback_description_error: description_error,
@@ -310,7 +307,7 @@ export const AgregarSalidaStock = () => {
 
   return (
     <>
-      <div className="container">
+      <div className="container-fluid px-4">
         <h1 className="mt-4 text-center">Registrar salida</h1>
         <form className="mt-4 form-inline">
           <div className="mb-3 row">

@@ -16,7 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $idReqSel = $data["idReqSel"];
     $idReqSelDet = $data["idReqSelDet"];
     $idMatPri = $data["idMatPri"];
-    //$docSalSto = $data["docSalSto"];
     $canReqSelDet = $data["canReqSelDet"];
     $salStoSelDet = $data["salStoSelDet"];
 

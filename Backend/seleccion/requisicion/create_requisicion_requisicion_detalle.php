@@ -11,9 +11,9 @@ $description_error = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
-    $idReqSelEst = $data["idReqSelEst"];
-    $codReqSel = $data["codReqSel"];
-    $canReqSel = $data["canReqSel"];
+    $idReqSelEst = 1; // Estado de requerido
+    $codLotSel = $data["codLotSel"];
+    $canReqSel = 1; // cantidad de 1
     $reqSelDet = $data["reqSelDet"];
     $idLastInsertion = 0;
 
@@ -32,16 +32,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message_error = "REGISTRO EXISTENTE";
             $description_error = "Ya existe una requisicion con el numero de lote ingresado, si es correcto consulte con soporte";
         } else {
+            // PARA COMPLETAR EL CODIGO NUMERICO PRIMERO DEBEMOS CONSULTAR LA ULTIMA INSERCION
+            $sql_consult_requisicion =
+                "SELECT SUBSTR(codReqSel,5,8) AS numberCodReq FROM requisicion_seleccion ORDER BY id DESC LIMIT 1";
+            $stmt_consult_requisicion =  $pdo->prepare($sql_consult_requisicion);
+            $stmt_consult_requisicion->execute();
+
+            $numberRequisicion = 0;
+            $codReqSel = ""; // codigo de requisicion molienda
+
+            if ($stmt_consult_requisicion->rowCount() !== 1) {
+                // nueva insercion
+                $codReqSel = "RQSL" . "00000001";
+            } else {
+                while ($row = $stmt_consult_requisicion->fetch(PDO::FETCH_ASSOC)) {
+                    $numberRequisicion = (intval($row["numberCodReq"]) + 1);
+                }
+                $codReqSel = "RQSL" . str_pad(strval($numberRequisicion), 8, "0", STR_PAD_LEFT);
+            }
+
             $sql =
                 "INSERT INTO
                 requisicion_seleccion
-                (idReqSelEst, codReqSel, canReqSel)
-                VALUES (?,?,$canReqSel);
+                (idReqSelEst, codLotSel, canReqSel, codReqSel)
+                VALUES (?,?,$canReqSel,?);
                 ";
             // PREPARAMOS LA CONSULTA
             $stmt = $pdo->prepare($sql);
             $stmt->bindParam(1, $idReqSelEst, PDO::PARAM_INT);
-            $stmt->bindParam(2, $codReqSel, PDO::PARAM_INT);
+            $stmt->bindParam(2, $codLotSel, PDO::PARAM_INT);
+            $stmt->bindParam(3, $codReqSel, PDO::PARAM_STR);
 
             try {
                 $pdo->beginTransaction();

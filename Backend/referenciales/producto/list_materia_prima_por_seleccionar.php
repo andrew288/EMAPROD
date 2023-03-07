@@ -1,7 +1,7 @@
 <?php
-include_once "../../common/cors.php";
-header('Content-Type: application/json; charset=utf-8');
+
 require('../../common/conexion.php');
+include_once "../../common/cors.php";
 
 $pdo = getPDO();
 $result = [];
@@ -9,40 +9,29 @@ $message_error = "";
 $description_error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $json = file_get_contents('php://input');
-    $data = json_decode($json, true);
-
-    $idMatPri = $data["idMatPri"]; // ID DE LA MATERIA PRIMA
-
     if ($pdo) {
         $sql =
             "SELECT
-            es.id,
-            a.nomAlm,
-            es.codEntSto,
-            es.refNumIngEntSto,
-            DATE(es.fecEntSto) AS fecEntSto,
-            es.canTotDis,
-            es.canPorSel,
-            es.canSel 
-        FROM entrada_stock AS es
-        JOIN almacen a ON a.id = es.idAlm 
-        WHERE idProd = ? AND canPorSel <> 0.00 AND es.esSel = ?
-        ORDER BY es.refNumIngEntSto DESC
+        M.id,
+        M.idMed,
+        ME.simMed,
+        M.nomProd,
+        M.codProd2,
+        M.esMatPri,
+        M.esProFin,
+        M.esProProd
+        FROM producto M
+        LEFT JOIN medida ME ON M.idMed = ME.id
+        WHERE M.idSubCla = ?
         ";
-        //Preparamos la consulta
-        $stmt = $pdo->prepare($sql);
 
-        $idEntStoEst = 1; // ESTADO DISPONIBLE DE LAS ENTRADAS
-        $esSel = 1;
-
-        $stmt->bindParam(1, $idMatPri, PDO::PARAM_INT);
-        $stmt->bindParam(2, $esSel, PDO::PARAM_BOOL);
-
-        // Comprobamos la respuesta
         try {
+            // Preparamos la consulta
+            $stmt = $pdo->prepare($sql);
+            $idSubCla = 4; // filtramos las materias primas por seleccionar
+            $stmt->bindParam(1, $idSubCla, PDO::PARAM_INT);
+            // Ejecutamos la consulta
             $stmt->execute();
-
             // Recorremos los resultados
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 array_push($result, $row);
@@ -63,3 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $return['result'] = $result;
     echo json_encode($return);
 }
+
+// Si se pudo realizar la conexion a la base de datos
+
+// Programa terminado
