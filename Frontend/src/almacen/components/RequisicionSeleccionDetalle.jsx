@@ -93,7 +93,11 @@ export const RequisicionSeleccionDetalle = ({ detalle, onClose }) => {
                                   detalle.idReqSelDetEst !== 1 ? "none" : "",
                               }}
                               to={`/almacen/requisicion-seleccion/salida-stock?idReqSelDet=${detalle.id}`}
-                              className="btn btn-warning me-2"
+                              className={
+                                detalle.idReqSelDetEst !== 1
+                                  ? "btn btn-secondary me-2"
+                                  : "btn btn-warning me-2"
+                              }
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -115,7 +119,12 @@ export const RequisicionSeleccionDetalle = ({ detalle, onClose }) => {
                                     : "",
                               }}
                               to={`/almacen/requisicion-seleccion/entrada-stock?idReqSelDet=${detalle.id}`}
-                              className="btn btn-secondary me-2"
+                              className={
+                                detalle.idReqSelDetEst === 4 ||
+                                detalle.idReqSelDetEst === 1
+                                  ? "btn btn-secondary me-2"
+                                  : "btn btn-primary me-2"
+                              }
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"

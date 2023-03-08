@@ -18,6 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql =
             "SELECT
             es.id,
+            es.idAlm,
             a.nomAlm,
             es.codEntSto,
             es.refNumIngEntSto,

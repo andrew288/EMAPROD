@@ -30,10 +30,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // OBTENEMOS LOS DATOS
                 $idEntSto = $item["idEntSto"];
                 $canSalReqSel = $item["canSalReqSel"];
+                $idAlm = $item["idAlm"];
                 $idSalEntSelEst = 1; // ESTADO DE SALIDA COMPLETA
-                //$canTotDis = $item["canTotDis"];
 
-                // CREAMOS LA CONSULTA
+                // CREAMOS LA CONSULTA PARA GENERAR LAS SALIDAS ENTRADAS DE SELECCION
                 $sql =
                     "INSERT
                 salida_entrada_seleccion
@@ -45,42 +45,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bindParam(2, $idReqSel, PDO::PARAM_INT);
                 $stmt->bindParam(3, $idMatPri, PDO::PARAM_INT);
                 $stmt->bindParam(4, $idSalEntSelEst, PDO::PARAM_INT);
-
-                // EJECUTAMOS LA CREACION DE UNA SALIDA
+                // ejecutamos
                 $stmt->execute();
-
-
-                // CONSULTA DE ENTRADA STOCK
-                // $canTotPorSelEntSto = 0;
-                $idEntStoEst = 1; // DISPONIBLE
-                // $canPorSelResAftOpe = 0;
-
-                // $sql_consult_entrada_stock =
-                //     "SELECT 
-                // canPorSel
-                // FROM entrada_stock
-                // WHERE id = ?";
-                // $stmt_consulta_entrada_stock = $pdo->prepare($sql_consult_entrada_stock);
-                // $stmt_consulta_entrada_stock->bindParam(1, $idEntSto, PDO::PARAM_INT);
-                // $stmt_consulta_entrada_stock->execute();
-
-                // while ($row = $stmt_consulta_entrada_stock->fetch(PDO::FETCH_ASSOC)) {
-                //     $canTotPorSelEntSto += $row["canPorSel"];
-                // }
-
-                // $canPorSelResAftOpe =  $canTotPorSelEntSto - $canSalReqSel;
 
                 // ACTUALIZAMOS LA ENTRADA STOCK
                 $sql_update_entrada_stock =
                     "UPDATE
                 entrada_stock
-                SET canSel =  canSel + $canSalReqSel, canPorSel = canPorSel - $canSalReqSel, idEntStoEst = ?
+                SET canSel =  canSel + $canSalReqSel, canPorSel = canPorSel - $canSalReqSel
                 WHERE id = ?
                 ";
                 $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);
-                $stmt_update_entrada_stock->bindParam(1, $idEntStoEst, PDO::PARAM_INT);
-                $stmt_update_entrada_stock->bindParam(2, $idEntSto, PDO::PARAM_INT);
+                $stmt_update_entrada_stock->bindParam(1, $idEntSto, PDO::PARAM_INT);
+                // ejecutamos
                 $stmt_update_entrada_stock->execute();
+
+                // ACTUALIZO EL ALMACEN
+                $sql_update_almacen =
+                    "UPDATE
+                almacen_stock
+                SET canSto = canSto - $canSalReqSel
+                WHERE idAlm = ? AND idProd = ?
+                ";
+                $stmt_update_almacen_stock =  $pdo->prepare($sql_update_almacen);
+                $stmt_update_almacen_stock->bindParam(1, $idAlm, PDO::PARAM_INT);
+                $stmt_update_almacen_stock->bindParam(2, $idMatPri, PDO::PARAM_INT);
+                // ejecutamos
+                $stmt_update_almacen_stock->execute();
 
                 // TERMINAMOS LA TRANSACCION
                 $pdo->commit();

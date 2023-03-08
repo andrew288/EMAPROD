@@ -139,12 +139,14 @@ export const SalidaStock = () => {
     valueEntrada,
     valueInput,
     idEntrada,
-    setInputValue
+    setInputValue,
+    idAlmacen
   ) => {
     // Obtenemos la cantidad actual de la entrada
     let cantidadDisponible = parseInt(valueEntrada, 10);
     // Obtenemos la cantidad actual del input de entrada
     let cantidadInputEntrada = parseInt(valueInput, 10);
+    console.log(cantidadDisponible, cantidadInputEntrada);
     console.log(count);
 
     // Verificamos si la casilla fue seleccionada
@@ -162,6 +164,7 @@ export const SalidaStock = () => {
         aux.push({
           idEntSto: idEntrada,
           canSalReqSel: cantidadDisponible,
+          idAlm: idAlmacen,
         });
         setsalidaSeleccion({
           ...salidaSeleccion,
@@ -188,7 +191,7 @@ export const SalidaStock = () => {
           aux.push({
             idEntSto: idEntrada,
             canSalReqSel: count,
-            // canTotDis: canTotDis,
+            idAlm: idAlmacen,
           });
           setsalidaSeleccion({
             ...salidaSeleccion,
@@ -220,21 +223,21 @@ export const SalidaStock = () => {
 
   const crearSalidasStockByRequisicionSeleccionDetalle = async () => {
     console.log(salidaSeleccion);
-    // const { message_error, description_error } =
-    //   await createSalidasStockByReqSelDet(salidaSeleccion);
+    const { message_error, description_error } =
+      await createSalidasStockByReqSelDet(salidaSeleccion);
 
-    // if (message_error.length === 0) {
-    //   console.log("Se agregaron las salidas exitosamente");
-    //   // Volvemos a la vista de requisiciones
-    //   onNavigateBack();
-    // } else {
-    //   console.log("No se pudo crear");
-    //   setfeedbackMessages({
-    //     style_message: "error",
-    //     feedback_description_error: description_error,
-    //   });
-    //   handleClickFeeback();
-    // }
+    if (message_error.length === 0) {
+      console.log("Se agregaron las salidas exitosamente");
+      // Volvemos a la vista de requisiciones
+      onNavigateBack();
+    } else {
+      console.log("No se pudo crear");
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
     setdisableButton(false);
   };
 
@@ -268,6 +271,7 @@ export const SalidaStock = () => {
 
       // Si las entradas elegidas cumplen con la cantidada requerida
       if (cantSalStoDet != canReqSelDet) {
+        console.log(cantSalStoDet, canReqSelDet);
         setfeedbackMessages({
           style_message: "error",
           feedback_description_error:

@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import { Checkbox } from "@mui/material";
+import React from "react";
 
-export const RowEntradaDisponibleSeleccion = ({
+export const RowSalidaDisponibleSeleccion = ({
   entrada,
   onChangeInputValue,
 }) => {
@@ -21,6 +20,7 @@ export const RowEntradaDisponibleSeleccion = ({
       entrada.idAlm
     );
   };
+
   return (
     <tr>
       <td>{entrada.nomAlm}</td>

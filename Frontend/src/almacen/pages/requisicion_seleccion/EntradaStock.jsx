@@ -98,16 +98,20 @@ export const EntradaStock = () => {
         const { message_error, description_error, result } = resultData;
 
         if (message_error.length === 0) {
+          const { idReqSel, idMatPri, codReqSel, codMatPri, canReqSelDet } =
+            result[0];
           // SETEAMOS EL CONTADOR
-          setcount(result[0].canReqSelDet);
+          setcount(canReqSelDet);
           setentradaSeleccion({
             ...entradaSeleccion,
-            idReqSel: result[0].idReqSel,
+            idReqSel: idReqSel,
             idReqSelDet: parseInt(idReqSelDet, 10),
-            idMatPri: result[0].idMatPri,
-            codReqSel: result[0].codReqSel,
-            codMatPri: result[0].codMatPri,
+            idMatPri: idMatPri,
+            codReqSel: codReqSel,
+            codMatPri: codMatPri,
           });
+          // TRAEMOS LOS DATOS DE SUS SALIDAS CORRESPONDIENTE A LA MATERIA PRIMA
+          traerDatosEntradasDisponibles(idReqSel, idMatPri);
         } else {
           console.log("Se proporciono un id inexistente");
           setfeedbackMessages({
@@ -124,7 +128,7 @@ export const EntradaStock = () => {
   };
 
   // TRAER DATOS DE SALIDAS DISPONIBLES PARA LA REQUISICION SELECCION DETALLE
-  const traerDatosEntradasDisponibles = async () => {
+  const traerDatosEntradasDisponibles = async (idReqSel, idMatPri) => {
     const { result } = await getSalidasDisponiblesForSeleccion(
       idReqSel,
       idMatPri
@@ -382,21 +386,21 @@ export const EntradaStock = () => {
             <div className="col-md-3">
               <div className="input-group">
                 <div className="input-group-append">
+                  <input type="number" />
                   <button
                     onClick={traerDatosEntradasDisponibles}
-                    className="btn btn-outline-secondary"
+                    className="btn btn-success ms-2"
                     type="button"
-                    id="agregarCodigoProveedor"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
                       height="16"
                       fill="currentColor"
-                      className="bi bi-search"
+                      className="bi bi-calculator-fill"
                       viewBox="0 0 16 16"
                     >
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                      <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2 .5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5zm0 4v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM4.5 9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM4 12.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM7.5 6a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM7 9.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM10 6.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5h-1z" />
                     </svg>
                   </button>
                 </div>
@@ -491,7 +495,7 @@ export const EntradaStock = () => {
               onClick={onNavigateBack}
               className="btn btn-secondary me-2"
             >
-              Cancelar
+              Volver
             </button>
             <button
               type="submit"
