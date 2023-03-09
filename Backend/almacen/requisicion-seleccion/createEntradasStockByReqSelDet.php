@@ -13,10 +13,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $data = json_decode($json, true);
 
     // OBTENEMOS LOS DATOS
-    $idReqSel = $data["idReqSel"];
-    $idReqSelDet = $data["idReqSelDet"];
-    $idMatPri = $data["idMatPri"];
-    $salStoSelDet = $data["salStoSelDet"];
+    $idReqSel = $data["idReqSel"]; // id requisicion seleccion
+    $idReqSelDet = $data["idReqSelDet"]; // id requisicion seleccion detalle
+    $idMatPri = $data["idMatPri"]; // id materia prima
+    $salStoSelDet = $data["salStoSelDet"]; // salida
 
     $idEstSalStoMol = 1;
 
@@ -34,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $canSalStoReqSel = $item["canSalStoReqSel"];
                 $canEntStoReqSel = $item["canEntStoReqSel"];
                 $merReqSel = $item["merReqSel"];
+                $idAlm = $item["idAlm"];
                 $fecEntStoReqSel = date('Y-m-d H:i:s'); // Fecha de la entrada a stock
 
                 $idSalEntSelEst = 2; // ESTADO DE ENTRADA COMPLETADA
@@ -48,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 $stmt = $pdo->prepare($sql);
                 $stmt->bindParam(1, $idSalEntSelEst, PDO::PARAM_INT);
-                $stmt->bindParam(2, $fecEntStoReqSel);
+                $stmt->bindParam(2, $fecEntStoReqSel); // fecha de la entrada
                 $stmt->bindParam(3, $idSalEntStoSel, PDO::PARAM_INT);
                 $stmt->bindParam(4, $idSalEntSelEstSalidaCompleta, PDO::PARAM_INT);
 
@@ -59,11 +60,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 if ($lineas_afectadas != 0) {
                     // ACTUALIZAMOS LA ENTRADA STOCK
+                    /*
+                        DE LA ENTRADA ACTUALIZAMOS.
+                        - merTor ( la merma total de la entrada)
+                        - merDis ( la merma disponible que se reduce en cada r. molienda detalle)
+                        - canTotDis ( la cantidad total disponible )
+                        - estado de la entrada ( estado disponible porque esta entrando materia prima seleccionada que sera disponible)
+                    */
                     $idEntStoEst = 1; // ESTADO DE ENTRADA DISPONIBLE
                     $sql_update_entrada_stock =
                         "UPDATE
                     entrada_stock
-                    SET merTot = merTot + $merReqSel, canTotDis = canTotDis + $canEntStoReqSel, idEntStoEst = ?
+                    SET merTot = merTot + $merReqSel, merDis = merDis + $merReqSel, canTotDis = canTotDis + $canEntStoReqSel, idEntStoEst = ?
                     WHERE id = ?
                     ";
                     $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);
@@ -72,14 +80,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt_update_entrada_stock->execute();
 
                     // ACTUALIZAMOS LA MATERIA PRIMA
-                    $sql_update_materia_prima =
-                        "UPDATE materia_prima
-                    SET stoMatPri = stoMatPri + $canEntStoReqSel
-                    WHERE id = ?";
+                    // $sql_update_materia_prima =
+                    //     "UPDATE materia_prima
+                    // SET stoMatPri = stoMatPri + $canEntStoReqSel
+                    // WHERE id = ?";
 
-                    $stmt_update_materia_prima = $pdo->prepare($sql_update_materia_prima);
-                    $stmt_update_materia_prima->bindParam(1, $idMatPri, PDO::PARAM_INT);
-                    $stmt_update_materia_prima->execute();
+                    // $stmt_update_materia_prima = $pdo->prepare($sql_update_materia_prima);
+                    // $stmt_update_materia_prima->bindParam(1, $idMatPri, PDO::PARAM_INT);
+                    // $stmt_update_materia_prima->execute();
+
+                    // ACTUALIZAMOS ALMACEN
+                    $sql_update_almacen =
+                        "UPDATE
+                almacen_stock
+                SET canStoDis = canStoDis + $canEntStoReqSel
+                WHERE idAlm = ? AND idProd = ?
+                ";
+                    $stmt_update_almacen_stock =  $pdo->prepare($sql_update_almacen);
+                    $stmt_update_almacen_stock->bindParam(1, $idAlm, PDO::PARAM_INT);
+                    $stmt_update_almacen_stock->bindParam(2, $idMatPri, PDO::PARAM_INT);
+                    // ejecutamos
+                    $stmt_update_almacen_stock->execute();
                 }
 
                 // TERMINAMOS LA TRANSACCION

@@ -100,17 +100,25 @@ export const SalidaStock = () => {
         const { message_error, description_error, result } = resultData;
 
         if (message_error.length === 0) {
+          const {
+            idReqSel,
+            nomProd,
+            idMatPri,
+            codLotSel,
+            codProd,
+            canReqSelDet,
+          } = result[0];
           // SETEAMOS EL CONTADOR
           setcount(result[0].canReqSelDet);
           setsalidaSeleccion({
             ...salidaSeleccion,
-            idReqSel: result[0].idReqSel,
+            idReqSel: idReqSel,
             idReqSelDet: parseInt(idReqSelDet, 10),
-            nomProd: result[0].nomProd,
-            idMatPri: result[0].idMatPri,
-            codLotSel: result[0].codLotSel,
-            codProd: result[0].codProd,
-            canReqSelDet: result[0].canReqSelDet,
+            nomProd: nomProd,
+            idMatPri: idMatPri,
+            codLotSel: codLotSel,
+            codProd: codProd,
+            canReqSelDet: canReqSelDet,
           });
         } else {
           console.log("Se proporciono un id inexistente");

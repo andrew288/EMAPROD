@@ -79,6 +79,10 @@ export const RequisicionSeleccionDetalle = ({ detalle, onClose }) => {
                             className={
                               detalle.idReqSelDetEst === 1
                                 ? "badge text-bg-danger"
+                                : detalle.idReqSelDetEst === 2
+                                ? "badge text-bg-primary"
+                                : detalle.idReqSelDetEst === 3
+                                ? "badge text-bg-warning"
                                 : "badge text-bg-success"
                             }
                           >
