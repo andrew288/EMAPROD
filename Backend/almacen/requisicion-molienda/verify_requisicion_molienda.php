@@ -36,6 +36,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $message_error = "Esta requisicion no tiene un estado de completo";
                 $description_error = "Esta requisicion no tiene un estado de completo por lo tanto no se puede verificar";
             }
+
+            // AHORA DEBEMOS ACTUALIZAR LA PRODUCCION
+            // primero consultamos el id de produccion de la requisicion molienda
+            $id_produccion_requisicion_molienda = 0; // inicializacion
+            $sql_consult_requisicion_molienda =
+                "SELECT idProdc
+            FROM requisicion_molienda 
+            WHERE id = ?";
+            $stmt_consult_requisicion_molienda = $pdo->prepare($sql_consult_requisicion_molienda);
+            $stmt_consult_requisicion_molienda->bindParam(1, $idReqMol, PDO::PARAM_INT);
+            $stmt_consult_requisicion_molienda->execute();
+            while ($row = $stmt_consult_requisicion_molienda->fetch(PDO::FETCH_ASSOC)) {
+                $id_produccion_requisicion_molienda = $row["idProdc"];
+            }
+
+            // ahora actualizamos la produccion
+            $idProdEst = 3; // estado de requisicion completa
+            $idProdEstBefore = 2; // estado de requsicion realizada
+            $sql_update_produccion =
+                "UPDATE produccion 
+            SET idProdEst = ? 
+            WHERE id = ? AND idProdEst = ?";
+            $stmt_update_produccion = $pdo->prepare($sql_update_produccion);
+            $stmt_update_produccion->bindParam(1, $idProdEst, PDO::PARAM_INT);
+            $stmt_update_produccion->bindParam(2, $id_produccion_requisicion_molienda, PDO::PARAM_INT);
+            $stmt_update_produccion->bindParam(3, $idProdEstBefore, PDO::PARAM_INT);
+            $stmt_update_produccion->execute();
         } catch (Exception $e) {
             $message_error = "ERROR INTERNO SERVER";
             $description_error = $e->getMessage();

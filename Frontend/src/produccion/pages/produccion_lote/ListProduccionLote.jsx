@@ -248,6 +248,7 @@ export const ListProduccionLote = () => {
 
   // ******** ACTUALIZACION DE FECHAS ********
   const onUpdateDatesProduccion = async (id, body) => {
+    console.log(body);
     const resultPeticion = await updateFechasProduccion(id, body);
     console.log(resultPeticion);
     const { message_error, description_error } = resultPeticion;
@@ -255,23 +256,24 @@ export const ListProduccionLote = () => {
       // cerramos el modal
       closeOpcionesProduccionLote();
       // Actualizamos la data
-      const updateDatosProduccion = dataProduccionLote.map((element) => {
-        if (element.id === id) {
-          return {
-            ...element,
-            fecFinMolProd: body.fecFinMolProd,
-            fecFinEnvProd: body.fecFinEnvProd,
-            fecFinEncProd: body.fecFinEncProd,
-            fecProdFin: body.fecProdFin,
-          };
-        } else {
-          return element;
-        }
-      });
-      // actualizamos el filtro
-      setdataProduccionLote(updateDatosProduccion);
-      // actualizamos la data
-      setdataProduccionLoteTemp(updateDatosProduccion);
+      // const updateDatosProduccion = dataProduccionLote.map((element) => {
+      //   if (element.id === id) {
+      //     return {
+      //       ...element,
+      //       fecFinMolProd: body.fecFinMolProd,
+      //       fecFinEnvProd: body.fecFinEnvProd,
+      //       fecFinEncProd: body.fecFinEncProd,
+      //       fecProdFin: body.fecProdFin,
+      //     };
+      //   } else {
+      //     return element;
+      //   }
+      // });
+      // // actualizamos el filtro
+      // setdataProduccionLote(updateDatosProduccion);
+      // // actualizamos la data
+      // setdataProduccionLoteTemp(updateDatosProduccion);
+      obtenerDataProduccionLote();
     } else {
       setfeedbackMessages({
         style_message: "error",
@@ -469,6 +471,7 @@ export const ListProduccionLote = () => {
                         <TableCell align="left">
                           <div className="btn-toolbar">
                             <button
+                              disabled={row.idProdEst < 3 ? true : false}
                               onClick={() => {
                                 showOpcionesProduccionLote(i);
                               }}

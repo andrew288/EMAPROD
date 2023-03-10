@@ -7,6 +7,7 @@ export const AccionesProduccionLote = ({
   onClose,
   onUpdateDatesProduccion,
 }) => {
+  const [disabledButton, setDisabledButton] = useState(true);
   const [fechasProduccion, setFechasProduccion] = useState({
     fecFinMolProd: detalle.fecFinMolProd,
     fecFinEnvProd: detalle.fecFinEnvProd,
@@ -19,18 +20,22 @@ export const AccionesProduccionLote = ({
 
   // manejadores de las horas
   const onChangeFecFinMolProd = (newFec) => {
+    setDisabledButton(false);
     setFechasProduccion({ ...fechasProduccion, fecFinMolProd: newFec });
   };
 
   const onChangeFecFinEnvProd = (newFec) => {
+    setDisabledButton(false);
     setFechasProduccion({ ...fechasProduccion, fecFinEnvProd: newFec });
   };
 
   const onChangeFecFinEncProd = (newFec) => {
+    setDisabledButton(false);
     setFechasProduccion({ ...fechasProduccion, fecFinEncProd: newFec });
   };
 
   const onChangeFecProdFin = (newFec) => {
+    setDisabledButton(false);
     setFechasProduccion({ ...fechasProduccion, fecProdFin: newFec });
   };
 
@@ -98,7 +103,10 @@ export const AccionesProduccionLote = ({
                 </div>
                 {!detalle.fecFinEnvProd && (
                   <div className="col-md-4">
-                    <FechaPicker onNewfecEntSto={onChangeFecFinEnvProd} />
+                    <FechaPicker
+                      disabled={fecFinMolProd === null}
+                      onNewfecEntSto={onChangeFecFinEnvProd}
+                    />
                   </div>
                 )}
               </div>
@@ -118,7 +126,12 @@ export const AccionesProduccionLote = ({
                 </div>
                 {!detalle.fecFinEncProd && (
                   <div className="col-md-4">
-                    <FechaPicker onNewfecEntSto={onChangeFecFinEncProd} />
+                    <FechaPicker
+                      disabled={
+                        fecFinMolProd === null || fecFinEnvProd === null
+                      }
+                      onNewfecEntSto={onChangeFecFinEncProd}
+                    />
                   </div>
                 )}
               </div>
@@ -137,7 +150,14 @@ export const AccionesProduccionLote = ({
                 </div>
                 {!detalle.fecProdFin && (
                   <div className="col-md-4">
-                    <FechaPicker onNewfecEntSto={onChangeFecProdFin} />
+                    <FechaPicker
+                      disabled={
+                        fecFinMolProd === null ||
+                        fecFinEnvProd === null ||
+                        fecFinEncProd === null
+                      }
+                      onNewfecEntSto={onChangeFecProdFin}
+                    />
                   </div>
                 )}
               </div>
@@ -153,6 +173,7 @@ export const AccionesProduccionLote = ({
               Cerrar
             </button>
             <button
+              disabled={disabledButton}
               type="button"
               className="btn btn-success"
               data-dismiss="modal"

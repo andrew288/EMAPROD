@@ -240,6 +240,7 @@ export const AgregarSalidaStock = () => {
 
   // ******** ENVIAR SALIDA *********
   const crearSalidasStockByRequisicionMoliendaDetalle = async () => {
+    console.log(salidaMolienda);
     const { message_error, description_error } =
       await createSalidasStockByReqMolDet(salidaMolienda);
 
@@ -377,6 +378,7 @@ export const AgregarSalidaStock = () => {
             </div>
           </div>
 
+          {/* DATOS DE LA SALIDA */}
           <div className="mb-3 row">
             <div className="card d-flex">
               <h6 className="card-header" id="response-serie-number-sale">

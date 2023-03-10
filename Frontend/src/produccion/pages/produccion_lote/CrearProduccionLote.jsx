@@ -8,6 +8,7 @@ import FechaPicker from "../../../components/Fechas/FechaPicker";
 import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
 import { createProduccionLote } from "./../../helpers/produccion_lote/createProduccionLote";
 import { Checkbox } from "@mui/material";
+import FechaPickerYear from "./../../../components/Fechas/FechaPickerYear";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -26,6 +27,7 @@ export const CrearProduccionLote = () => {
     obsProd: "",
     fecProdIniProg: "",
     fecProdFinProg: "",
+    fecVenLotProd: "",
   });
 
   const {
@@ -38,6 +40,7 @@ export const CrearProduccionLote = () => {
     obsProd,
     fecProdIniProg,
     fecProdFinProg,
+    fecVenLotProd,
   } = produccionLote;
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
@@ -115,6 +118,11 @@ export const CrearProduccionLote = () => {
     setproduccionLote({ ...produccionLote, fecProdFinProg: newFecha });
   };
 
+  // EVENTO DE FECHA VENCIMIENTO LOTE
+  const onAddFechaVencimientoLoteProduccion = (newFecha) => {
+    setproduccionLote({ ...produccionLote, fecVenLotProd: newFecha });
+  };
+
   // CREAR LOTE DE PRODUCCION
   const crearProduccionLote = async () => {
     const resultPeticion = await createProduccionLote(produccionLote);
@@ -144,14 +152,40 @@ export const CrearProduccionLote = () => {
       klgLotProd <= 0 ||
       canLotProd <= 0 ||
       fecProdIniProg.length === 0 ||
-      fecProdFinProg.length === 0
+      fecProdFinProg.length === 0 ||
+      fecVenLotProd.length === 0
     ) {
-      setfeedbackMessages({
-        style_message: "warning",
-        feedback_description_error:
-          "Asegurate de completar los campos requeridos o validar su integridad",
-      });
-      handleClickFeeback();
+      if (fecProdIniProg.length === 0) {
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error: "Ingrese una fecha de inicio programado",
+        });
+        handleClickFeeback();
+      } else {
+        if (fecProdFinProg.length === 0) {
+          setfeedbackMessages({
+            style_message: "warning",
+            feedback_description_error: "Ingrese una fecha de fin programado",
+          });
+          handleClickFeeback();
+        } else {
+          if (fecVenLotProd.length === 0) {
+            setfeedbackMessages({
+              style_message: "warning",
+              feedback_description_error:
+                "Ingrese una fecha de vencimiento del lote",
+            });
+            handleClickFeeback();
+          } else {
+            setfeedbackMessages({
+              style_message: "warning",
+              feedback_description_error:
+                "Asegurate de completar los campos requeridos o validar su integridad",
+            });
+            handleClickFeeback();
+          }
+        }
+      }
     } else {
       setdisableButton(true);
       // LLAMAMOS A LA FUNCION CREAR REQUISICION
@@ -231,11 +265,23 @@ export const CrearProduccionLote = () => {
                     />
                   </div>
                   {/* PRODUCTO */}
-                  <div className="col-md-2">
+                  <div className="col-md-4">
                     <label htmlFor="nombre" className="form-label">
                       <b>Solo envasado</b>
-                      <Checkbox onChange={onChangeEsEnvasado} />
+                      <Checkbox size="large" onChange={onChangeEsEnvasado} />
                     </label>
+                  </div>
+                </div>
+
+                {/* FECHAS DE VENCIMIENTO */}
+                <div className="mb-3 row d-flex align-items-center">
+                  <div className="col-md-4 me-4">
+                    <label htmlFor="nombre" className="form-label">
+                      <b>Fecha vencimiento lote</b>
+                    </label>
+                    <FechaPickerYear
+                      onNewfecEntSto={onAddFechaVencimientoLoteProduccion}
+                    />
                   </div>
                 </div>
               </form>

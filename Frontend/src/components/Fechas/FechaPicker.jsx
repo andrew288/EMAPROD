@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { FormatDateTimeMYSQL } from "../../utils/functions/FormatDate";
 
-const FechaPicker = ({ onNewfecEntSto }) => {
+const FechaPicker = ({ onNewfecEntSto, disabled = false }) => {
   const [value, setValue] = useState();
 
   const formatFechaMYSQL = (newValue) => {
@@ -16,6 +16,7 @@ const FechaPicker = ({ onNewfecEntSto }) => {
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <DatePicker
+        disabled={disabled}
         value={value}
         inputFormat="DD/MM/YYYY HH:mm:ss"
         onChange={formatFechaMYSQL}

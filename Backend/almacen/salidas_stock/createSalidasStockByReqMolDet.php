@@ -30,16 +30,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $pdo->beginTransaction();
 
                 // OBTENEMOS LOS DATOS
-                $idEntSto = $item["idEntSto"];
-                $canSalReqMol = $item["canSalReqMol"];
+                $idEntSto = $item["idEntSto"]; // id de la entrada
+                $canSalReqMol = $item["canSalReqMol"]; // cantidad de salida
                 //$canTotDis = $item["canTotDis"];
 
-                // CREAMOS LA CONSULTA
+                // CONSULTAMOS LA ENTRADA 
+                $canTotDisEntSto = 0; // cantidad disponible
+                $idEntStoEst = 0; // estado de la entrada
+                $idAlmacen = 0; // id del almacen para realizar la actualizacion
+                $merDis = 0; // merma disponible de la entrada
+                $esSel = 0; // si la entrada es seleccion
+
+                $sql_consult_entrada_stock =
+                    "SELECT 
+                    canTotDis,
+                    idAlm,
+                    merDis,
+                    esSel
+                    FROM entrada_stock
+                    WHERE id = ?";
+                $stmt_consulta_entrada_stock = $pdo->prepare($sql_consult_entrada_stock);
+                $stmt_consulta_entrada_stock->bindParam(1, $idEntSto, PDO::PARAM_INT);
+                $stmt_consulta_entrada_stock->execute();
+
+                while ($row = $stmt_consulta_entrada_stock->fetch(PDO::FETCH_ASSOC)) {
+                    $canTotDisEntSto = $row["canTotDis"];
+                    $idAlmacen = $row["idAlm"];
+                    $merDis =  $row["merDis"];
+                    $esSel = $row["esSel"];
+                }
+
+                // CREAMOS LA SALIDA DE STOCK MOLIENDA CORRESPONDIENTE
+                // calculamos la merma correspondiente a la salida
+                $merSalStoMol = 0; // merma de la salida de stock
+                if ($esSel) {
+                    $merSalStoMol = ($canSalReqMol * $merDis) / $canTotDisEntSto;
+                    $merSalStoMol = round($merSalStoMol);
+                }
+                // sentencia sql
                 $sql =
                     "INSERT
                 salida_stock_molienda
-                (idEntSto, idReqMol, idMatPri, idEstSalStoMol, docSalSto, canSalReqMol)
-                VALUES (?,?,?,?,?,$canSalReqMol)";
+                (idEntSto, idReqMol, idMatPri, idEstSalStoMol, docSalSto, canSalReqMol, merSalStoMol)
+                VALUES (?, ?, ?, ?, ?, $canSalReqMol, $merSalStoMol)";
 
                 $stmt = $pdo->prepare($sql);
                 $stmt->bindParam(1, $idEntSto, PDO::PARAM_INT);
@@ -51,38 +84,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // EJECUTAMOS LA CREACION DE UNA SALIDA
                 $stmt->execute();
 
-                // CONSULTA DE ENTRADA STOCK
-                $canTotDisEntSto = 0;
-                $idEntStoEst = 0;
-                $canResAftOpe = 0;
-                $idAlmacen = 0; // id del almacen para realizar la actualizacion
-
-                $sql_consult_entrada_stock =
-                    "SELECT 
-                    canTotDis,
-                    idAlm
-                    FROM entrada_stock
-                    WHERE id = ?";
-                $stmt_consulta_entrada_stock = $pdo->prepare($sql_consult_entrada_stock);
-                $stmt_consulta_entrada_stock->bindParam(1, $idEntSto, PDO::PARAM_INT);
-                $stmt_consulta_entrada_stock->execute();
-
-                while ($row = $stmt_consulta_entrada_stock->fetch(PDO::FETCH_ASSOC)) {
-                    $canTotDisEntSto += $row["canTotDis"];
-                    $idAlmacen = $row["idAlm"];
-                }
-
-                $canResAftOpe =  $canTotDisEntSto - $canSalReqMol;
+                // ********* AHORA ACTUALIZAMOS LA ENTRADA CORRESPONDIENTE **************
+                $canResAftOpe =  $canTotDisEntSto - $canSalReqMol; // cantidad restante luego de la salida
 
                 if ($canResAftOpe == 0) { // SI LA CANTIDAD RESTANTE ES 0
                     $idEntStoEst = 2; // ESTADO DE ENTRADA AGOTADA O TERMINADA
                     $fecFinSto = date('Y-m-d H:i:s');
 
-                    // ACTUALIZAMOS LA ENTRADA STOCK CON FECHA DE FINALIZACION
+                    // sql actualizar entrada stock con fecha de finalización
                     $sql_update_entrada_stock =
                         "UPDATE
                         entrada_stock
-                        SET canTotDis = $canResAftOpe, idEntStoEst = ?, fecFinSto = ?
+                        SET canTotDis = $canResAftOpe, merDis = merDis - $merSalStoMol, idEntStoEst = ?, fecFinSto = ?
                         WHERE id = ?
                         ";
                     $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);
@@ -97,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $sql_update_entrada_stock =
                         "UPDATE
                         entrada_stock
-                        SET canTotDis = $canResAftOpe, idEntStoEst = ?
+                        SET canTotDis = $canResAftOpe, merDis = merDis - $merSalStoMol, idEntStoEst = ?
                         WHERE id = ?
                         ";
                     $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);
@@ -106,17 +119,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt_update_entrada_stock->execute();
                 }
 
-
                 // ACTUALIZAMOS EL ALMACEN CORRESPONDIENTE A LA ENTRADA
-                $sql_update_almacen_stock =
-                    "UPDATE almacen_stock
-                    SET canSto = canSto - $canSalReqMol, canStoDis = canStoDis - $canSalReqMol
+                if ($esSel) {
+                    // SI ES SELECCION SOLO DISMINUIMOS EL STOCK DISPONIBLE 
+                    $sql_update_almacen_stock =
+                        "UPDATE almacen_stock
+                    SET canStoDis = canStoDis - $canSalReqMol
                     WHERE idAlm = ? AND idProd = ?";
 
-                $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
-                $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
-                $stmt_update_almacen_stock->bindParam(2, $idMatPri, PDO::PARAM_INT);
-                $stmt_update_almacen_stock->execute();
+                    $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
+                    $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
+                    $stmt_update_almacen_stock->bindParam(2, $idMatPri, PDO::PARAM_INT);
+                    $stmt_update_almacen_stock->execute();
+                } else {
+                    // SI NO ES SELECCIÓN DISMINUIMOS AMBOS CAMPOS DE STOCK
+                    $sql_update_almacen_stock =
+                        "UPDATE almacen_stock
+                        SET canSto = canSto - $canSalReqMol, canStoDis = canStoDis - $canSalReqMol
+                        WHERE idAlm = ? AND idProd = ?";
+
+                    $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
+                    $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
+                    $stmt_update_almacen_stock->bindParam(2, $idMatPri, PDO::PARAM_INT);
+                    $stmt_update_almacen_stock->execute();
+                }
 
                 // ACTUALIZAMOS EL STOCK TOTAL DE LA MATERIA PRIMA
                 // $sql_update_materia_prima =
