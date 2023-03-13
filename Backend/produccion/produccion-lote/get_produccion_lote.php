@@ -50,7 +50,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             pd.fecProdFinProg,
             pd.fecFinMolProd,
             pd.fecFinEnvProd,
-            pd.fecFinEncProd
+            pd.fecFinEncProd,
+            pd.fecVenLotProd
         FROM produccion pd
         JOIN producto p ON pd.idProdt = p.id
         JOIN produccion_estado pde ON pd.idProdEst = pde.id
