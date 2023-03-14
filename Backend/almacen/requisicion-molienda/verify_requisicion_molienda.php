@@ -13,23 +13,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
-    $idReqMol = $data["id"];
+    $idReq = $data["id"];
 
     if ($pdo) {
-        $idReqMolEst = 4; //verificado
-        $idReqMolEstCompletado = 3; // completado pero no verificado
+        $idReqEst = 4; //verificado
+        $idReqEstCom = 3; // completado pero no verificado
+        $fecEntReq = date('Y-m-d H:i:s'); // fecha de entregado la requisicion
         $sql =
             "UPDATE
-            requisicion_molienda
-            SET idReqMolEst = ?
-            WHERE id = ? AND idReqMolEst = ?
+            requisicion
+            SET idReqEst = ?, fecEntReq = ?
+            WHERE id = ? AND idReqEst = ?
             ";
         try {
             // PREPARAMOS LA CONSULTA
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(1, $idReqMolEst, PDO::PARAM_INT);
-            $stmt->bindParam(2, $idReqMol, PDO::PARAM_INT);
-            $stmt->bindParam(3, $idReqMolEstCompletado, PDO::PARAM_INT);
+            $stmt->bindParam(1, $idReqEst, PDO::PARAM_INT);
+            $stmt->bindParam(2, $fecEntReq);
+            $stmt->bindParam(3, $idReq, PDO::PARAM_INT);
+            $stmt->bindParam(4, $idReqEstCom, PDO::PARAM_INT);
             $stmt->execute();
 
             if ($stmt->rowCount() !== 1) {
@@ -39,30 +41,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // AHORA DEBEMOS ACTUALIZAR LA PRODUCCION
             // primero consultamos el id de produccion de la requisicion molienda
-            $id_produccion_requisicion_molienda = 0; // inicializacion
-            $sql_consult_requisicion_molienda =
-                "SELECT idProdc
-            FROM requisicion_molienda 
-            WHERE id = ?";
-            $stmt_consult_requisicion_molienda = $pdo->prepare($sql_consult_requisicion_molienda);
-            $stmt_consult_requisicion_molienda->bindParam(1, $idReqMol, PDO::PARAM_INT);
-            $stmt_consult_requisicion_molienda->execute();
-            while ($row = $stmt_consult_requisicion_molienda->fetch(PDO::FETCH_ASSOC)) {
-                $id_produccion_requisicion_molienda = $row["idProdc"];
-            }
+            // $id_produccion_requisicion = 0; // inicializacion
 
-            // ahora actualizamos la produccion
-            $idProdEst = 3; // estado de requisicion completa
-            $idProdEstBefore = 2; // estado de requsicion realizada
-            $sql_update_produccion =
-                "UPDATE produccion 
-            SET idProdEst = ? 
-            WHERE id = ? AND idProdEst = ?";
-            $stmt_update_produccion = $pdo->prepare($sql_update_produccion);
-            $stmt_update_produccion->bindParam(1, $idProdEst, PDO::PARAM_INT);
-            $stmt_update_produccion->bindParam(2, $id_produccion_requisicion_molienda, PDO::PARAM_INT);
-            $stmt_update_produccion->bindParam(3, $idProdEstBefore, PDO::PARAM_INT);
-            $stmt_update_produccion->execute();
+            // $sql_consult_requisicion_molienda =
+            //     "SELECT idProdc
+            // FROM requisicion 
+            // WHERE id = ?";
+            // $stmt_consult_requisicion_molienda = $pdo->prepare($sql_consult_requisicion_molienda);
+            // $stmt_consult_requisicion_molienda->bindParam(1, $idReq, PDO::PARAM_INT);
+            // $stmt_consult_requisicion_molienda->execute();
+
+            // while ($row = $stmt_consult_requisicion_molienda->fetch(PDO::FETCH_ASSOC)) {
+            //     $id_produccion_requisicion = $row["idProdc"];
+            // }
+
+            // // ahora actualizamos la produccion
+            // $idProdEst = 3; // estado de requisicion completa
+            // $idProdEstBefore = 2; // estado de requisicion realizada
+            // $sql_update_produccion =
+            //     "UPDATE produccion 
+            // SET idProdEst = ? 
+            // WHERE id = ? AND idProdEst = ?";
+            // $stmt_update_produccion = $pdo->prepare($sql_update_produccion);
+            // $stmt_update_produccion->bindParam(1, $idProdEst, PDO::PARAM_INT);
+            // $stmt_update_produccion->bindParam(2, $id_produccion_requisicion, PDO::PARAM_INT);
+            // $stmt_update_produccion->bindParam(3, $idProdEstBefore, PDO::PARAM_INT);
+            // $stmt_update_produccion->execute();
         } catch (Exception $e) {
             $message_error = "ERROR INTERNO SERVER";
             $description_error = $e->getMessage();

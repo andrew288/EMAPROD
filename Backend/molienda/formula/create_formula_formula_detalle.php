@@ -69,15 +69,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         // EXTRAEMOS LOS VALORES
                         $idMatPri = $fila["idMatPri"];
                         $canMatPriFor = $fila["canMatPriFor"];
+                        $idAre = $fila["idAre"];
 
                         // CREAMOS LA SENTENCIA
                         $sql_detalle = "INSERT INTO 
-                            formula_detalle (idFor, idMatPri, canMatPriFor) 
-                            VALUES (?, ?, $canMatPriFor);";
+                            formula_detalle (idFor, idMatPri, idAre, canMatPriFor) 
+                            VALUES (?, ?, ?, $canMatPriFor);";
                         // PREPARAMOS LA CONSULTA
                         $stmt_detalle = $pdo->prepare($sql_detalle);
                         $stmt_detalle->bindParam(1, $idLastInsertion, PDO::PARAM_INT);
                         $stmt_detalle->bindParam(2, $idMatPri, PDO::PARAM_INT);
+                        $stmt_detalle->bindParam(3, $idAre, PDO::PARAM_INT);
                         // EJECUTAMOS LA CONSULTA
                         $stmt_detalle->execute();
                         $sql_detalle = "";

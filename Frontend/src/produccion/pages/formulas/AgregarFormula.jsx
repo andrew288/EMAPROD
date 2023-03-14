@@ -14,10 +14,10 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { createFormulaWithDetalle } from "./../../helpers/formula/createFormulaWithDetalle";
 import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
-import { RowDetalleFormula } from "../../components/RowDetalleFormula";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
 import { FilterTipoFormula } from "./../../../components/ReferencialesFilters/Formula/FilterTipoFormula";
+import { RowDetalleFormula } from "./../../components/RowDetalleFormula";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -31,7 +31,7 @@ export const AgregarFormula = () => {
     idTipFor: 0,
     nomFor: "",
     desFor: "",
-    lotKgrFor: 1500,
+    lotKgrFor: 1500.0,
     forDet: [], // DETALLE DE FORMULAS
   });
   const { idProd, idTipFor, nomFor, desFor, lotKgrFor, forDet } = formula;
@@ -40,8 +40,9 @@ export const AgregarFormula = () => {
   const [materiaPrimaDetalle, setmateriaPrimaDetalle] = useState({
     idMateriaPrima: 0,
     cantidadMateriaPrima: 0,
+    idArea: 0,
   });
-  const { idMateriaPrima, cantidadMateriaPrima } = materiaPrimaDetalle;
+  const { idMateriaPrima, cantidadMateriaPrima, idArea } = materiaPrimaDetalle;
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
   const [feedbackCreate, setfeedbackCreate] = useState(false);
@@ -115,6 +116,7 @@ export const AgregarFormula = () => {
           // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
           const detalleFormulaMateriaPrima = {
             idMatPri: id,
+            idAre: idArea,
             codProd: codProd,
             desCla: desCla,
             desSubCla: desSubCla,
@@ -175,6 +177,24 @@ export const AgregarFormula = () => {
         return {
           ...element,
           canMatPriFor: value,
+        };
+      } else {
+        return element;
+      }
+    });
+
+    setformula({
+      ...formula,
+      forDet: editFormDetalle,
+    });
+  };
+
+  const handledAreaEncargada = (idAre, idItem) => {
+    const editFormDetalle = forDet.map((element) => {
+      if (element.idMatPri === idItem) {
+        return {
+          ...element,
+          idAre: idAre,
         };
       } else {
         return element;
@@ -260,9 +280,20 @@ export const AgregarFormula = () => {
       });
       handleClickFeeback();
     } else {
-      setdisableButton(true);
-      // LLAMAMOS A LA FUNCION CREAR MATERIA PRIMA
-      crearFormula();
+      const validAreaEncargada = forDet.find((element) => element.idAre === 0);
+      if (validAreaEncargada) {
+        // MANEJAMOS FORMULARIOS INCOMPLETOS
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error:
+            "Asegurese de asignar areas encargadas para cada item",
+        });
+        handleClickFeeback();
+      } else {
+        setdisableButton(true);
+        // LLAMAMOS A LA FUNCION CREAR MATERIA PRIMA
+        crearFormula();
+      }
     }
   };
 
@@ -360,17 +391,13 @@ export const AgregarFormula = () => {
               <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
                 {/* AGREGAR MATERIA PRIMA */}
                 <div className="col-md-3">
-                  <label htmlFor="inputPassword4" className="form-label">
-                    Materia Prima
-                  </label>
+                  <label className="form-label">Materia Prima</label>
                   <FilterMateriaPrima onNewInput={onMateriaPrimaId} />
                 </div>
 
                 {/* AGREGAR CANTIDAD*/}
                 <div className="col-md-2">
-                  <label htmlFor="inputPassword4" className="form-label">
-                    Cantidad
-                  </label>
+                  <label className="form-label">Cantidad</label>
                   <input
                     type="number"
                     onChange={handleCantidadMateriaPrima}
@@ -379,6 +406,7 @@ export const AgregarFormula = () => {
                     className="form-control"
                   />
                 </div>
+
                 {/* BOTON AGREGAR MATERIA PRIMA */}
                 <div className="col-md-3 d-flex justify-content-end ms-auto">
                   <button
@@ -412,17 +440,17 @@ export const AgregarFormula = () => {
                           },
                         }}
                       >
-                        <TableCell align="left" width={100}>
-                          <b>Codigo</b>
-                        </TableCell>
                         <TableCell align="left" width={120}>
                           <b>Clase</b>
                         </TableCell>
-                        <TableCell align="left" width={140}>
+                        <TableCell align="left" width={120}>
                           <b>Sub clase</b>
                         </TableCell>
-                        <TableCell align="left" width={200}>
+                        <TableCell align="left" width={180}>
                           <b>Nombre</b>
+                        </TableCell>
+                        <TableCell align="center" width={140}>
+                          <b>Area</b>
                         </TableCell>
                         <TableCell align="left" width={150}>
                           <b>Cantidad</b>
@@ -444,6 +472,7 @@ export const AgregarFormula = () => {
                             detalle={row}
                             onDeleteDetalleFormula={deleteDetalleMateriaPrima}
                             onChangeFormulaDetalle={handledFormularioDetalle}
+                            onChangeAreaEncargadaDetalle={handledAreaEncargada}
                           />
                         ))}
                     </TableBody>

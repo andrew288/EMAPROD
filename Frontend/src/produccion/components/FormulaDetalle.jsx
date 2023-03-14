@@ -56,7 +56,10 @@ export const FormulaDetalle = ({ detalle, onClose }) => {
                         <b>Sub clase</b>
                       </TableCell>
                       <TableCell align="left" width={70}>
-                        <b>Cantidad</b>
+                        <b>Area responsable</b>
+                      </TableCell>
+                      <TableCell align="left" width={70}>
+                        <b>Cantidad (kg)</b>
                       </TableCell>
                       {/* <TableCell align="left" width={50}>
                         <b>Acciones</b>
@@ -76,6 +79,7 @@ export const FormulaDetalle = ({ detalle, onClose }) => {
                         </TableCell>
                         <TableCell align="left">{row.desCla}</TableCell>
                         <TableCell align="left">{row.desSubCla}</TableCell>
+                        <TableCell align="left">{row.desAre}</TableCell>
                         <TableCell align="left">{row.canMatPriFor}</TableCell>
                         {/* <TableCell align="left">
                           <div className="btn-toolbar">

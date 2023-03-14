@@ -1,3 +1,4 @@
+import { RouterMoliendaFormula } from "../pages/formulas/RouterMoliendaFormula";
 import LayoutModulo from "./../../layout/LayoutModulo";
 import { HomeProduccion } from "./../pages/HomeProduccion";
 import { RouterProduccionLote } from "./../pages/produccion_lote/RouterProduccionLote";
@@ -11,5 +12,10 @@ export const RouterProduccion = [
     path: "produccion-lote",
     element: <LayoutModulo />,
     children: RouterProduccionLote,
+  },
+  {
+    path: "formula",
+    element: <LayoutModulo />,
+    children: RouterMoliendaFormula,
   },
 ];

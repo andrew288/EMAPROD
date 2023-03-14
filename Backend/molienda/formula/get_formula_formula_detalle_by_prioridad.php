@@ -47,6 +47,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     "SELECT
                 fd.id,
                 fd.idMatPri,
+                fd.idAre,
+                a.desAre,
                 p.codProd,
                 p.nomProd,
                 m.simMed,
@@ -55,6 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 fd.canMatPriFor
                 FROM formula_detalle fd
                 JOIN producto as p on p.id = fd.idMatPri
+                JOIN area as a on a.id = fd.idAre
                 JOIN clase as c on p.idCla = c.id
                 JOIN sub_clase as sc on p.idSubCla = sc.id
                 JOIN medida as m on p.idMed = m.id 

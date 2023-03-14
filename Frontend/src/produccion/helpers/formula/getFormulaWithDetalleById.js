@@ -1,13 +1,13 @@
 import axios from 'axios';
 import config from '../.././../config';
 
-export const createProducto = async (body) => {
+export const getFormulaWithDetalleById = async (idFormula) => {
 
     const domain = config.API_URL;
-    const path = '/molienda/producto/create_producto.php';
+    const path = '/molienda/formula/get_formula_formula_detalle_by_id.php';
     const url = domain + path;
     const { data } = await axios.post(url, {
-        ...body,
+        id: idFormula,
     });
     return data;
 }

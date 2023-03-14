@@ -1,8 +1,7 @@
 import HomeMolienda from "./../pages/HomeMolienda";
-import { RouterMoliendaProducto } from "../pages/producto/RouterMoliendaProducto";
-import { RouterMoliendaFormula } from "./../pages/formula/RouterMoliendaFormula";
 import { RouterMoliendaRequisicion } from "./../pages/requisicion_molienda/RouterMoliendaRequisicion";
 import LayoutModulo from "./../../layout/LayoutModulo";
+import { RouterMoliendaAlmacenStock } from "./../pages/almacen/RouterMoliendaAlmacenStock";
 
 export const RouterMolienda = [
   {
@@ -10,18 +9,13 @@ export const RouterMolienda = [
     element: <HomeMolienda />,
   },
   {
-    path: "producto",
-    element: <LayoutModulo />,
-    children: RouterMoliendaProducto,
-  },
-  {
-    path: "formula",
-    element: <LayoutModulo />,
-    children: RouterMoliendaFormula,
-  },
-  {
     path: "requisicion",
     element: <LayoutModulo />,
     children: RouterMoliendaRequisicion,
+  },
+  {
+    path: "almacen",
+    element: <LayoutModulo />,
+    children: RouterMoliendaAlmacenStock,
   },
 ];

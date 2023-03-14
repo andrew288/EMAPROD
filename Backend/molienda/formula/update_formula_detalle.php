@@ -39,19 +39,21 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             foreach ($forDet as $fila) {
                 // obtenemos la cantidad
                 $canMatPriFor = $fila["canMatPriFor"];
+                $idAre = $fila["idAre"];
 
                 // si es un nuevo detalle agregado en la formula en la actualizacion
-                if (isset($fila["idFor"])) {
+                if (!isset($fila["idFor"])) {
                     $idMatPri =  $fila["idMatPri"];
                     // insertamos un nuevo detalle de formula
                     $sql_detalle_insert = "INSERT INTO 
-                        formula_detalle (idFor, idMatPri, canMatPriFor) 
-                        VALUES (?, ?, $canMatPriFor);";
+                        formula_detalle (idFor, idMatPri, idAre, canMatPriFor) 
+                        VALUES (?, ?, ?, $canMatPriFor);";
                     try {
                         // PREPARAMOS LA CONSULTA
                         $stmt_detalle_insert = $pdo->prepare($sql_detalle_insert);
                         $stmt_detalle_insert->bindParam(1, $idFor, PDO::PARAM_INT);
                         $stmt_detalle_insert->bindParam(2, $idMatPri, PDO::PARAM_INT);
+                        $stmt_detalle_insert->bindParam(3, $idAre, PDO::PARAM_INT);
                         // EJECUTAMOS LA CONSULTA
                         $stmt_detalle_insert->execute();
                     } catch (PDOException $e) {

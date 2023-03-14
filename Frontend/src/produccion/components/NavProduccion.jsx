@@ -35,7 +35,7 @@ const NavProduccion = () => {
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              {/* REQUISICIONES */}
+              {/* LOTE PRODUCCION */}
               <li className="nav-item dropdown">
                 <button
                   className="btn btn-lg dropdown-toggle"
@@ -58,6 +58,32 @@ const NavProduccion = () => {
                     <Link
                       className="dropdown-item"
                       to={"/produccion/produccion-lote/crear"}
+                    >
+                      Crear
+                    </Link>
+                  </li>
+                </ul>
+              </li>
+              {/* FORMULAS */}
+              <li className="nav-item dropdown">
+                <button
+                  className="btn btn-lg dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Formulas
+                </button>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link className="dropdown-item" to={"/produccion/formula"}>
+                      Administrar
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/produccion/formula/crear"}
                     >
                       Crear
                     </Link>

@@ -65,60 +65,6 @@ const NavMolienda = () => {
                   </li>
                 </ul>
               </li>
-
-              {/* PRODUCTOS */}
-              <li className="nav-item dropdown">
-                <Link
-                  className="nav-link dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Productos
-                </Link>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to={"/molienda/producto"}>
-                      Administrar
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to={"/molienda/producto/crear"}
-                    >
-                      Crear
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-
-              {/* FORMULAS */}
-              <li className="nav-item dropdown">
-                <Link
-                  className="nav-link dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Formulas
-                </Link>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to={"/molienda/formula"}>
-                      Administrar
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to={"/molienda/formula/crear"}
-                    >
-                      Crear
-                    </Link>
-                  </li>
-                </ul>
-              </li>
             </ul>
             <ul className="navbar-nav d-none d-lg-flex ml-2 order-3">
               <li className="nav-item">

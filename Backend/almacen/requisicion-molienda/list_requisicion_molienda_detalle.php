@@ -30,66 +30,72 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $data_requsicion_molienda = [];
 
     if ($pdo) {
+        // SOLO SELECCIONAMOS LAS REQUISICIONES CORRESPONDIENTES AL AREA DE MOLIENDA
         $sql =
             "SELECT
-            rm.id,
-            rm.idProdc,
+            r.id,
+            r.idProdc,
+            r.idReqEst,
+            r.idProdt,
+            r.idAre,
+            a.desAre,
             pc.codLotProd,
             pc.idProdTip,
             pct.desProdTip,
             pc.klgLotProd,
             pc.canLotProd,
-            rm.idReqMolEst,
-            rme.desReqMolEst,
-            rm.idProdt,
+            re.desReqEst,
             p.nomProd,
-            rm.fecPedReqMol,
-            rm.fecTerReqMol
-            FROM requisicion_molienda rm
-            JOIN producto as p on p.id = rm.idProdt
-            JOIN produccion pc  on pc.id = rm.idProdc
+            r.fecPedReq,
+            FROM requisicion r
+            JOIN producto as p on p.id = r.idProdt
+            JOIN produccion pc  on pc.id = r.idProdc
             JOIN produccion_tipo pct on pct.id = pc.idProdTip
-            JOIN requisicion_molienda_estado as rme on rme.id = rm.idReqMolEst
-            WHERE DATE(rm.fecPedReqMol) BETWEEN '$fechaInicio' AND '$fechaFin'
-            ORDER BY rm.fecPedReqMol DESC
+            JOIN area a on a.id = r.idAre
+            JOIN requisicion_estado as re on re.id = r.idReqEst
+            WHERE r.idAre = ? DATE(r.fecPedReq) BETWEEN '$fechaInicio' AND '$fechaFin'
+            ORDER BY r.fecPedReq DESC
             ";
         try {
             // PREPARAMOS LA CONSULTA
+            $idAre = 2; // AREA DE MOLIENDA
             $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(1, $idAre, PDO::PARAM_INT);
             $stmt->execute();
             $sql_detalle = "";
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $idReqMol = $row["id"];
-                $row["reqMolDet"] = [];
+                $idReq = $row["id"];
+                $row["reqDet"] = [];
 
                 $sql_detalle =
                     "SELECT
-                rmd.id,
-                rmd.idMatPri,
+                rd.id,
+                rd.idProdt,
+                rd.idReq,
+                rd.idReqDetEst,
                 p.nomProd,
                 p.codProd,
-                rmd.idReqMolDetEst,
-                rmde.desReqMolDetEst,
-                rmd.canReqMolDet
-                FROM requisicion_molienda_detalle rmd
-                JOIN producto as p on p.id = rmd.idMatPri
-                JOIN requisicion_molienda_detalle_estado as rmde on rmde.id = rmd.idReqMolDetEst
-                WHERE rmd.idReqMol = ?
+                rde.desReqDetEst,
+                rd.canReqDet
+                FROM requisicion_detalle rd
+                JOIN producto as p on p.id = rd.idProdt
+                JOIN requisicion_detalle_estado as rde on rde.id = rd.idReqDetEst
+                WHERE rd.idReq = ?
                 ";
 
                 try {
                     $stmt_detalle = $pdo->prepare($sql_detalle);
-                    $stmt_detalle->bindParam(1, $idReqMol, PDO::PARAM_INT);
+                    $stmt_detalle->bindParam(1, $idReq, PDO::PARAM_INT);
                     $stmt_detalle->execute();
                 } catch (Exception $e) {
                     $message_error = "ERROR INTERNO SERVER";
                     $description_error = $e->getMessage();
                 }
                 while ($row_detalle = $stmt_detalle->fetch(PDO::FETCH_ASSOC)) {
-                    array_push($row["reqMolDet"], $row_detalle);
+                    array_push($row["reqDet"], $row_detalle);
                 }
-                //AÑADIMOS TODA LA DATA FORMATEADA
+                //AÑADIMOS TODA LA DATA FOrATEADA
                 array_push($data_requsicion_molienda, $row);
             }
             // DESCOMENTAR PARA VER LA DATA
