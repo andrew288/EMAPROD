@@ -9,6 +9,7 @@ export const FilterMateriaPrima = ({ onNewInput }) => {
 
   const obtenerDataMateriPrima = async () => {
     const resultPeticion = await getMateriaPrima();
+    console.log(resultPeticion);
     const formatSelect = resultPeticion.map((element) => {
       return {
         value: element.codProd2,

@@ -9,6 +9,7 @@ export const FilterTipoProduccion = ({ onNewInput }) => {
 
   const obtenerDataTipoProduccion = async () => {
     const resultPeticion = await getTiposProduccion();
+    console.log(resultPeticion);
     const formatSelect = resultPeticion.map((element) => {
       return {
         value: element.id,

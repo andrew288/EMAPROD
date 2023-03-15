@@ -12,7 +12,7 @@ export const FilterTipoFormula = ({ onNewInput }) => {
     const formatSelect = resultPeticion.map((element) => {
       return {
         value: element.id,
-        label: element.desTipFor,
+        label: element.desForTip,
         id: element.id,
       };
     });

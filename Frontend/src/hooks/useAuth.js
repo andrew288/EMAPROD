@@ -23,6 +23,12 @@ export const AuthProvider = ({ children }) => {
                     break;
                 case 4: navigate("/produccion", { replace: true });
                     break;
+                case 5: navigate("/envasado", { replace: true });
+                    break;
+                case 6: navigate("/encajonado", { replace: true });
+                    break;
+                case 7: navigate("/frescos", { replace: true });
+                    break;
             };
         }, 100)
     };

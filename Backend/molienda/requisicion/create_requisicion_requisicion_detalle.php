@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // insertamos la requisicion
         $sql =
             "INSERT INTO
-                requisicion_molienda
+                requisicion
                 (idProdc, idReqEst, idProdt, codReq)
                 VALUES (?,?,?,?);
                 ";

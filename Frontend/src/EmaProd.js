@@ -9,6 +9,9 @@ import { RouterAlmacen } from './almacen/router/router';
 import { RouterMolienda } from './molienda/router/router';
 import { RouterSeleccion } from './seleccion/router/router';
 import { RouterProduccion } from './produccion/router/router';
+import { RouterFrescos } from './frescos/router/router';
+import { RouterEncajonado } from './encajonado/router/router';
+import { RouterEnvasado } from './envasado/router/router';
 
 // PLANTILLA NOT FOUND
 import NotFound from './pages/NotFound';
@@ -19,6 +22,9 @@ import { ProtectedLayoutAlmacen } from "./components/ProtectedLayoutAlmacen";
 import { ProtectedLayoutMolienda } from './components/ProtectedLayoutMolienda';
 import { ProtectedLayoutSeleccion } from './components/ProtectedLayoutSeleccion';
 import { ProtectedLayoutProduccion } from "./components/ProtectedLayoutProduccion";
+import { ProtectedLayoutFrescos } from "./components/ProtectedLayoutFrescos";
+import { ProtectedLayoutEncajonado } from './components/ProtectedLayoutEncajonado';
+import { ProtectedLayoutEnvasado } from "./components/ProtectedLayoutEnvasado";
 
 export const router = createBrowserRouter([
   {
@@ -51,7 +57,22 @@ export const router = createBrowserRouter([
       {
         path: "/produccion",
         element: <ProtectedLayoutProduccion />,
-        children: RouterProduccion
+        children: RouterProduccion,
+      },
+      {
+        path: "/frescos",
+        element: <ProtectedLayoutFrescos />,
+        children: RouterFrescos,
+      },
+      {
+        path: "/encajonado",
+        element: <ProtectedLayoutEncajonado />,
+        children: RouterEncajonado,
+      },
+      {
+        path: "/envasado",
+        element: <ProtectedLayoutEnvasado />,
+        children: RouterEnvasado,
       }
     ],
   },

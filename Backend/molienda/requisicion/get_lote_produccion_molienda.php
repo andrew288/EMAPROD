@@ -17,6 +17,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $añoActual = date("Y");
 
+        // LAS CONDICIONES PARA OBTENER LOS LOTES DISPONIBLES PARA REQUISICION MOLIENDA SON
+        /*
+        - Solo deben mostrarse lotes de produccion de tipo polvos
+        - Solo deben mostrarse lotes de produccion de tipo sales parrilleras
+        - No se mostraran lotes de produccion que su proceso de molienda haya terminado
+        - No se mostraran lotes de produccion que su proceso de envasado haya terminado
+        - No se mostraran lotes de produccion que su proceso de encajonado haya terminado
+        - No se mostraran lotes de produccion que su proceso haya terminado
+        */
+
         $sql =
             "SELECT
             pd.id,
@@ -26,16 +36,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             DATE(pd.fecProdIni) AS fecProdIni
         FROM produccion pd
         JOIN producto p ON pd.idProdt = p.id
-        WHERE pd.esEnv = ? AND pd.idProdEst = ?
+        WHERE idProdEst = ? AND (idProdTip = ? OR idProdTip = ?)
         ORDER BY pd.fecProdIni DESC";
 
         try {
-            $esEnv = 0; // no es solo envasado
-            $idProdEst = 1; // es un lote de produccion iniciado
+            $idProdEstIni = 1; // es un lote de produccion iniciado
+            $idProdTipPol = 1; // es de tipo polvos
+            $idProdTipSalPar = 3; // es de tipo sal parrillera
 
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(1, $esEnv, PDO::PARAM_INT);
-            $stmt->bindParam(2, $idProdEst, PDO::PARAM_INT);
+            $stmt->bindParam(1, $idProdEstIni, PDO::PARAM_INT);
+            $stmt->bindParam(2, $idProdTipPol, PDO::PARAM_INT);
+            $stmt->bindParam(3, $idProdTipSalPar, PDO::PARAM_INT);
             $stmt->execute(); // ejecutamos
             // Recorremos los resultados
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

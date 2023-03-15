@@ -34,7 +34,7 @@ export const HomeProduccion = () => {
                       <i className="bi bi-collection"></i>
                     </div>
                     <h2 className="fs-4 fw-bold">Formulas</h2>
-                    <Link to="/produccion/formulas" className="btn btn-primary">
+                    <Link to="/produccion/formula" className="btn btn-primary">
                       Ingresar
                     </Link>
                   </div>

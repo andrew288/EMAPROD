@@ -13,11 +13,11 @@ import TablePagination from "@mui/material/TablePagination";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { createFormulaWithDetalle } from "./../../helpers/formula/createFormulaWithDetalle";
-import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
 import { FilterTipoFormula } from "./../../../components/ReferencialesFilters/Formula/FilterTipoFormula";
 import { RowDetalleFormula } from "./../../components/RowDetalleFormula";
+import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -74,7 +74,7 @@ export const AgregarFormula = () => {
   };
 
   // MANEJADOR DE AGREGAR MATERIA PRIMA A DETALLE DE FORMULA
-  const onMateriaPrimaId = ({ id }) => {
+  const onProductoId = ({ id }) => {
     setmateriaPrimaDetalle({
       ...materiaPrimaDetalle,
       idMateriaPrima: id,
@@ -246,6 +246,7 @@ export const AgregarFormula = () => {
 
   // FUNCION PARA CREAR FORMULARIO
   const crearFormula = async () => {
+    // console.log(formula);
     const { message_error, description_error } = await createFormulaWithDetalle(
       formula
     );
@@ -392,7 +393,7 @@ export const AgregarFormula = () => {
                 {/* AGREGAR MATERIA PRIMA */}
                 <div className="col-md-3">
                   <label className="form-label">Materia Prima</label>
-                  <FilterMateriaPrima onNewInput={onMateriaPrimaId} />
+                  <FilterAllProductos onNewInput={onProductoId} />
                 </div>
 
                 {/* AGREGAR CANTIDAD*/}

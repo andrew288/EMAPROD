@@ -139,7 +139,7 @@ const Home = () => {
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
                     <i className="bi bi-collection"></i>
                   </div>
-                  <h2 className="fs-4 fw-bold">Encajado</h2>
+                  <h2 className="fs-4 fw-bold">Encajonado</h2>
                   <Link to="produccion" className="btn  btn-primary">
                     Ingresar
                   </Link>
