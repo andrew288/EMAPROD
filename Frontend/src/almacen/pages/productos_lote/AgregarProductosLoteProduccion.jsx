@@ -119,6 +119,9 @@ export const AgregarProductosLoteProduccion = () => {
     setProDisProd(filterData);
   };
 
+  // EDITAR PRODUCTOS FINALES DETALLE
+  const onChangeProductosFinalesLoteProduccion = () => {};
+
   // CODIGO QUE SE EJECUTA ANTES DE LA RENDERIZACION
   useEffect(() => {
     obtenerDataProductosFinalesProduccion();
@@ -310,6 +313,9 @@ export const AgregarProductosLoteProduccion = () => {
                           detalle={row}
                           onDeleteDetalle={
                             onDeleteProductosFinalesLoteProducccion
+                          }
+                          onChangeDetalle={
+                            onChangeProductosFinalesLoteProduccion
                           }
                         />
                       ))}

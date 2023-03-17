@@ -3,7 +3,7 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { getAlmacenes } from "./../../../helpers/Referenciales/almacen/getAlmacenes";
 
-export const FilterAlmacen = ({ onNewInput }) => {
+export const FilterAlmacen = ({ onNewInput, disabled }) => {
   const [result, setResult] = useState([]);
 
   const getDataAlmacenes = async () => {
@@ -29,6 +29,7 @@ export const FilterAlmacen = ({ onNewInput }) => {
   return (
     <>
       <Autocomplete
+        disabled={disabled}
         options={result}
         disableClearable
         getOptionLabel={(option) => option.label}

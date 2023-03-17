@@ -11,6 +11,7 @@ export const HomeProduccion = () => {
         <section className="pt-4">
           <div className="container px-lg-5">
             <div className="row gx-lg-5">
+              {/* PRODUCCION LOTE */}
               <div className="col-lg-6 col-xxl-4 mb-5">
                 <div className="card bg-light border-0 h-100">
                   <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
@@ -27,6 +28,7 @@ export const HomeProduccion = () => {
                   </div>
                 </div>
               </div>
+              {/* FORMULAS */}
               <div className="col-lg-6 col-xxl-4 mb-5">
                 <div className="card bg-light border-0 h-100">
                   <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
@@ -35,6 +37,23 @@ export const HomeProduccion = () => {
                     </div>
                     <h2 className="fs-4 fw-bold">Formulas</h2>
                     <Link to="/produccion/formula" className="btn btn-primary">
+                      Ingresar
+                    </Link>
+                  </div>
+                </div>
+              </div>
+              {/* FORMULA POR PRODUCTO */}
+              <div className="col-lg-6 col-xxl-4 mb-5">
+                <div className="card bg-light border-0 h-100">
+                  <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                    <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                      <i className="bi bi-collection"></i>
+                    </div>
+                    <h2 className="fs-4 fw-bold">Formula producto</h2>
+                    <Link
+                      to="/produccion/formula-producto"
+                      className="btn btn-primary"
+                    >
                       Ingresar
                     </Link>
                   </div>

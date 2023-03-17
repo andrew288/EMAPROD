@@ -90,6 +90,35 @@ const NavProduccion = () => {
                   </li>
                 </ul>
               </li>
+              {/* FORMULA POR PRODUCTO */}
+              <li className="nav-item dropdown">
+                <button
+                  className="btn btn-lg dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Formula por producto
+                </button>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/produccion/formula-producto"}
+                    >
+                      Administrar
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/produccion/formula-producto/crear"}
+                    >
+                      Crear
+                    </Link>
+                  </li>
+                </ul>
+              </li>
             </ul>
             <ul className="navbar-nav d-none d-lg-flex ml-2 order-3">
               <li className="nav-item">
