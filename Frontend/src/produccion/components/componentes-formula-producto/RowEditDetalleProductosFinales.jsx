@@ -4,16 +4,17 @@ import TableCell from "@mui/material/TableCell";
 import { TextField } from "@mui/material";
 import { FilterAlmacen } from "./../../../components/ReferencialesFilters/Almacen/FilterAlmacen";
 
-export const RowEditDetalleFormulaProducto = ({
+export const RowEditDetalleProductosFinales = ({
   detalle,
-  onDeleteDetalleFormula,
-  onChangeFormulaDetalle,
-  onChangeAlmacenEncargadoDetalle,
+  onDeleteItemRequisicion,
+  onChangeItemDetalle,
 }) => {
-  const [disabledInput, setdisabledInput] = useState(true);
+  const [disabledButton, setdisabledButton] = useState(true);
 
-  const handleDetalleChangeAlmacenEncargado = (value) => {
-    onChangeAlmacenEncargadoDetalle(value.id, detalle.idProd);
+  const onChangeInput = ({ target }) => {
+    setdisabledButton(false);
+    const { value, name } = target;
+    console.log(value, name);
   };
 
   return (
@@ -23,41 +24,34 @@ export const RowEditDetalleFormulaProducto = ({
       }}
     >
       <TableCell component="th" scope="row">
+        {detalle.index}
+      </TableCell>
+      <TableCell component="th" scope="row">
         {detalle.nomProd}
       </TableCell>
       <TableCell component="th" scope="row">
         {detalle.simMed}
       </TableCell>
-      <TableCell align="left">
-        {detalle.desAlm === undefined ? (
-          <FilterAlmacen
-            onNewInput={handleDetalleChangeAlmacenEncargado}
-            disabled={disabledInput}
-          />
-        ) : (
-          detalle.desAlm
-        )}
+      <TableCell component="th" scope="row">
+        <TextField
+          value={detalle.canUnd}
+          name={"canUnd"}
+          onChange={onChangeInput}
+        />
       </TableCell>
-      <TableCell align="left">
-        <div className="d-inline-flex align-items-center">
-          <TextField
-            size="small"
-            onChange={(e) => {
-              onChangeFormulaDetalle(e, detalle.idProd);
-            }}
-            type="number"
-            name="inputCantidad"
-            value={detalle.canForProDet}
-            disabled={disabledInput}
-          />
-          <label className="ms-2">{detalle.simMed}</label>
-        </div>
+      <TableCell component="th" scope="row">
+        <TextField
+          value={detalle.canKlg}
+          name={"canKlg"}
+          onChange={onChangeInput}
+        />
       </TableCell>
       <TableCell align="left">
         <div className="btn-toolbar">
           <button
+            disabled={disabledButton}
             onClick={() => {
-              setdisabledInput(!disabledInput);
+              // funcion de calcular nuevos valores
             }}
             className="btn btn-success me-2"
           >
@@ -74,7 +68,7 @@ export const RowEditDetalleFormulaProducto = ({
           </button>
           <button
             onClick={() => {
-              onDeleteDetalleFormula(detalle.idProd);
+              onDeleteItemRequisicion(detalle.idProdFin);
             }}
             className="btn btn-danger"
           >

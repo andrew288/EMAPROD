@@ -17,6 +17,7 @@ import { FilterAllProductos } from "./../../../components/ReferencialesFilters/P
 import { TextField } from "@mui/material";
 import { FilterAreaEncargada } from "../../components/FilterAreaEncargada";
 import { RowEditDetalleFormulaProducto } from "./../../components/componentes-formula-producto/RowEditDetalleFormulaProducto";
+import { createFormulaProductoWithDetalle } from "../../helpers/formula_producto/createFormulaProductoWithDetalle";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -127,6 +128,7 @@ export const AgregarFormulaPorProducto = () => {
           const detalleFormulaProducto = {
             idProd: id,
             idAre: idAre, // area
+            idAlm: 0, // almacen de orgien
             codProd: codProd,
             desCla: desCla,
             desSubCla: desSubCla,
@@ -251,20 +253,19 @@ export const AgregarFormulaPorProducto = () => {
   // FUNCION PARA CREAR FORMULARIO
   const crearFormula = async () => {
     console.log(formula);
-    // const { message_error, description_error } = await createFormulaWithDetalle(
-    //   formula
-    // );
+    const { message_error, description_error } =
+      await createFormulaProductoWithDetalle(formula);
 
-    // if (message_error.length === 0) {
-    //   // regresamos a la anterior vista
-    //   onNavigateBack();
-    // } else {
-    //   setfeedbackMessages({
-    //     style_message: "error",
-    //     feedback_description_error: description_error,
-    //   });
-    //   handleClickFeeback();
-    // }
+    if (message_error.length === 0) {
+      // regresamos a la anterior vista
+      onNavigateBack();
+    } else {
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
     setdisableButton(false);
   };
 
@@ -289,10 +290,10 @@ export const AgregarFormulaPorProducto = () => {
         handleClickFeeback();
       }
     } else {
-      const validAreaEncargada = forProdTerDet.find(
+      const validAlmacenOrigen = forProdTerDet.find(
         (element) => element.idAlm === 0
       );
-      if (validAreaEncargada) {
+      if (validAlmacenOrigen) {
         // MANEJAMOS FORMULARIOS INCOMPLETOS
         setfeedbackMessages({
           style_message: "warning",
@@ -381,7 +382,7 @@ export const AgregarFormulaPorProducto = () => {
                 </div>
               </form>
               {/* DETALLE DE MATERIA PRIMA */}
-              <div className="card d-flex">
+              <div className="card text-bg-primary d-flex">
                 <h6 className="card-header">Detalle materia prima</h6>
                 <div className="card-body">
                   <Paper>
@@ -438,7 +439,7 @@ export const AgregarFormulaPorProducto = () => {
                 </div>
               </div>
               {/* DETALLE DE ENVASADO */}
-              <div className="card d-flex mt-3">
+              <div className="card text-bg-success d-flex mt-3">
                 <h6 className="card-header">Detalle envasado</h6>
                 <div className="card-body">
                   <Paper>
@@ -473,17 +474,19 @@ export const AgregarFormulaPorProducto = () => {
                         <TableBody>
                           {forProdTerDet.map((row, i) => {
                             if (row.idAre === 5) {
-                              <RowEditDetalleFormulaProducto
-                                key={row.idProd}
-                                detalle={row}
-                                onDeleteDetalleFormula={
-                                  handleDeleteDetalleProducto
-                                }
-                                onChangeFormulaDetalle={handleFormulaDetalle}
-                                onChangeAlmacenEncargadoDetalle={
-                                  handledAlmacenEncargado
-                                }
-                              />;
+                              return (
+                                <RowEditDetalleFormulaProducto
+                                  key={row.idProd}
+                                  detalle={row}
+                                  onDeleteDetalleFormula={
+                                    handleDeleteDetalleProducto
+                                  }
+                                  onChangeFormulaDetalle={handleFormulaDetalle}
+                                  onChangeAlmacenEncargadoDetalle={
+                                    handledAlmacenEncargado
+                                  }
+                                />
+                              );
                             }
                           })}
                         </TableBody>
@@ -493,7 +496,7 @@ export const AgregarFormulaPorProducto = () => {
                 </div>
               </div>
               {/* DETALLE DE ENCAJONADO */}
-              <div className="card d-flex mt-3">
+              <div className="card text-bg-warning d-flex mt-3">
                 <h6 className="card-header">Detalle encajonado</h6>
                 <div className="card-body">
                   <Paper>
@@ -528,17 +531,19 @@ export const AgregarFormulaPorProducto = () => {
                         <TableBody>
                           {forProdTerDet.map((row, i) => {
                             if (row.idAre === 6) {
-                              <RowEditDetalleFormulaProducto
-                                key={row.idProd}
-                                detalle={row}
-                                onDeleteDetalleFormula={
-                                  handleDeleteDetalleProducto
-                                }
-                                onChangeFormulaDetalle={handleFormulaDetalle}
-                                onChangeAlmacenEncargadoDetalle={
-                                  handledAlmacenEncargado
-                                }
-                              />;
+                              return (
+                                <RowEditDetalleFormulaProducto
+                                  key={row.idProd}
+                                  detalle={row}
+                                  onDeleteDetalleFormula={
+                                    handleDeleteDetalleProducto
+                                  }
+                                  onChangeFormulaDetalle={handleFormulaDetalle}
+                                  onChangeAlmacenEncargadoDetalle={
+                                    handledAlmacenEncargado
+                                  }
+                                />
+                              );
                             }
                           })}
                         </TableBody>
