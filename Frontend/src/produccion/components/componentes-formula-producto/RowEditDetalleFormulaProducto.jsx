@@ -29,13 +29,13 @@ export const RowEditDetalleFormulaProducto = ({
         {detalle.simMed}
       </TableCell>
       <TableCell align="left">
-        {detalle.desAlm === undefined ? (
+        {detalle.nomAlm === undefined ? (
           <FilterAlmacen
             onNewInput={handleDetalleChangeAlmacenEncargado}
             disabled={disabledInput}
           />
         ) : (
-          detalle.desAlm
+          detalle.nomAlm
         )}
       </TableCell>
       <TableCell align="left">

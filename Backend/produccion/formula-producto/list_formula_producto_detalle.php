@@ -17,20 +17,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($pdo) {
         $sql =
             "SELECT
-            f.id,
-            f.idProd,
-            f.idTipFor,
-            ft.desForTip,
+            fpt.id,
+            fpt.idProdFin,
             p.nomProd,
-            f.nomFor,
-            f.desFor,
-            f.lotKgrFor,
-            f.fecCreFor,
-            f.fecActFor
-            FROM formula f
-            JOIN producto as p on p.id = f.idProd
-            JOIN formula_tipo as ft on ft.id = f.idTipFor 
-            ORDER BY f.fecCreFor DESC
+            cl.desCla,
+            sc.desSubCla,
+            me.simMed,
+            fpt.fecActForProTer
+            FROM formula_producto_terminado fpt
+            JOIN producto as p on p.id = fpt.idProdFin
+            JOIN medida as me on me.id = p.idMed
+            JOIN clase as cl on cl.id = p.idCla
+            JOIN sub_clase as sc on sc.id = p.idSubCla
+            ORDER BY fpt.fecCreForProTer DESC
             ";
         try {
             // PREPARAMOS LA CONSULTA
@@ -39,33 +38,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sql_detalle = "";
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $idFor = $row["id"];
-                $row["forDet"] = [];
+                $idForProdFin = $row["id"];
+                $row["reqDet"] = [];
 
                 $sql_detalle =
                     "SELECT
-                fd.id,
-                fd.idMatPri,
-                fd.idAre,
-                a.desAre,
+                fptd.id,
+                fptd.idForProdFin,
+                fptd.idProd,
                 p.nomProd,
-                c.desCla,
-                sc.desSubCla,
-                fd.canMatPriFor
-                FROM formula_detalle fd
-                JOIN producto as p on p.id = fd.idMatPri
-                JOIN area as a on a.id = fd.idAre
-                JOIN clase as c on p.idCla = c.id
-                JOIN sub_clase as sc on p.idSubCla = sc.id
-                WHERE fd.idFor = ?
+                cl.desCla,
+                me.simMed,
+                fptd.idAre,
+                ar.desAre,
+                fptd.idAlm,
+                al.nomAlm,
+                fptd.canForProDet
+                FROM formula_producto_terminado_detalle fptd
+                JOIN producto as p on p.id = fptd.idProd
+                JOIN medida as me on me.id = p.idMed
+                JOIN clase as cl on cl.id = p.idCla
+                JOIN area as ar on ar.id = fptd.idAre
+                JOIN almacen as al on al.id = fptd.idAlm
+                WHERE fptd.idForProdFin = ?
                 ";
 
                 $stmt_detalle = $pdo->prepare($sql_detalle);
-                $stmt_detalle->bindParam(1, $idFor, PDO::PARAM_INT);
+                $stmt_detalle->bindParam(1, $idForProdFin, PDO::PARAM_INT);
                 $stmt_detalle->execute();
 
                 while ($row_detalle = $stmt_detalle->fetch(PDO::FETCH_ASSOC)) {
-                    array_push($row["forDet"], $row_detalle);
+                    array_push($row["reqDet"], $row_detalle);
                 }
                 //AÑADIMOS TODA LA DATA FORMATEADA
                 array_push($result, $row);

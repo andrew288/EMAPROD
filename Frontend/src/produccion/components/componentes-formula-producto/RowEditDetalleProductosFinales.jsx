@@ -6,7 +6,7 @@ import { FilterAlmacen } from "./../../../components/ReferencialesFilters/Almace
 
 export const RowEditDetalleProductosFinales = ({
   detalle,
-  onDeleteItemRequisicion,
+  onDeleteItemProductoFinal,
   onChangeItemDetalle,
 }) => {
   const [disabledButton, setdisabledButton] = useState(true);
@@ -68,7 +68,7 @@ export const RowEditDetalleProductosFinales = ({
           </button>
           <button
             onClick={() => {
-              onDeleteItemRequisicion(detalle.idProdFin);
+              onDeleteItemProductoFinal(detalle.idProdFin);
             }}
             className="btn btn-danger"
           >

@@ -1,14 +1,14 @@
 import axios from 'axios';
 import config from '../.././../config';
 
-export const deleteDetalleFormula = async (idForDet) => {
+export const deleteDetalleFormulaProducto = async (idForProdTerDet) => {
     const domain = config.API_URL;
-    const path = '/produccion/formula/delete_detalle_formula.php';
+    const path = '/produccion/formula-producto/delete_detalle_formula_producto.php';
     const url = domain + path;
     const { data } = await axios.delete(url,
         {
             data: {
-                id: idForDet,
+                id: idForProdTerDet,
             },
         }
     );

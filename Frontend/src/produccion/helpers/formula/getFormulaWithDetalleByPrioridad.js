@@ -4,7 +4,7 @@ import config from '../.././../config';
 export const getFormulaWithDetalleByPrioridad = async (body) => {
 
     const domain = config.API_URL;
-    const path = '/molienda/formula/get_formula_formula_detalle_by_prioridad.php';
+    const path = '/produccion/formula/get_formula_formula_detalle_by_prioridad.php';
     const url = domain + path;
     const { data } = await axios.post(url, {
         ...body

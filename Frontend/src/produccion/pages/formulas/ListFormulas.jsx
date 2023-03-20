@@ -110,7 +110,6 @@ export const ListFormulas = () => {
         setdataFormulaTemp(resultSearch);
         break;
       case "filterNombreFormula":
-        console.log(terminoBusqueda);
         resultSearch = dataFormula.filter((element) => {
           if (
             element.nomFor
@@ -376,7 +375,7 @@ export const ListFormulas = () => {
                           {row.nomProd}
                         </TableCell>
                         <TableCell align="left">{row.nomFor}</TableCell>
-                        <TableCell align="left">{row.desTipFor}</TableCell>
+                        <TableCell align="left">{row.desForTip}</TableCell>
                         <TableCell align="left">{row.lotKgrFor}</TableCell>
                         <TableCell align="left">{row.fecCreFor}</TableCell>
                         <TableCell align="left">{row.fecActFor}</TableCell>

@@ -21,6 +21,8 @@ import { FilterAllProductos } from "./../../../components/ReferencialesFilters/P
 import { getFormulaProductoDetalleByProducto } from "../../helpers/formula_producto/getFormulaProductoDetalleByProducto";
 import { RowEditDetalleProductosFinales } from "../../components/componentes-formula-producto/RowEditDetalleProductosFinales";
 import { RowEditDetalleRequisicionProduccion } from "../../components/componentes-formula-producto/RowEditDetalleRequisicionProduccion";
+import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
+import { FilterAreaEncargada } from "./../../components/FilterAreaEncargada";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -32,7 +34,6 @@ export const CrearProduccionLote = () => {
   const [produccionLote, setproduccionLote] = useState({
     idProdt: 0, // producto intermedio
     idProdTip: 0, // tipo de produccion
-    esEnv: 0,
     codLotProd: "", // codigo de lote
     klgLotProd: 1500, // kilogramos del lote
     canLotProd: 1, // cantidad
@@ -47,7 +48,6 @@ export const CrearProduccionLote = () => {
   const {
     idProdt,
     idProdTip,
-    esEnv,
     codLotProd,
     klgLotProd,
     canLotProd,
@@ -68,6 +68,18 @@ export const CrearProduccionLote = () => {
 
   const { idProdFin, cantidadDeLote, cantidadDeProducto } =
     productoLoteProduccion;
+
+  // STATE PARA CONTROLAR LOS PRODUCTOS ADITIVOS A LAS REQUISICIONES DEL LOTE
+  const [productoRequisicionProduccion, setproductoRequisicionProduccion] =
+    useState({
+      idProdReq: 0,
+      cantidadRequisicion: 0,
+      idAre: 0,
+      idAlm: 0,
+    });
+
+  const { idProdReq, cantidadRequisicion, idAre, idAlm } =
+    productoRequisicionProduccion;
 
   // ESTADO PARA CONTROLAR EL FEEDBACK
   const [feedbackCreate, setfeedbackCreate] = useState(false);
@@ -98,6 +110,7 @@ export const CrearProduccionLote = () => {
     navigate(-1);
   };
 
+  // ******** DATOS DEL LOTE DE PRODUCCION ********
   // CONTROLADOR DE FORMULARIO
   const handledForm = ({ target }) => {
     const { name, value } = target;
@@ -124,15 +137,6 @@ export const CrearProduccionLote = () => {
     });
   };
 
-  // EVENTO DE ES SOLO ENVASADO
-  const onChangeEsEnvasado = (e, value) => {
-    const valueCheck = value ? 1 : 0;
-    setproduccionLote({
-      ...produccionLote,
-      esEnv: valueCheck,
-    });
-  };
-
   // ENVENTO DE FECHA INICIO PROGRAMADO
   const onAddFechaInicioProgramado = (newFecha) => {
     setproduccionLote({ ...produccionLote, fecProdIniProg: newFecha });
@@ -156,12 +160,114 @@ export const CrearProduccionLote = () => {
     });
   };
 
-  const handleInputsFilter = ({ target }) => {
+  const handleInputsProductosFinales = ({ target }) => {
     const { value, name } = target;
 
     setproductoLoteProduccion({
       ...productoLoteProduccion,
       [name]: value,
+    });
+  };
+
+  // ******* EVENTOS DEL FILTRO DE PRODUCTO REQUISICION *******
+  // MANEJADOR DE PRODUCTO
+  const onAddProductoRequisicionLoteProduccion = (value) => {
+    setproductoRequisicionProduccion({
+      ...productoRequisicionProduccion,
+      idProdReq: value.id,
+    });
+  };
+  // MANEJADOR DE INPUTS REQUISICION
+  const handleInputsProductosRequisicion = ({ target }) => {
+    const { value, name } = target;
+    setproductoRequisicionProduccion({
+      ...productoRequisicionProduccion,
+      [name]: value,
+    });
+  };
+
+  // MAJEADOR PARA AGREGAR EL AREA AL FILTRO
+  const handleAreaIdProductoRequisicion = ({ id }) => {
+    setproductoRequisicionProduccion({
+      ...productoRequisicionProduccion,
+      idAre: id,
+    });
+  };
+
+  const handleAddProductoRequisicionLote = async (e) => {
+    e.preventDefault();
+
+    if (idProdReq !== 0 && idAre !== 0 && cantidadRequisicion > 0.0) {
+      const itemFound = reqDetProdc.find(
+        (element) => element.idProd === idProdReq
+      );
+      if (itemFound) {
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error:
+            "Ya se agrego este producto a la requisicion",
+        });
+        handleClickFeeback();
+      } else {
+        const resultPeticion = await getMateriaPrimaById(idProdReq);
+        const { message_error, description_error, result } = resultPeticion;
+
+        if (message_error.length === 0) {
+          const { id, codProd, desCla, desSubCla, nomProd, simMed } = result[0];
+          // generamos nuestro detalle de formula
+          const detalleFormulaProducto = {
+            idProd: id,
+            idAre: idAre, // area
+            idAlm: 0, // almacen de orgien
+            codProd: codProd,
+            desCla: desCla,
+            desSubCla: desSubCla,
+            nomProd: nomProd,
+            simMed: simMed,
+            canForProDet: 1,
+            canReqProdLot: cantidadRequisicion, // cantidad
+          };
+
+          // seteamos el detalle en general de la formula
+          const dataDetalle = [...reqDetProdc, detalleFormulaProducto];
+
+          console.log(dataDetalle);
+          setproduccionLote({
+            ...produccionLote,
+            reqDetProdc: dataDetalle,
+          });
+        } else {
+          setfeedbackMessages({
+            style_message: "error",
+            feedback_description_error: description_error,
+          });
+          handleClickFeeback();
+        }
+      }
+    } else {
+      console.log(idProdReq, idAre, cantidadRequisicion);
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: "Asegurese de llenar los datos requeridos",
+      });
+      handleClickFeeback();
+    }
+  };
+
+  const handleDeleteItemRequisicionProduccion = (idItem) => {
+    // filtramos el elemento eliminado
+    const dataDetalleRequisicionProduccion = reqDetProdc.filter((element) => {
+      if (element.idProd !== idItem) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    // lo insertamos en el detalle
+    setproduccionLote({
+      ...produccionLote,
+      reqDetProdc: dataDetalleRequisicionProduccion,
     });
   };
 
@@ -186,8 +292,6 @@ export const CrearProduccionLote = () => {
         );
         const { message_error, description_error, result } = resultPeticion;
         if (message_error.length === 0) {
-          console.log(result[0]);
-
           const { id, idProdFin, nomProd, simMed, reqDet } = result[0]; // obtenemos la requisicion
           let equivalenteKilogramos = 0;
           // buscamos la requisicion de materia prima
@@ -229,19 +333,26 @@ export const CrearProduccionLote = () => {
               canKlg: cantidadklgLote,
             },
           ];
-          console.log(detalleProductosFinales);
 
           // ahora formamos el detalle de las requisiciones, se usa el numero de unidades
-          const detalleRequisicionesFormula = reqDet.map((element) => {
-            return {
-              ...element,
-              indexProdFin: nextIndex,
-              idProdFin: idProdFin,
-              canReqProdLot: parseFloat(
-                (parseFloat(element.canForProDet) * cantidadUnidades).toFixed(3)
-              ),
-            };
+          let detalleRequisicionesFormula = [];
+          reqDet.forEach((element) => {
+            if (element.idAre === 5 || element.idAre === 6) {
+              detalleRequisicionesFormula.push({
+                ...element,
+                indexProdFin: nextIndex,
+                idProdFin: idProdFin,
+                canReqProdLot: parseFloat(
+                  (parseFloat(element.canForProDet) * cantidadUnidades).toFixed(
+                    3
+                  )
+                ),
+              });
+            } else {
+              return;
+            }
           });
+          console.log(detalleRequisicionesFormula);
 
           const detalleRequisicion = [
             ...reqDetProdc,
@@ -254,8 +365,6 @@ export const CrearProduccionLote = () => {
             prodDetProdc: detalleProductosFinales,
             reqDetProdc: detalleRequisicion,
           });
-
-          console.log(detalleRequisicion);
         } else {
           setfeedbackMessages({
             style_message: "error",
@@ -274,24 +383,55 @@ export const CrearProduccionLote = () => {
     }
   };
 
+  // ELIMINAR UN PRODUCTO FINAL Y SU REQUISICION
+  const handleDeleteDetalleProducto = (idItem) => {
+    // filtramos el elemento eliminado
+    const dataDetalleProductoFinalProduccion = prodDetProdc.filter(
+      (element) => {
+        if (element.idProdFin !== idItem) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    );
+
+    const dataDetalleRequisicionProduccion = reqDetProdc.filter((element) => {
+      if (element.idProdFin !== idItem) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    // lo insertamos en el detalle
+    setproduccionLote({
+      ...produccionLote,
+      prodDetProdc: dataDetalleProductoFinalProduccion,
+      reqDetProdc: dataDetalleRequisicionProduccion,
+    });
+  };
+
   // CREAR LOTE DE PRODUCCION
   const crearProduccionLote = async () => {
-    const resultPeticion = await createProduccionLote(produccionLote);
-    const { message_error, description_error, result } = resultPeticion;
+    console.log(produccionLote);
+    // const resultPeticion = await createProduccionLote(produccionLote);
+    // const { message_error, description_error, result } = resultPeticion;
 
-    if (message_error.length === 0) {
-      // regresamos a la anterior vista
-      onNavigateBack();
-    } else {
-      // hubo error en la insercion
-      setfeedbackMessages({
-        style_message: "error",
-        feedback_description_error: description_error,
-      });
-      handleClickFeeback();
-      // habilitamos el boton de crear
-      setdisableButton(false);
-    }
+    // if (message_error.length === 0) {
+    //   // regresamos a la anterior vista
+    //   onNavigateBack();
+    // } else {
+    //   // hubo error en la insercion
+    //   setfeedbackMessages({
+    //     style_message: "error",
+    //     feedback_description_error: description_error,
+    //   });
+    //   handleClickFeeback();
+    // }
+
+    // habilitamos el boton de crear
+    setdisableButton(false);
   };
 
   // SUBMIT FORMULARIO DE REQUISICION (M-D)
@@ -465,8 +605,10 @@ export const CrearProduccionLote = () => {
             <div className="card-body">
               <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
                 {/* AGREGAR PRODUCTO */}
-                <div className="col-md-3">
-                  <label className="form-label">Producto</label>
+                <div className="col-md-5">
+                  <label className="form-label">
+                    Producto terminado o sub producto
+                  </label>
                   {/* <FilterAllProductos onNewInput={onProductoId} /> */}
                   <FilterAllProductos
                     onNewInput={onAddProductoFinalLoteProduccion}
@@ -476,18 +618,22 @@ export const CrearProduccionLote = () => {
                 <div className="col-md-2">
                   <label className="form-label">Cantidad de lote (kg)</label>
                   <TextField
+                    type="number"
+                    autoComplete="off"
                     size="small"
                     name="cantidadDeLote"
-                    onChange={handleInputsFilter}
+                    onChange={handleInputsProductosFinales}
                   />
                 </div>
                 {/* CANTIDAD DE PRRODUCTOS FINALES ESPERADOS */}
                 <div className="col-md-2">
                   <label className="form-label">Cantidad producto</label>
                   <TextField
+                    type="number"
+                    autoComplete="off"
                     size="small"
                     name="cantidadDeProducto"
-                    onChange={handleInputsFilter}
+                    onChange={handleInputsProductosFinales}
                   />
                 </div>
                 {/* BOTON AGREGAR PRODUCTO */}
@@ -549,6 +695,9 @@ export const CrearProduccionLote = () => {
                           <RowEditDetalleProductosFinales
                             key={row.idProdFin}
                             detalle={row}
+                            onDeleteItemProductoFinal={
+                              handleDeleteDetalleProducto
+                            }
                           />
                         );
                       })}
@@ -562,61 +711,52 @@ export const CrearProduccionLote = () => {
           <div className="card d-flex mt-4">
             <h6 className="card-header">Detalle de las requisiciones</h6>
             <div className="card-body">
-              <div className="card text-bg-primary d-flex mt-3">
-                <h6 className="card-header">Detalle materia prima</h6>
-                <div className="card-body">
-                  <Paper>
-                    <TableContainer>
-                      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                        <TableHead>
-                          <TableRow
-                            sx={{
-                              "& th": {
-                                color: "rgba(96, 96, 96)",
-                                backgroundColor: "#f5f5f5",
-                              },
-                            }}
-                          >
-                            <TableCell align="left" width={20}>
-                              <b>Item</b>
-                            </TableCell>
-                            <TableCell align="left" width={200}>
-                              <b>Nombre</b>
-                            </TableCell>
-                            <TableCell align="left" width={150}>
-                              <b>Almacen</b>
-                            </TableCell>
-                            <TableCell align="left" width={20}>
-                              <b>U.M</b>
-                            </TableCell>
-                            <TableCell align="left" width={20}>
-                              <b>Unidad</b>
-                            </TableCell>
-                            <TableCell align="left" width={150}>
-                              <b>Total</b>
-                            </TableCell>
-                            <TableCell align="left" width={150}>
-                              <b>Acciones</b>
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {reqDetProdc.map((row, i) => {
-                            if (row.idAre === 2 || row.idAre === 7) {
-                              return (
-                                <RowEditDetalleRequisicionProduccion
-                                  key={row.idProd}
-                                  detalle={row}
-                                />
-                              );
-                            }
-                          })}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Paper>
+              {/* AÑADIR PRODUCTOS ADICICONALES */}
+              <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
+                {/* AGREGAR PRODUCTO */}
+                <div className="col-md-5">
+                  <label className="form-label">Producto</label>
+                  {/* <FilterAllProductos onNewInput={onProductoId} /> */}
+                  <FilterAllProductos
+                    onNewInput={onAddProductoRequisicionLoteProduccion}
+                  />
                 </div>
-              </div>
+                {/* AGREGAR AREA */}
+                <div className="col-md-2">
+                  <label className="form-label">Area solicitante</label>
+                  <FilterAreaEncargada
+                    onNewInput={handleAreaIdProductoRequisicion}
+                  />
+                </div>
+                {/* KILOGRAMOS DE LOTE ASIGNADOS */}
+                <div className="col-md-2">
+                  <label className="form-label">Cantidad</label>
+                  <TextField
+                    size="small"
+                    name="cantidadRequisicion"
+                    onChange={handleInputsProductosRequisicion}
+                  />
+                </div>
+                {/* BOTON AGREGAR PRODUCTO */}
+                <div className="col-md-3 d-flex justify-content-end align-self-center ms-auto">
+                  <button
+                    onClick={handleAddProductoRequisicionLote}
+                    className="btn btn-primary"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      className="bi bi-plus-circle-fill me-2"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+                    </svg>
+                    Agregar
+                  </button>
+                </div>
+              </form>
               {/* DETALLE DE ENVASADO */}
               <div className="card text-bg-success d-flex mt-3">
                 <h6 className="card-header">Detalle envasado</h6>
@@ -663,6 +803,9 @@ export const CrearProduccionLote = () => {
                                 <RowEditDetalleRequisicionProduccion
                                   key={row.idProd}
                                   detalle={row}
+                                  onDeleteItemRequisicion={
+                                    handleDeleteItemRequisicionProduccion
+                                  }
                                 />
                               );
                             }
@@ -719,6 +862,9 @@ export const CrearProduccionLote = () => {
                                 <RowEditDetalleRequisicionProduccion
                                   key={row.idProd}
                                   detalle={row}
+                                  onDeleteItemRequisicion={
+                                    handleDeleteItemRequisicionProduccion
+                                  }
                                 />
                               );
                             }

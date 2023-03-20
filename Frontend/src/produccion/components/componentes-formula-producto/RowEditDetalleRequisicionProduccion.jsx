@@ -6,13 +6,12 @@ import { FilterAlmacen } from "./../../../components/ReferencialesFilters/Almace
 
 export const RowEditDetalleRequisicionProduccion = ({
   detalle,
-  onDeleteItemRequisicion,
   onChangeItemDetalle,
+  onDeleteItemRequisicion,
 }) => {
-  const [disabledButton, setdisabledButton] = useState(true);
+  const [disabledInputs, setdisabledInputs] = useState(true);
 
   const onChangeInput = ({ target }) => {
-    setdisabledButton(false);
     const { value, name } = target;
     console.log(value, name);
   };
@@ -40,17 +39,18 @@ export const RowEditDetalleRequisicionProduccion = ({
       </TableCell>
       <TableCell component="th" scope="row">
         <TextField
+          size="small"
+          disabled={disabledInputs}
           value={detalle.canReqProdLot}
           name={"canReqProdLot"}
           onChange={onChangeInput}
         />
       </TableCell>
-      <TableCell align="left">
+      <TableCell align="center">
         <div className="btn-toolbar">
           <button
-            disabled={disabledButton}
             onClick={() => {
-              // funcion de calcular nuevos valores
+              setdisabledInputs(!disabledInputs);
             }}
             className="btn btn-success me-2"
           >
@@ -67,7 +67,7 @@ export const RowEditDetalleRequisicionProduccion = ({
           </button>
           <button
             onClick={() => {
-              onDeleteItemRequisicion(detalle.idProdFin);
+              onDeleteItemRequisicion(detalle.idProd);
             }}
             className="btn btn-danger"
           >

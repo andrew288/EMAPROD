@@ -30,6 +30,7 @@ export const FilterAreaEncargada = ({ onNewInput, disabled = false }) => {
     <>
       <Autocomplete
         onChange={handledChange}
+        disableClearable
         disabled={disabled}
         options={result}
         getOptionLabel={(option) => option.label}
