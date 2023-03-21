@@ -14,7 +14,6 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import FechaPicker from "../../../components/Fechas/FechaPicker";
 import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
-import { createProduccionLote } from "./../../helpers/produccion_lote/createProduccionLote";
 import { Checkbox, TextField } from "@mui/material";
 import FechaPickerYear from "./../../../components/Fechas/FechaPickerYear";
 import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
@@ -23,6 +22,11 @@ import { RowEditDetalleProductosFinales } from "../../components/componentes-for
 import { RowEditDetalleRequisicionProduccion } from "../../components/componentes-formula-producto/RowEditDetalleRequisicionProduccion";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { FilterAreaEncargada } from "./../../components/FilterAreaEncargada";
+import { createProduccionLoteWithRequisiciones } from "./../../helpers/produccion_lote/createProduccionLoteWithRequisiciones";
+
+// IMPROTACIONES PARA LINEA DE PROGRESION
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -30,6 +34,8 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export const CrearProduccionLote = () => {
+  // ESTADO PARA LINEA DE PROGRESO
+  const [showLinearProgress, setshowLinearProgress] = useState(false);
   // ESTADO PARA LOS DATOS DE PRODUCCION LOTE
   const [produccionLote, setproduccionLote] = useState({
     idProdt: 0, // producto intermedio
@@ -218,7 +224,8 @@ export const CrearProduccionLote = () => {
           const detalleFormulaProducto = {
             idProd: id,
             idAre: idAre, // area
-            idAlm: 0, // almacen de orgien
+            idAlm: 1, // almacen de orgien
+            nomAlm: "Almacen Principal",
             codProd: codProd,
             desCla: desCla,
             desSubCla: desSubCla,
@@ -415,7 +422,15 @@ export const CrearProduccionLote = () => {
   // CREAR LOTE DE PRODUCCION
   const crearProduccionLote = async () => {
     console.log(produccionLote);
-    // const resultPeticion = await createProduccionLote(produccionLote);
+    // inicializamos el loader
+    setshowLinearProgress(true);
+
+    setTimeout(() => {}, 2000);
+    // const resultPeticion = await createProduccionLoteWithRequisiciones(
+    //   produccionLote
+    // );
+    // finalizamos el loader
+    setshowLinearProgress(false);
     // const { message_error, description_error, result } = resultPeticion;
 
     // if (message_error.length === 0) {
@@ -914,6 +929,13 @@ export const CrearProduccionLote = () => {
           {feedback_description_error}
         </Alert>
       </Snackbar>
+
+      {/* LINEAR PROGRESS */}
+      {showLinearProgress && (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress />
+        </Box>
+      )}
     </>
   );
 };
