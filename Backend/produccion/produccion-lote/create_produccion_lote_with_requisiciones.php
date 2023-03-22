@@ -16,10 +16,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $idProdTip = $data["idProdTip"]; // tipo de produccion
     $codTipProd = $data["codTipProd"]; // codigo de tipo de produccion
     $codLotProd = $data["codLotProd"]; // codigo de lote de produccion
-    $canLotProd = $data["canLotProd"]; // cantidad del lote
+    $canLotProd = intval($data["canLotProd"]); // cantidad del lote
     $klgLotProd = $data["klgLotProd"]; // peso del lote
     $fecProdIniProg = $data["fecProdIniProg"]; // fecha de inicio programado
     $fecProdFinProg = $data["fecProdFinProg"]; // fecha de fin programado
+    $fecVenLotProd = $data["fecVenLotProd"];
     $obsProd = $data["obsProd"]; // observaciones
     $reqDetProdc = $data["reqDetProdc"]; // requerimientos
     $prodDetProdc = $data["prodDetProdc"]; // producto finales programados
@@ -117,8 +118,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 canLotProd,
                 obsProd,
                 fecProdIniProg,
-                fecProdFinProg)
-                VALUES (?,?,?,?,?,?,?,$klgLotProd,$canLotProd,?,?,?);
+                fecProdFinProg,
+                fecVenLotProd)
+                VALUES (?,?,?,?,?,?,?,$klgLotProd,$canLotProd,?,?,?,?);
                 ";
             try {
                 // PREPARAMOS LA CONSULTA
@@ -133,6 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt_insert_produccion->bindParam(8, $obsProd, PDO::PARAM_STR);
                 $stmt_insert_produccion->bindParam(9, $fecProdIniProg, PDO::PARAM_STR);
                 $stmt_insert_produccion->bindParam(10, $fecProdFinProg, PDO::PARAM_STR);
+                $stmt_insert_produccion->bindParam(11, $fecVenLotProd, PDO::PARAM_STR);
                 $stmt_insert_produccion->execute();
 
                 // verificamos si se realizo la insercion del lote de produccion
@@ -273,7 +276,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     foreach ($reqDetMatPri as $row_detalle) {
                                         // extraemos los datos necesarios
                                         $idProdtMatPri = $row_detalle["idMatPri"];
-                                        $canReqDet = $row_detalle["canMatPriFor"];
+                                        $canReqDet = $row_detalle["canMatPriFor"] * $canLotProd;
 
                                         // generamos la query
                                         $sql_insert_requisicion_materia_prima_detalle =
@@ -396,7 +399,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                         $stmt_insert_requisicion_encajonado_detalle = $pdo->prepare($sql_insert_requisicion_encajonado_detalle);
                                         $stmt_insert_requisicion_encajonado_detalle->bindParam(1, $idProdtEnc, PDO::PARAM_INT);
-                                        $stmt_insert_requisicion_encajonado_detalle->bindParam(2, $idLastInsertReqEnv, PDO::PARAM_INT);
+                                        $stmt_insert_requisicion_encajonado_detalle->bindParam(2, $idLastInsertReqEnc, PDO::PARAM_INT);
                                         $stmt_insert_requisicion_encajonado_detalle->bindParam(3, $idReqDetEst, PDO::PARAM_INT);
                                         $stmt_insert_requisicion_encajonado_detalle->execute();
                                     }

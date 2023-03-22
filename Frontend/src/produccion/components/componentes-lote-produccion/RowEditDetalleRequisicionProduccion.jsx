@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import { TextField } from "@mui/material";
-import { FilterAlmacen } from "./../../../components/ReferencialesFilters/Almacen/FilterAlmacen";
+import { FilterAlmacen } from "../../../components/ReferencialesFilters/Almacen/FilterAlmacen";
 
 export const RowEditDetalleRequisicionProduccion = ({
   detalle,
@@ -43,7 +43,9 @@ export const RowEditDetalleRequisicionProduccion = ({
           disabled={disabledInputs}
           value={detalle.canReqProdLot}
           name={"canReqProdLot"}
-          onChange={onChangeInput}
+          onChange={(e) => {
+            onChangeItemDetalle(e, detalle.idProd);
+          }}
         />
       </TableCell>
       <TableCell align="center">

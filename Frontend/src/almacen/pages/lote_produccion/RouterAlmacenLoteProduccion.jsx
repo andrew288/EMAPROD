@@ -7,7 +7,7 @@ export const RouterAlmacenLoteProduccion = [
     element: <ListLoteProduccion />,
   },
   {
-    path: "/:id",
+    path: "view/:id",
     element: <ViewLoteProduccion />,
   },
 ];

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FilterTipoProduccion } from "./../../../components/ReferencialesFilters/TipoProduccion/FilterTipoProduccion";
 // IMPORTACIONES PARA TABLE MUI
@@ -18,8 +18,8 @@ import { Checkbox, TextField } from "@mui/material";
 import FechaPickerYear from "./../../../components/Fechas/FechaPickerYear";
 import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
 import { getFormulaProductoDetalleByProducto } from "../../helpers/formula_producto/getFormulaProductoDetalleByProducto";
-import { RowEditDetalleProductosFinales } from "../../components/componentes-formula-producto/RowEditDetalleProductosFinales";
-import { RowEditDetalleRequisicionProduccion } from "../../components/componentes-formula-producto/RowEditDetalleRequisicionProduccion";
+import { RowEditDetalleProductosFinales } from "./../../components/componentes-lote-produccion/RowEditDetalleProductosFinales";
+import { RowEditDetalleRequisicionProduccion } from "../../components/componentes-lote-produccion/RowEditDetalleRequisicionProduccion";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { FilterAreaEncargada } from "./../../components/FilterAreaEncargada";
 import { createProduccionLoteWithRequisiciones } from "./../../helpers/produccion_lote/createProduccionLoteWithRequisiciones";
@@ -36,6 +36,20 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 export const CrearProduccionLote = () => {
   // ESTADO PARA LINEA DE PROGRESO
   const [showLinearProgress, setshowLinearProgress] = useState(false);
+
+  // ESTADO DE KLG DISPONIBLES PARA LOTE PRODUCCION
+  const [cantidadLoteProduccion, setcantidadLoteProduccion] = useState({
+    totalUnidadesLoteProduccion: 0,
+    klgTotalLoteProduccion: 0,
+    klgDisponibleLoteProduccion: 0,
+  });
+
+  const {
+    totalUnidadesLoteProduccion,
+    klgTotalLoteProduccion,
+    klgDisponibleLoteProduccion,
+  } = cantidadLoteProduccion;
+
   // ESTADO PARA LOS DATOS DE PRODUCCION LOTE
   const [produccionLote, setproduccionLote] = useState({
     idProdt: 0, // producto intermedio
@@ -64,6 +78,14 @@ export const CrearProduccionLote = () => {
     reqDetProdc,
     prodDetProdc,
   } = produccionLote;
+
+  // useeffect change cantidad lote produccion
+  useEffect(() => {
+    setcantidadLoteProduccion({
+      ...cantidadLoteProduccion,
+      klgDisponibleLoteProduccion: parseInt(klgLotProd * canLotProd, 10),
+    });
+  }, [canLotProd]);
 
   // STATE PARA CONTROLAR LA AGREGACION DE PRODUCTOS FINALES DEL LOTE
   const [productoLoteProduccion, setproductoLoteProduccion] = useState({
@@ -175,7 +197,7 @@ export const CrearProduccionLote = () => {
     });
   };
 
-  // ******* EVENTOS DEL FILTRO DE PRODUCTO REQUISICION *******
+  // ******* MANEJADORES PARA EL ARREGLO DE REQUISICIONES DE LOTE DE PRODUCCION *******
   // MANEJADOR DE PRODUCTO
   const onAddProductoRequisicionLoteProduccion = (value) => {
     setproductoRequisicionProduccion({
@@ -200,6 +222,7 @@ export const CrearProduccionLote = () => {
     });
   };
 
+  // añadir un detalle
   const handleAddProductoRequisicionLote = async (e) => {
     e.preventDefault();
 
@@ -261,6 +284,7 @@ export const CrearProduccionLote = () => {
     }
   };
 
+  // eliminar un detalle
   const handleDeleteItemRequisicionProduccion = (idItem) => {
     // filtramos el elemento eliminado
     const dataDetalleRequisicionProduccion = reqDetProdc.filter((element) => {
@@ -278,7 +302,26 @@ export const CrearProduccionLote = () => {
     });
   };
 
-  // *********** MANEJADOR DE ACCIONES **********
+  // editar un detalle
+  const handleEditItemRequisicionProduccion = ({ target }, idItem) => {
+    const { value } = target;
+    const editFormDetalle = reqDetProdc.map((element) => {
+      if (element.idProd === idItem) {
+        return {
+          ...element,
+          canReqProdLot: value,
+        };
+      } else {
+        return element;
+      }
+    });
+    setproduccionLote({
+      ...produccionLote,
+      reqDetProdc: editFormDetalle,
+    });
+  };
+
+  // *********** MANEJADOR DE ACCIONES ARREGLO DE PRODUCTOS FINALES O SUBPRODUCTOS **********
   const handleAddProductoProduccionLote = async (e) => {
     e.preventDefault();
 
@@ -327,51 +370,78 @@ export const CrearProduccionLote = () => {
               )
             );
           }
-          const nextIndex = prodDetProdc.length + 1;
-          // ahora recien formamos el detalle
-          const detalleProductosFinales = [
-            ...prodDetProdc,
-            {
-              idProdFin,
-              index: nextIndex,
-              nomProd,
-              simMed,
-              canUnd: cantidadUnidades,
-              canKlg: cantidadklgLote,
-            },
-          ];
 
-          // ahora formamos el detalle de las requisiciones, se usa el numero de unidades
-          let detalleRequisicionesFormula = [];
-          reqDet.forEach((element) => {
-            if (element.idAre === 5 || element.idAre === 6) {
-              detalleRequisicionesFormula.push({
-                ...element,
-                indexProdFin: nextIndex,
-                idProdFin: idProdFin,
-                canReqProdLot: parseFloat(
-                  (parseFloat(element.canForProDet) * cantidadUnidades).toFixed(
-                    3
-                  )
-                ),
-              });
-            } else {
-              return;
-            }
-          });
-          console.log(detalleRequisicionesFormula);
+          // verificamos que la cantidad de klg no sobrepase lo permitido
+          const cantidadTotalDelLoteProduccion = parseFloat(
+            klgTotalLoteProduccion + cantidadklgLote
+          );
 
-          const detalleRequisicion = [
-            ...reqDetProdc,
-            ...detalleRequisicionesFormula,
-          ];
+          const cantidadTotalUnidadesDelLoteProduccion = parseInt(
+            totalUnidadesLoteProduccion + cantidadUnidades
+          );
 
-          // lo insertamos en el detalle
-          setproduccionLote({
-            ...produccionLote,
-            prodDetProdc: detalleProductosFinales,
-            reqDetProdc: detalleRequisicion,
-          });
+          if (cantidadTotalDelLoteProduccion > klgDisponibleLoteProduccion) {
+            setfeedbackMessages({
+              style_message: "warning",
+              feedback_description_error:
+                "Asegurese de que la asignancion de kg de lote sea menor a lo permitido",
+            });
+            handleClickFeeback();
+          } else {
+            // actualizamos la cantidad disponible
+            setcantidadLoteProduccion({
+              ...cantidadLoteProduccion,
+              klgTotalLoteProduccion: cantidadTotalDelLoteProduccion,
+              totalUnidadesLoteProduccion:
+                cantidadTotalUnidadesDelLoteProduccion,
+            });
+
+            // ahora recien formamos el detalle
+            const nextIndex = prodDetProdc.length + 1;
+            const detalleProductosFinales = [
+              ...prodDetProdc,
+              {
+                idProdFin,
+                index: nextIndex,
+                nomProd,
+                simMed,
+                canUnd: cantidadUnidades,
+                canKlg: cantidadklgLote,
+              },
+            ];
+
+            // ahora formamos el detalle de las requisiciones, se usa el numero de unidades
+            let detalleRequisicionesFormula = [];
+            reqDet.forEach((element) => {
+              if (element.idAre === 5 || element.idAre === 6) {
+                detalleRequisicionesFormula.push({
+                  ...element,
+                  indexProdFin: nextIndex,
+                  idProdFin: idProdFin,
+                  canReqProdLot: parseFloat(
+                    (
+                      parseFloat(element.canForProDet) * cantidadUnidades
+                    ).toFixed(3)
+                  ), // la cantidad unitaria * cantidad de unidades * cantidad de lotes
+                });
+              } else {
+                return;
+              }
+            });
+            console.log(detalleRequisicionesFormula);
+
+            const detalleRequisicion = [
+              ...reqDetProdc,
+              ...detalleRequisicionesFormula,
+            ];
+
+            // lo insertamos en el detalle
+            setproduccionLote({
+              ...produccionLote,
+              prodDetProdc: detalleProductosFinales,
+              reqDetProdc: detalleRequisicion,
+            });
+          }
         } else {
           setfeedbackMessages({
             style_message: "error",
@@ -392,16 +462,22 @@ export const CrearProduccionLote = () => {
 
   // ELIMINAR UN PRODUCTO FINAL Y SU REQUISICION
   const handleDeleteDetalleProducto = (idItem) => {
+    let totalKlgProductoFinal = 0;
+    let totalUnidadesProductoFinal = 0;
     // filtramos el elemento eliminado
     const dataDetalleProductoFinalProduccion = prodDetProdc.filter(
       (element) => {
         if (element.idProdFin !== idItem) {
           return true;
         } else {
+          totalKlgProductoFinal = element.canKlg;
+          totalUnidadesProductoFinal = element.canUnd;
           return false;
         }
       }
     );
+
+    console.log(totalKlgProductoFinal, totalUnidadesProductoFinal);
 
     const dataDetalleRequisicionProduccion = reqDetProdc.filter((element) => {
       if (element.idProdFin !== idItem) {
@@ -409,6 +485,17 @@ export const CrearProduccionLote = () => {
       } else {
         return false;
       }
+    });
+
+    // descontamos del total acumulado de klg
+    setcantidadLoteProduccion({
+      ...cantidadLoteProduccion,
+      klgTotalLoteProduccion: parseFloat(
+        klgTotalLoteProduccion - totalKlgProductoFinal
+      ),
+      totalUnidadesLoteProduccion: parseInt(
+        totalUnidadesLoteProduccion - totalUnidadesProductoFinal
+      ),
     });
 
     // lo insertamos en el detalle
@@ -422,28 +509,22 @@ export const CrearProduccionLote = () => {
   // CREAR LOTE DE PRODUCCION
   const crearProduccionLote = async () => {
     console.log(produccionLote);
-    // inicializamos el loader
-    setshowLinearProgress(true);
+    const resultPeticion = await createProduccionLoteWithRequisiciones(
+      produccionLote
+    );
+    const { message_error, description_error, result } = resultPeticion;
 
-    setTimeout(() => {}, 2000);
-    // const resultPeticion = await createProduccionLoteWithRequisiciones(
-    //   produccionLote
-    // );
-    // finalizamos el loader
-    setshowLinearProgress(false);
-    // const { message_error, description_error, result } = resultPeticion;
-
-    // if (message_error.length === 0) {
-    //   // regresamos a la anterior vista
-    //   onNavigateBack();
-    // } else {
-    //   // hubo error en la insercion
-    //   setfeedbackMessages({
-    //     style_message: "error",
-    //     feedback_description_error: description_error,
-    //   });
-    //   handleClickFeeback();
-    // }
+    if (message_error.length === 0) {
+      // regresamos a la anterior vista
+      onNavigateBack();
+    } else {
+      // hubo error en la insercion
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
 
     // habilitamos el boton de crear
     setdisableButton(false);
@@ -720,6 +801,17 @@ export const CrearProduccionLote = () => {
                   </Table>
                 </TableContainer>
               </Paper>
+              {/* DETALLES DE LA CANTIDAD */}
+              <div className="mt-4 d-flex justify-content-end align-items-center">
+                <p className="me-4 p-2 bg-dark-subtle">
+                  <b>Total unidades: </b>
+                  {totalUnidadesLoteProduccion}
+                </p>
+                <p className="p-2 bg-danger-subtle">
+                  <b>Total peso: </b>
+                  {klgTotalLoteProduccion} / {klgDisponibleLoteProduccion}
+                </p>
+              </div>
             </div>
           </div>
           {/* DATOS DEL DETALLE */}
@@ -821,6 +913,9 @@ export const CrearProduccionLote = () => {
                                   onDeleteItemRequisicion={
                                     handleDeleteItemRequisicionProduccion
                                   }
+                                  onChangeItemDetalle={
+                                    handleEditItemRequisicionProduccion
+                                  }
                                 />
                               );
                             }
@@ -879,6 +974,9 @@ export const CrearProduccionLote = () => {
                                   detalle={row}
                                   onDeleteItemRequisicion={
                                     handleDeleteItemRequisicionProduccion
+                                  }
+                                  onChangeItemDetalle={
+                                    handleEditItemRequisicionProduccion
                                   }
                                 />
                               );
