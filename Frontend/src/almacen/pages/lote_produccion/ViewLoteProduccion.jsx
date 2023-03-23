@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { RowRequisicionLoteProduccion } from "../../components/componentes-lote-produccion/RowRequisicionLoteProduccion";
 import { viewProduccionRequisicionDetalleById } from "./../../helpers/lote-produccion/viewProduccionRequisicionDetalleById";
+// IMPORTACIONES PARA EL FEEDBACK
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+// IMPORTACIONES PARA EL PROGRESS LINEAR
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  CircularProgress,
+} from "@mui/material";
+import { createSalidasStockAutomaticas } from "./../../helpers/lote-produccion/createSalidasStockAutomaticas";
+
+// CONFIGURACION DE FEEDBACK
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 export const ViewLoteProduccion = () => {
   // RECIBIMOS LOS PARAMETROS DE LA URL
@@ -31,6 +49,72 @@ export const ViewLoteProduccion = () => {
     prodLotReq,
   } = produccionRequisicionDetalle;
 
+  // ***** FUNCIONES Y STATES PARA FEEDBACK *****
+  // ESTADO PARA CONTROLAR EL FEEDBACK
+  const [feedbackCreate, setfeedbackCreate] = useState(false);
+  const [feedbackMessages, setfeedbackMessages] = useState({
+    style_message: "",
+    feedback_description_error: "",
+  });
+  const { style_message, feedback_description_error } = feedbackMessages;
+
+  // MANEJADORES DE FEEDBACK
+  const handleClickFeeback = () => {
+    setfeedbackCreate(true);
+  };
+
+  const handleCloseFeedback = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setfeedbackCreate(false);
+  };
+
+  // MANEJADORES DE PROGRESS LINEAR CON DIALOG
+  const [loading, setLoading] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  // ***** FUNCIONES PARA EL MANEJO DE ACCIONES *****
+  const openLoader = () => {
+    setOpenDialog(true);
+    setLoading(true);
+  };
+  const closeLoader = () => {
+    setLoading(false);
+    setOpenDialog(false);
+  };
+  const onCreateSalidasStock = async (requisicion_detalle) => {
+    // console.log(requisicion_detalle);
+    // abrimos el loader
+    openLoader();
+    const resultPeticion = await createSalidasStockAutomaticas(
+      requisicion_detalle
+    );
+
+    const { message_error, description_error, result } = resultPeticion;
+    if (message_error.length === 0) {
+      // volvemos a consultar la data
+      obtenerDataProduccionRequisicionesDetalle();
+      // cerramos modal
+      closeLoader();
+      // mostramos el feedback
+      setfeedbackMessages({
+        style_message: "success",
+        feedback_description_error: "Se cumplio la requisicion exitosamente",
+      });
+      handleClickFeeback();
+    } else {
+      // cerramos el modal
+      closeLoader();
+      // mostramos el feedback
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+  };
+
   // funcion para obtener la produccion con sus requisiciones y su detalle
   const obtenerDataProduccionRequisicionesDetalle = async () => {
     const resultPeticion = await viewProduccionRequisicionDetalleById(id);
@@ -38,7 +122,11 @@ export const ViewLoteProduccion = () => {
     if (message_error.length === 0) {
       setproduccionRequisicionDetalle(result[0]);
     } else {
-      console.log("NO SE PUDO");
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
     }
   };
 
@@ -145,9 +233,50 @@ export const ViewLoteProduccion = () => {
               </div>
             </div>
           </div>
-          {/* DATOS DE  */}
+          {/* DATOS DE LAS REQUISICIONES */}
+          <div className="card d-flex mt-4">
+            <h6 className="card-header">Requisiciones</h6>
+            <div className="card-body">
+              {prodLotReq.map((element) => {
+                return (
+                  <RowRequisicionLoteProduccion
+                    key={element.id}
+                    onCreateSalidasStock={onCreateSalidasStock}
+                    requisicion={element}
+                  />
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* LOADER CON DIALOG */}
+      <Dialog open={openDialog}>
+        <DialogTitle>Cargando...</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Por favor, espere mientras se procesa la solicitud.
+          </DialogContentText>
+          <CircularProgress />
+        </DialogContent>
+      </Dialog>
+
+      {/* FEEDBACK AGREGAR MATERIA PRIMA */}
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={feedbackCreate}
+        autoHideDuration={6000}
+        onClose={handleCloseFeedback}
+      >
+        <Alert
+          onClose={handleCloseFeedback}
+          severity={style_message}
+          sx={{ width: "100%" }}
+        >
+          {feedback_description_error}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

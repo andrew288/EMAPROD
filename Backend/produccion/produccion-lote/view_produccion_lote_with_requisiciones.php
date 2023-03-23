@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     FROM requisicion r
                     JOIN requisicion_estado as re on re.id = r.idReqEst
                     JOIN area as ar on ar.id = r.idAre
-                    WHERE r.idProdc = ?";
+                    WHERE r.idProdc = ? ORDER BY id ASC";
 
                     $stmt_requisicion = $pdo->prepare($sql_requisicion);
                     $stmt_requisicion->bindParam(1, $idProdLot, PDO::PARAM_INT);
@@ -70,14 +70,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $row_requisicion["reqDet"] = [];
                         $sql_requisicion_detalle =
                             "SELECT
+                            rd.id,
                             rd.idProdt,
                             p.nomProd,
+                            me.simMed,
                             rd.idReq,
                             rd.idReqDetEst,
                             rde.desReqDetEst,
                             rd.canReqDet
                             FROM requisicion_detalle rd
                             JOIN producto as p on p.id = rd.idProdt
+                            JOIN medida as me on me.id = p.idMed
                             JOIN requisicion_detalle_estado as rde on rde.id = rd.idReqDetEst
                             WHERE rd.idReq = ?";
 
