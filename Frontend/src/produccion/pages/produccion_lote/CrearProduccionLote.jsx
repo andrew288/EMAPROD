@@ -275,7 +275,6 @@ export const CrearProduccionLote = () => {
         }
       }
     } else {
-      console.log(idProdReq, idAre, cantidadRequisicion);
       setfeedbackMessages({
         style_message: "warning",
         feedback_description_error: "Asegurese de llenar los datos requeridos",

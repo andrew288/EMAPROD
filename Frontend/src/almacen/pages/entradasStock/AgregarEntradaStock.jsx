@@ -17,9 +17,9 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { createEntradaStock } from "./../../helpers/entradas-stock/createEntradaStock";
-import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
 import { FilterProveedor } from "./../../../components/ReferencialesFilters/Proveedor/FilterProveedor";
 import { FilterAlmacen } from "./../../../components/ReferencialesFilters/Almacen/FilterAlmacen";
+import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -208,7 +208,7 @@ const AgregarEntradaStock = () => {
             </div>
             {/* SEARCH NAME PRODUCTO */}
             <div className="col-md-3">
-              <FilterMateriaPrima onNewInput={onAddCodProd} />
+              <FilterAllProductos onNewInput={onAddCodProd} />
             </div>
             <div className="col-md-3 form-check d-flex justify-content-start align-items-center">
               <label className="form-check-label">Para seleccionar</label>

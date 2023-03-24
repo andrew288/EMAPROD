@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { RowRequisicionLoteProduccion } from "../../components/componentes-lote-produccion/RowRequisicionLoteProduccion";
 import { viewProduccionRequisicionDetalleById } from "./../../helpers/lote-produccion/viewProduccionRequisicionDetalleById";
 // IMPORTACIONES PARA EL FEEDBACK
@@ -139,6 +139,22 @@ export const ViewLoteProduccion = () => {
       <div className="container-fluid mx-3">
         <h1 className="mt-4 text-center">Produccion Lote</h1>
         <div className="row mt-4 mx-4">
+          {/* Acciones */}
+          <div className="card d-flex mb-4">
+            <h6 className="card-header">Acciones</h6>
+            <div className="card-body align-self-center">
+              <Link className="btn btn-primary">Agregar productos finales</Link>
+              <Link
+                to={`/almacen/produccion-devoluciones/crear?idLotProdc=${id}`}
+                className="btn btn-warning ms-3"
+              >
+                Registrar devoluciones
+              </Link>
+              <Link className="btn btn-danger ms-3">
+                Registrar agregaciones
+              </Link>
+            </div>
+          </div>
           {/* Datos de produccion */}
           <div className="card d-flex">
             <h6 className="card-header">Datos de produccion</h6>

@@ -10,7 +10,6 @@ export const RowRequisicionDetalleLoteProduccion = ({
     <TableRow>
       <TableCell>{detalle.nomProd}</TableCell>
       <TableCell>
-        {" "}
         <span
           className={
             detalle.idReqDetEst === 1

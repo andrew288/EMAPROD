@@ -9,6 +9,7 @@ import { RouterRequisicionSeleccion } from "./../pages/requisicion_seleccion/Rou
 import { RouterReportesAlmacen } from "./../pages/reportes/RouterReportesAlmacen";
 import { RouterAlmacenProductosLote } from "./../pages/productos_lote/RouterAlmacenProductosLote";
 import { RouterAlmacenLoteProduccion } from "../pages/lote_produccion/RouterAlmacenLoteProduccion";
+import { RouterAlmacenDevoluciones } from "./../pages/devoluciones/RouterAlmacenDevoluciones";
 
 export const RouterAlmacen = [
   {
@@ -59,5 +60,10 @@ export const RouterAlmacen = [
     path: "lote-produccion",
     element: <LayoutModulo />,
     children: RouterAlmacenLoteProduccion,
+  },
+  {
+    path: "produccion-devoluciones",
+    element: <LayoutModulo />,
+    children: RouterAlmacenDevoluciones,
   },
 ];
