@@ -41,7 +41,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bindParam(1, $idLotProdc, PDO::PARAM_INT);
             $stmt->execute(); // ejecutamos
             // Recorremos los resultados
+            $sql_detalle_devoluciones_lote_produccion = "";
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $row["detDev"] = [];
+                $sql_detalle_devoluciones_lote_produccion =
+                    "SELECT 
+                pdv.id,
+                pdv.idProdc,
+                pdv.idProdt,
+                p.nomProd,
+                pdv.idAlm,
+                al.nomAlm,
+                pdv.idProdDevMot,
+                pdm.desProdDevMot,
+                pdv.canProdDev
+                FROM produccion_devolucion as pdv
+                JOIN producto as p ON p.id = pdv.idProdt
+                JOIN almacen as al ON al.id = pdv.idAlm
+                JOIN produccion_devolucion_motivo as pdm ON pdm.id = pdv.idProdDevMot
+                WHERE pdv.idProdc = ?";
+
+                try {
+                    $stmt_detalle_devoluciones_lote_produccion = $pdo->prepare($sql_detalle_devoluciones_lote_produccion);
+                    $stmt_detalle_devoluciones_lote_produccion->bindParam(1, $idLotProdc, PDO::PARAM_INT);
+                    $stmt_detalle_devoluciones_lote_produccion->execute();
+
+                    while ($row_detalle_agregacion_lote_produccion = $stmt_detalle_devoluciones_lote_produccion->fetch(PDO::FETCH_ASSOC)) {
+                        array_push($row["detDev"], $row_detalle_agregacion_lote_produccion);
+                    }
+                } catch (PDOException $e) {
+                    $message_error = "ERROR INTERNO EN LA CONSULTA DE AGREGACIONES";
+                    $description_error = $e->getMessage();
+                }
                 array_push($result, $row);
             }
         } catch (PDOException $e) {

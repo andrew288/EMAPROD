@@ -41,7 +41,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bindParam(1, $idLotProdc, PDO::PARAM_INT);
             $stmt->execute(); // ejecutamos
             // Recorremos los resultados
+            $sql_detalle_agregaciones_lote_produccion = "";
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $row["detAgr"] = [];
+                $sql_detalle_agregaciones_lote_produccion =
+                    "SELECT 
+                pa.id,
+                pa.idProdc,
+                pa.idProdt,
+                p.nomProd,
+                pa.idAlm,
+                al.nomAlm,
+                pa.idProdAgrMot,
+                pam.desProdAgrMot,
+                pa.canProdAgr
+                FROM produccion_agregacion as pa
+                JOIN producto as p ON p.id = pa.idProdt
+                JOIN almacen as al ON al.id = pa.idAlm
+                JOIN produccion_agregacion_motivo as pam ON pam.id = pa.idProdAgrMot
+                WHERE pa.idProdc = ?";
+
+                try {
+                    $stmt_detalle_agregaciones_lote_produccion = $pdo->prepare($sql_detalle_agregaciones_lote_produccion);
+                    $stmt_detalle_agregaciones_lote_produccion->bindParam(1, $idLotProdc, PDO::PARAM_INT);
+                    $stmt_detalle_agregaciones_lote_produccion->execute();
+
+                    while ($row_detalle_agregacion_lote_produccion = $stmt_detalle_agregaciones_lote_produccion->fetch(PDO::FETCH_ASSOC)) {
+                        array_push($row["detAgr"], $row_detalle_agregacion_lote_produccion);
+                    }
+                } catch (PDOException $e) {
+                    $message_error = "ERROR INTERNO EN LA CONSULTA DE AGREGACIONES";
+                    $description_error = $e->getMessage();
+                }
                 array_push($result, $row);
             }
         } catch (PDOException $e) {
