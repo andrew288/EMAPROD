@@ -5,6 +5,7 @@ import TableRow from "@mui/material/TableRow";
 export const RowRequisicionDetalleLoteProduccion = ({
   detalle,
   onCreateSalidasStock,
+  onUpdateDetalleRequisicion,
 }) => {
   return (
     <TableRow>
@@ -26,7 +27,7 @@ export const RowRequisicionDetalleLoteProduccion = ({
         <div className="btn-toolbar">
           <button
             onClick={() => {
-              console.log("OPCION DE EDICION DESHABILITADA");
+              onUpdateDetalleRequisicion(detalle);
             }}
             disabled={detalle.idReqDetEst !== 1 ? true : false}
             className="btn btn-danger me-2"

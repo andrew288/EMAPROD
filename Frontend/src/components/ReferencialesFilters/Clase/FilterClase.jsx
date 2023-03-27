@@ -1,26 +1,24 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import { getMotivoAgregaciones } from "./../../../helpers/Referenciales/motivo_agregaciones/getMotivoAgregaciones";
+import { getClases } from "./../../../helpers/Referenciales/clase/getClases";
 
-export const FilterMotivoAgregacion = ({ onNewInput, disabled }) => {
+export const FilterClase = ({ onNewInput }) => {
   const [result, setResult] = useState([]);
 
-  const obtenerDataMotivoAgregacion = async () => {
-    const resultPeticion = await getMotivoAgregaciones();
+  const obtenerDataClases = async () => {
+    const resultPeticion = await getClases();
     const formatSelect = resultPeticion.map((element) => {
       return {
         value: element.id,
-        label: element.desProdAgrMot,
-        id: element.id,
+        label: `${element.desCla}`,
       };
     });
     setResult(formatSelect);
   };
 
   useEffect(() => {
-    obtenerDataMotivoAgregacion();
+    obtenerDataClases();
   }, []);
 
   const handledChange = (event, value) => {
@@ -30,7 +28,6 @@ export const FilterMotivoAgregacion = ({ onNewInput, disabled }) => {
   return (
     <>
       <Autocomplete
-        disabled={disabled}
         options={result}
         disableClearable
         getOptionLabel={(option) => option.label}

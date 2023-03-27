@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+//IMPORTACIONES PARA DIALOG DELETE
+import Button from "@mui/material/Button";
+// IMPORTACIONES DE HELPER
 import { RowRequisicionLoteProduccion } from "../../components/componentes-lote-produccion/RowRequisicionLoteProduccion";
 import { viewProduccionRequisicionDetalleById } from "./../../helpers/lote-produccion/viewProduccionRequisicionDetalleById";
 // IMPORTACIONES PARA EL FEEDBACK
@@ -7,13 +10,16 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 // IMPORTACIONES PARA EL PROGRESS LINEAR
 import {
+  DialogActions,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   CircularProgress,
+  TextField,
 } from "@mui/material";
 import { createSalidasStockAutomaticas } from "./../../helpers/lote-produccion/createSalidasStockAutomaticas";
+import { DialogUpdateDetalleRequisicion } from "../../components/componentes-lote-produccion/DialogUpdateDetalleRequisicion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -70,7 +76,11 @@ export const ViewLoteProduccion = () => {
     setfeedbackCreate(false);
   };
 
-  // MANEJADORES DE PROGRESS LINEAR CON DIALOG
+  // ****** MANEJADORES DE DIALOG UPDATE CANTIDAD *******
+  const [showDialogUpdate, setshowDialogUpdate] = useState(false);
+  const [itemSeleccionado, setItemSeleccionado] = useState(null);
+
+  // ****** MANEJADORES DE PROGRESS LINEAR CON DIALOG ********
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -83,6 +93,10 @@ export const ViewLoteProduccion = () => {
     setLoading(false);
     setOpenDialog(false);
   };
+
+  // ******* ACCIONES DE DETALLES DE REQUISICION *********
+
+  // crear salidas correspondientes
   const onCreateSalidasStock = async (requisicion_detalle) => {
     // console.log(requisicion_detalle);
     // abrimos el loader
@@ -113,6 +127,53 @@ export const ViewLoteProduccion = () => {
       });
       handleClickFeeback();
     }
+  };
+
+  // actualizar detalle de requisicion
+  const updateDetalleRequisicion = async (itemUpdate, cantidadNueva) => {
+    const { id, idAre } = itemUpdate;
+    let body = {
+      id: id,
+      idAre: idAre,
+      cantidadNueva: cantidadNueva,
+    };
+    console.log(body);
+    // const resultPeticion = await updateDetalleRequisciion(body);
+    // const { message_error, description_error } = resultPeticion;
+    // if (message_error.length === 0) {
+    //   // cerramos el modal
+    //   closeDialogUpdateDetalleRequisicion();
+    //   // mostramos el feedback
+    //   setfeedbackMessages({
+    //     style_message: "success",
+    //     feedback_description_error:
+    //       "Se actualizó el detalle de la requisicion con exito",
+    //   });
+    //   handleClickFeeback();
+    // } else {
+    //   // cerramos el modal
+    //   closeDialogUpdateDetalleRequisicion();
+    //   // mostramos el feedback
+    //   setfeedbackMessages({
+    //     style_message: "error",
+    //     feedback_description_error: description_error,
+    //   });
+    //   handleClickFeeback();
+    // }
+  };
+
+  // mostrar y setear dialog update de detalle de requisicion
+  const showAndSetDialogUpdateDetalleRequisicion = (item) => {
+    console.log(item);
+    // establecemos los valores
+    setItemSeleccionado(item);
+    // abrimos el modal
+    setshowDialogUpdate(true);
+  };
+
+  const closeDialogUpdateDetalleRequisicion = () => {
+    setshowDialogUpdate(false);
+    setItemSeleccionado(null);
   };
 
   // funcion para obtener la produccion con sus requisiciones y su detalle
@@ -150,7 +211,10 @@ export const ViewLoteProduccion = () => {
               >
                 Registrar devoluciones
               </Link>
-              <Link className="btn btn-danger ms-3">
+              <Link
+                to={`/almacen/produccion-agregaciones/crear?idLotProdc=${id}`}
+                className="btn btn-danger ms-3"
+              >
                 Registrar agregaciones
               </Link>
             </div>
@@ -258,6 +322,9 @@ export const ViewLoteProduccion = () => {
                   <RowRequisicionLoteProduccion
                     key={element.id}
                     onCreateSalidasStock={onCreateSalidasStock}
+                    onUpdateDetalleRequisicion={
+                      showAndSetDialogUpdateDetalleRequisicion
+                    }
                     requisicion={element}
                   />
                 );
@@ -266,6 +333,15 @@ export const ViewLoteProduccion = () => {
           </div>
         </div>
       </div>
+
+      {/* DIALOG UPDATE DETALLE REQUISICION */}
+      {showDialogUpdate && (
+        <DialogUpdateDetalleRequisicion
+          itemUpdate={itemSeleccionado}
+          onClose={closeDialogUpdateDetalleRequisicion}
+          onUpdateItemSelected={updateDetalleRequisicion}
+        />
+      )}
 
       {/* LOADER CON DIALOG */}
       <Dialog open={openDialog}>

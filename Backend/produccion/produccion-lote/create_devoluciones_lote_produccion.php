@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         // ACTUALIZAMOS
                         $sql_update_almacen_stock =
                             "UPDATE almacen_stock 
-                            SET canSto = canSto + $canProdDev, canStoDis + $canProdDev
+                            SET canSto = canSto + $canProdDev, canStoDis = canStoDis + $canProdDev
                             WHERE idProd = ? AND idAlm = ?";
 
                         try {

@@ -35,7 +35,7 @@ const NavAlmacen = () => {
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              {/* REQUISICIONES */}
+              {/* PRODUCCION */}
               <li className="nav-item dropdown">
                 <button
                   className="btn btn-lg dropdown-toggle"
@@ -43,85 +43,19 @@ const NavAlmacen = () => {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  Requisiciones
+                  Lote produccion
                 </button>
                 <ul className="dropdown-menu">
                   <li>
                     <Link
                       className="dropdown-item"
-                      to={"/almacen/requisicion-molienda"}
-                    >
-                      Molienda
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to={"/almacen/requisicion-seleccion"}
-                    >
-                      Seleccion
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-
-              {/* MATERIAS PRIMAS */}
-              <li className="nav-item dropdown">
-                <button
-                  className="btn btn-lg dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Materia Prima
-                </button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to={"/almacen/materia-prima"}
+                      to={"/almacen/lote-produccion"}
                     >
                       Administrar
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to={"/almacen/materia-prima/crear"}
-                    >
-                      Crear
-                    </Link>
-                  </li>
                 </ul>
               </li>
-
-              {/* PROVEEDORES */}
-              <li className="nav-item dropdown">
-                <button
-                  className="btn btn-lg dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Proveedor
-                </button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to={"/almacen/proveedor"}>
-                      Administrar
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to={"/almacen/proveedor/crear"}
-                    >
-                      Crear
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-
               {/* ENTRADAS STOCK */}
               <li className="nav-item dropdown">
                 <button
@@ -151,6 +85,92 @@ const NavAlmacen = () => {
                   </li>
                 </ul>
               </li>
+              {/* REQUISICION SELECCION */}
+              <li className="nav-item dropdown">
+                <button
+                  className="btn btn-lg dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Requisicion seleccion
+                </button>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/almacen/requisicion-seleccion"}
+                    >
+                      Administrar
+                    </Link>
+                  </li>
+                  {/* <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/almacen/entradas-stock/crear"}
+                    >
+                      Crear
+                    </Link>
+                  </li> */}
+                </ul>
+              </li>
+
+              {/* MATERIAS PRIMAS */}
+              {/* <li className="nav-item dropdown">
+                <button
+                  className="btn btn-lg dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Materia Prima
+                </button>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/almacen/materia-prima"}
+                    >
+                      Administrar
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/almacen/materia-prima/crear"}
+                    >
+                      Crear
+                    </Link>
+                  </li>
+                </ul>
+              </li> */}
+
+              {/* PROVEEDORES */}
+              {/* <li className="nav-item dropdown">
+                <button
+                  className="btn btn-lg dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Proveedor
+                </button>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link className="dropdown-item" to={"/almacen/proveedor"}>
+                      Administrar
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to={"/almacen/proveedor/crear"}
+                    >
+                      Crear
+                    </Link>
+                  </li>
+                </ul>
+              </li> */}
             </ul>
             <ul className="navbar-nav d-none d-lg-flex ml-2 order-3">
               <li className="nav-item">

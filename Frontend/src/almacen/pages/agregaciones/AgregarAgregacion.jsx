@@ -13,27 +13,26 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-
-// HELPERS
-import { getProduccionLoteWithDevolucionesById } from "./../../../produccion/helpers/produccion_lote/getProduccionLoteWithDevolucionesById";
-import { RowDetalleDevolucionLoteProduccion } from "./../../components/componentes-devoluciones/RowDetalleDevolucionLoteProduccion";
+import { getProduccionLoteWithAgregacionesById } from "./../../../produccion/helpers/produccion_lote/getProduccionLoteWithAgregacionesById";
 import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
 import { TextField } from "@mui/material";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
-import { RowDetalleDevolucionLoteProduccionEdit } from "../../components/componentes-devoluciones/RowDetalleDevolucionLoteProduccionEdit";
-import { createDevolucionesLoteProduccion } from "./../../helpers/devoluciones-lote-produccion/createDevolucionesLoteProduccion";
+import { RowDetalleAgregacionLoteProduccion } from "./../../components/componentes-agregaciones/RowDetalleAgregacionLoteProduccion";
+import { RowDetalleAgregacionLoteProduccionEdit } from "./../../components/componentes-agregaciones/RowDetalleAgregacionLoteProduccionEdit";
+import { FilterAreaEncargada } from "./../../../produccion/components/FilterAreaEncargada";
+import { createAgregacionesLoteProduccion } from "./../../helpers/agregaciones-lote-produccion/createAgregacionesLoteProduccion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export const AgregarDevolucion = () => {
+export const AgregarAgregacion = () => {
   const location = useLocation();
   const { idLotProdc = "" } = queryString.parse(location.search);
 
   // ESTADOS PARA LA DATA DE DEVOLUCIONES
-  const [devolucionesProduccionLote, setdevolucionesProduccionLote] = useState({
+  const [agregacionesProduccionLote, setagregacionesProduccionLote] = useState({
     id: 0,
     canLotProd: 0,
     codLotProd: "",
@@ -45,7 +44,7 @@ export const AgregarDevolucion = () => {
     idProdt: 0,
     klgLotProd: "",
     nomProd: "",
-    detDev: [],
+    detAgr: [],
   });
 
   const {
@@ -57,21 +56,21 @@ export const AgregarDevolucion = () => {
     fecVenLotProd,
     klgLotProd,
     nomProd,
-    detDev,
-  } = devolucionesProduccionLote;
+    detAgr,
+  } = agregacionesProduccionLote;
 
-  const [detalleProductosDevueltos, setdetalleProductosDevueltos] = useState(
+  const [detalleProductosAgregados, setdetalleProductosAgregados] = useState(
     []
   );
 
   // STATES PARA AGREGAR PRODUCTOS
-  const [productoDevuelto, setproductoDevuelto] = useState({
-    idProdDev: 0,
-    cantidadDevuelta: 0.0,
-    idProdDevMot: 0,
+  const [productoAgregado, setproductoAgregado] = useState({
+    idProdAgr: 0,
+    cantidadAgregada: 0.0,
+    idAreaEncargada: 0,
   });
 
-  const { idProdDev, cantidadDevuelta } = productoDevuelto;
+  const { idProdAgr, cantidadAgregada, idAreaEncargada } = productoAgregado;
 
   // ************ ESTADO PARA CONTROLAR EL FEEDBACK **************
   const [feedbackCreate, setfeedbackCreate] = useState(false);
@@ -104,36 +103,36 @@ export const AgregarDevolucion = () => {
 
   // ******** MANEJADORES PARA EL ARREGLO DE DEVOLUCIONES ******
   // MANEJADOR DE PRODUCTO
-  const onAddProductoDevuelto = (value) => {
-    setproductoDevuelto({
-      ...productoDevuelto,
-      idProdDev: value.id,
+  const onAddProductoAgregado = (value) => {
+    setproductoAgregado({
+      ...productoAgregado,
+      idProdAgr: value.id,
     });
   };
 
-  // MANEJADOR DE MOTIVO DE DEVOLUCION
-  const onAddMotivoDevolucion = (value) => {
-    setproductoDevuelto({
-      ...productoDevuelto,
-      idProdDevMot: value.id,
+  // MANEJADOR DE AREA ENCARGADA
+  const onAddAreaEncargada = (value) => {
+    setproductoAgregado({
+      ...productoAgregado,
+      idAreaEncargada: value.id,
     });
   };
 
   // MANEJADOR DE CANTIDAD
-  const handledFormCantidadDevuelta = ({ target }) => {
+  const handledFormcantidadAgregada = ({ target }) => {
     const { name, value } = target;
-    setproductoDevuelto({
-      ...productoDevuelto,
+    setproductoAgregado({
+      ...productoAgregado,
       [name]: value,
     });
   };
 
   // ACCION DE AÑADIR UN PRODUCTO A DEVOLVER AL DETALLE
-  const handleAddProductoDevuelto = async (e) => {
+  const handleAddproductoAgregado = async (e) => {
     e.preventDefault();
-    if (idProdDev !== 0 && cantidadDevuelta > 0.0) {
-      const itemFound = detalleProductosDevueltos.find(
-        (element) => element.idProdt === idProdDev
+    if (idProdAgr !== 0 && cantidadAgregada > 0.0 && idAreaEncargada !== 0) {
+      const itemFound = detalleProductosAgregados.find(
+        (element) => element.idProdt === idProdAgr
       );
 
       if (itemFound) {
@@ -143,7 +142,7 @@ export const AgregarDevolucion = () => {
         });
         handleClickFeeback();
       } else {
-        const resultPeticion = await getMateriaPrimaById(idProdDev);
+        const resultPeticion = await getMateriaPrimaById(idProdAgr);
         const { message_error, description_error, result } = resultPeticion;
         if (message_error.length === 0) {
           const {
@@ -158,19 +157,20 @@ export const AgregarDevolucion = () => {
           const detalle = {
             idProdc: id, // lote de produccion asociado
             idProdt: idProd, // producto
-            idProdDevMot: 0, // motivo de devolucion
+            idProdAgrMot: 0, // motivo de devolucion
+            idAre: idAreaEncargada,
             codProd: codProd, // codigo de producto
             desCla: desCla, // clase del producto
             desSubCla: desSubCla, // subclase del producto
             nomProd: nomProd, // nombre del producto
             simMed: simMed, // medida del producto
-            canProdDev: cantidadDevuelta, // cantidad devuelta
+            canProdAgr: cantidadAgregada, // cantidad devuelta
           };
           console.log(detalle);
 
           // seteamos el detalle
-          const dataDetalle = [...detalleProductosDevueltos, detalle];
-          setdetalleProductosDevueltos(dataDetalle);
+          const dataDetalle = [...detalleProductosAgregados, detalle];
+          setdetalleProductosAgregados(dataDetalle);
         } else {
           setfeedbackMessages({
             style_message: "error",
@@ -189,45 +189,45 @@ export const AgregarDevolucion = () => {
   };
 
   // ACCION PARA EDITAR CAMPOS EN DETALLE DE PRODUCTO DEVUELTO
-  const handleChangeInputProductoDevuelto = async ({ target }, idItem) => {
+  const handleChangeInputProductoAgregado = async ({ target }, idItem) => {
     const { value } = target;
-    const editFormDetalle = detalleProductosDevueltos.map((element) => {
+    const editFormDetalle = detalleProductosAgregados.map((element) => {
       if (element.idProdt === idItem) {
         return {
           ...element,
-          canProdDev: value,
+          canProdAgr: value,
         };
       } else {
         return element;
       }
     });
-    setdetalleProductosDevueltos(editFormDetalle);
+    setdetalleProductosAgregados(editFormDetalle);
   };
 
   // ACCION PARA CAMBIAR EL MOTIVO DEL DETALLE DE UN PRODUCTO DEVUELTO
-  const handleChangeMotivoDevolucionProductoDevuelto = async (
-    idProdDevMot,
+  const handleChangeMotivoAgregacionProductoAgregado = async (
+    idProdAgrMot,
     idItem
   ) => {
-    const editFormDetalle = detalleProductosDevueltos.map((element) => {
+    const editFormDetalle = detalleProductosAgregados.map((element) => {
       if (element.idProdt === idItem) {
         return {
           ...element,
-          idProdDevMot: idProdDevMot,
+          idProdAgrMot: idProdAgrMot,
         };
       } else {
         return element;
       }
     });
 
-    setdetalleProductosDevueltos(editFormDetalle);
+    setdetalleProductosAgregados(editFormDetalle);
   };
 
   // ACCION PARA ELIMINA DEL DETALLE UN PRODUCTO DEVUELTO
-  const handleDeleteProductoDevuelto = async (idItem) => {
+  const handleDeleteProductoAgregado = async (idItem) => {
     console.log(idItem);
     // filtramos el elemento eliminado
-    const dataDetalleProductosDevueltos = detalleProductosDevueltos.filter(
+    const datadetalleProductosAgregados = detalleProductosAgregados.filter(
       (element) => {
         if (element.idProdt !== idItem) {
           return true;
@@ -238,20 +238,20 @@ export const AgregarDevolucion = () => {
     );
 
     // establecemos el detalle
-    setdetalleProductosDevueltos(dataDetalleProductosDevueltos);
+    setdetalleProductosAgregados(datadetalleProductosAgregados);
   };
 
   // FUNCION PARA TRAES DATOS DE PRODUCCION LOTE
-  const traerDatosProduccionLoteWithDevoluciones = async () => {
+  const traerDatosProduccionLoteWithAgregaciones = async () => {
     if (idLotProdc.length !== 0) {
-      const resultPeticion = await getProduccionLoteWithDevolucionesById(
+      const resultPeticion = await getProduccionLoteWithAgregacionesById(
         idLotProdc
       );
       console.log(resultPeticion);
       const { message_error, description_error, result } = resultPeticion;
 
       if (message_error.length === 0) {
-        setdevolucionesProduccionLote(result[0]);
+        setagregacionesProduccionLote(result[0]);
       } else {
         setfeedbackMessages({
           style_message: "error",
@@ -263,10 +263,10 @@ export const AgregarDevolucion = () => {
   };
 
   // ********** SUBMIT DE DEVOLUCIONES ***********
-  const crearDevolucionesLoteProduccion = async () => {
-    console.log(detalleProductosDevueltos);
-    const resultPeticion = await createDevolucionesLoteProduccion(
-      detalleProductosDevueltos
+  const crearAgregacionesLoteProduccion = async () => {
+    console.log(detalleProductosAgregados);
+    const resultPeticion = await createAgregacionesLoteProduccion(
+      detalleProductosAgregados
     );
     console.log(resultPeticion);
     const { message_error, description_error } = resultPeticion;
@@ -284,13 +284,13 @@ export const AgregarDevolucion = () => {
     setdisableButton(false);
   };
 
-  const handleSubmitDevolucionesLoteProduccion = (e) => {
+  const handleSubmitAgregacionesLoteProduccion = (e) => {
     e.preventDefault();
-    if (detalleProductosDevueltos.length === 0) {
+    if (detalleProductosAgregados.length === 0) {
     } else {
       // hacemos una verificacio de los motivos
-      const validMotivoDevolucion = detalleProductosDevueltos.find(
-        (element) => element.idProdDevMot === 0
+      const validMotivoDevolucion = detalleProductosAgregados.find(
+        (element) => element.idProdAgrMot === 0
       );
 
       if (validMotivoDevolucion) {
@@ -298,26 +298,26 @@ export const AgregarDevolucion = () => {
         setfeedbackMessages({
           style_message: "warning",
           feedback_description_error:
-            "Asegurese de asignar el motivo de la devolucion para cada item",
+            "Asegurese de asignar el motivo de la agregacion para cada item",
         });
         handleClickFeeback();
       } else {
         setdisableButton(true);
         // crear devolucion
-        crearDevolucionesLoteProduccion();
+        crearAgregacionesLoteProduccion();
       }
     }
   };
 
   useEffect(() => {
     // TRAEMOS LA DATA DE REQUSICION DETALLE
-    traerDatosProduccionLoteWithDevoluciones();
+    traerDatosProduccionLoteWithAgregaciones();
   }, []);
 
   return (
     <>
       <div className="container-fluid px-4">
-        <h1 className="mt-4 text-center">Registrar devoluciones</h1>
+        <h1 className="mt-4 text-center">Registrar agregacion</h1>
         <div className="row mt-4 mx-4">
           {/* Datos de produccion */}
           <div className="card d-flex">
@@ -416,7 +416,7 @@ export const AgregarDevolucion = () => {
 
           {/* DEVOLUCIONES ASOCIADAS AL LOTE DE PRODUCCION */}
           <div className="card d-flex mt-4">
-            <h6 className="card-header">Devoluciones registradas</h6>
+            <h6 className="card-header">Agregaciones registradas</h6>
             <div className="card-body">
               <div className="mb-3 row">
                 <Paper>
@@ -449,8 +449,8 @@ export const AgregarDevolucion = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {detDev.map((row, i) => (
-                          <RowDetalleDevolucionLoteProduccion
+                        {detAgr.map((row, i) => (
+                          <RowDetalleAgregacionLoteProduccion
                             key={row.id}
                             detalle={row}
                           />
@@ -465,13 +465,18 @@ export const AgregarDevolucion = () => {
 
           {/* AGREGAR PRODUCTOS AL DETALLE  */}
           <div className="card d-flex mt-4">
-            <h6 className="card-header">Detalle de devoluciones</h6>
+            <h6 className="card-header">Detalle de agregaciones</h6>
             <div className="card-body">
               <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
                 {/* AGREGAR PRODUCTO */}
                 <div className="col-md-5">
-                  <label className="form-label">Producto devuelto</label>
-                  <FilterAllProductos onNewInput={onAddProductoDevuelto} />
+                  <label className="form-label">Producto agregado</label>
+                  <FilterAllProductos onNewInput={onAddProductoAgregado} />
+                </div>
+                {/* AREA ENCARGADA */}
+                <div className="col-md-2">
+                  <label className="form-label">Area</label>
+                  <FilterAreaEncargada onNewInput={onAddAreaEncargada} />
                 </div>
                 {/* CANTIDAD DE PRRODUCTOS FINALES ESPERADOS */}
                 <div className="col-md-2">
@@ -480,14 +485,14 @@ export const AgregarDevolucion = () => {
                     type="number"
                     autoComplete="off"
                     size="small"
-                    name="cantidadDevuelta"
-                    onChange={handledFormCantidadDevuelta}
+                    name="cantidadAgregada"
+                    onChange={handledFormcantidadAgregada}
                   />
                 </div>
                 {/* BOTON AGREGAR PRODUCTO */}
                 <div className="col-md-3 d-flex justify-content-end align-self-center ms-auto">
                   <button
-                    onClick={handleAddProductoDevuelto}
+                    onClick={handleAddproductoAgregado}
                     className="btn btn-primary"
                   >
                     <svg
@@ -505,58 +510,131 @@ export const AgregarDevolucion = () => {
                 </div>
               </form>
               <div>
-                <Paper>
-                  <TableContainer>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                      <TableHead>
-                        <TableRow
-                          sx={{
-                            "& th": {
-                              color: "rgba(96, 96, 96)",
-                              backgroundColor: "#f5f5f5",
-                            },
-                          }}
-                        >
-                          <TableCell align="left" width={200}>
-                            <b>Nombre</b>
-                          </TableCell>
-                          <TableCell align="left" width={100}>
-                            <b>Clase</b>
-                          </TableCell>
-                          <TableCell align="left" width={20}>
-                            <b>U.M</b>
-                          </TableCell>
-                          <TableCell align="left" width={170}>
-                            <b>Motivo devolucion</b>
-                          </TableCell>
-                          <TableCell align="left" width={120}>
-                            <b>Cantidad</b>
-                          </TableCell>
-                          <TableCell align="left" width={120}>
-                            <b>Acciones</b>
-                          </TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {detalleProductosDevueltos.map((row, i) => {
-                          return (
-                            <RowDetalleDevolucionLoteProduccionEdit
-                              key={row.idProdt}
-                              detalle={row}
-                              onChangeInputDetalle={
-                                handleChangeInputProductoDevuelto
+                {/* DETALLE ENVASADO */}
+                <div className="card text-bg-success d-flex">
+                  <h6 className="card-header">Detalle envasado</h6>
+                  <div className="card-body">
+                    <Paper>
+                      <TableContainer>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                          <TableHead>
+                            <TableRow
+                              sx={{
+                                "& th": {
+                                  color: "rgba(96, 96, 96)",
+                                  backgroundColor: "#f5f5f5",
+                                },
+                              }}
+                            >
+                              <TableCell align="left" width={200}>
+                                <b>Nombre</b>
+                              </TableCell>
+                              <TableCell align="left" width={100}>
+                                <b>Clase</b>
+                              </TableCell>
+                              <TableCell align="left" width={20}>
+                                <b>U.M</b>
+                              </TableCell>
+                              <TableCell align="left" width={170}>
+                                <b>Motivo agregacion</b>
+                              </TableCell>
+                              <TableCell align="left" width={120}>
+                                <b>Cantidad</b>
+                              </TableCell>
+                              <TableCell align="left" width={120}>
+                                <b>Acciones</b>
+                              </TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {detalleProductosAgregados.map((row, i) => {
+                              if (row.idAre === 5) {
+                                return (
+                                  <RowDetalleAgregacionLoteProduccionEdit
+                                    key={row.idProdt}
+                                    detalle={row}
+                                    onChangeInputDetalle={
+                                      handleChangeInputProductoAgregado
+                                    }
+                                    onChangeMotivoAgregacion={
+                                      handleChangeMotivoAgregacionProductoAgregado
+                                    }
+                                    onDeleteItemDetalle={
+                                      handleDeleteProductoAgregado
+                                    }
+                                  />
+                                );
                               }
-                              onChangeMotivoDevolucion={
-                                handleChangeMotivoDevolucionProductoDevuelto
+                            })}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Paper>
+                  </div>
+                </div>
+
+                {/* DETALLE ENCAJONADO */}
+                <div className="card text-bg-warning d-flex mt-4">
+                  <h6 className="card-header">Detalle encajonado</h6>
+                  <div className="card-body">
+                    <Paper>
+                      <TableContainer>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                          <TableHead>
+                            <TableRow
+                              sx={{
+                                "& th": {
+                                  color: "rgba(96, 96, 96)",
+                                  backgroundColor: "#f5f5f5",
+                                },
+                              }}
+                            >
+                              <TableCell align="left" width={200}>
+                                <b>Nombre</b>
+                              </TableCell>
+                              <TableCell align="left" width={100}>
+                                <b>Clase</b>
+                              </TableCell>
+                              <TableCell align="left" width={20}>
+                                <b>U.M</b>
+                              </TableCell>
+                              <TableCell align="left" width={170}>
+                                <b>Motivo agregacion</b>
+                              </TableCell>
+                              <TableCell align="left" width={120}>
+                                <b>Cantidad</b>
+                              </TableCell>
+                              <TableCell align="left" width={120}>
+                                <b>Acciones</b>
+                              </TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {detalleProductosAgregados.map((row, i) => {
+                              if (row.idAre === 6) {
+                                return (
+                                  <RowDetalleAgregacionLoteProduccionEdit
+                                    key={row.idProdt}
+                                    detalle={row}
+                                    onChangeInputDetalle={
+                                      handleChangeInputProductoAgregado
+                                    }
+                                    onChangeMotivoAgregacion={
+                                      handleChangeMotivoAgregacionProductoAgregado
+                                    }
+                                    onDeleteItemDetalle={
+                                      handleDeleteProductoAgregado
+                                    }
+                                  />
+                                );
                               }
-                              onDeleteItemDetalle={handleDeleteProductoDevuelto}
-                            />
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Paper>
+                            })}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Paper>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -572,7 +650,7 @@ export const AgregarDevolucion = () => {
             <button
               type="submit"
               disabled={disableButton}
-              onClick={handleSubmitDevolucionesLoteProduccion}
+              onClick={handleSubmitAgregacionesLoteProduccion}
               className="btn btn-primary"
             >
               Guardar

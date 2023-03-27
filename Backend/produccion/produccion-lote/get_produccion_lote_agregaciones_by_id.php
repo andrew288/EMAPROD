@@ -50,6 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 pa.idProdc,
                 pa.idProdt,
                 p.nomProd,
+                me.simMed,
                 pa.idAlm,
                 al.nomAlm,
                 pa.idProdAgrMot,
@@ -57,6 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 pa.canProdAgr
                 FROM produccion_agregacion as pa
                 JOIN producto as p ON p.id = pa.idProdt
+                JOIN medida as me ON me.id =  p.idMed
                 JOIN almacen as al ON al.id = pa.idAlm
                 JOIN produccion_agregacion_motivo as pam ON pam.id = pa.idProdAgrMot
                 WHERE pa.idProdc = ?";

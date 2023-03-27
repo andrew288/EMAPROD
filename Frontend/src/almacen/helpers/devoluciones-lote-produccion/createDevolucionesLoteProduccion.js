@@ -8,7 +8,7 @@ export const createDevolucionesLoteProduccion = async (body) => {
     const url = domain + path;
 
     const { data } = await axios.post(url, {
-        detAgrLotProd: body
+        detDevLotProd: body
     });
     return data;
 }

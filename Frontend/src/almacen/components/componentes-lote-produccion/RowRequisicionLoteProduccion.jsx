@@ -12,6 +12,7 @@ import Paper from "@mui/material/Paper";
 export const RowRequisicionLoteProduccion = ({
   requisicion,
   onCreateSalidasStock,
+  onUpdateDetalleRequisicion,
 }) => {
   return (
     <div className="card d-flex mb-4">
@@ -133,6 +134,9 @@ export const RowRequisicionLoteProduccion = ({
                           key={row.id}
                           detalle={{ ...row, idAre: requisicion.idAre }}
                           onCreateSalidasStock={onCreateSalidasStock}
+                          onUpdateDetalleRequisicion={
+                            onUpdateDetalleRequisicion
+                          }
                         />
                       );
                     })}

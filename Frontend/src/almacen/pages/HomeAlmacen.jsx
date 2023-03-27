@@ -11,22 +11,7 @@ const HomeAlmacen = () => {
         <section className="pt-4">
           <div className="container px-lg-5">
             <div className="row gx-lg-5">
-              <div className="col-lg-6 col-xxl-4 mb-5">
-                <div className="card bg-light border-0 h-100">
-                  <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
-                    <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
-                      <i className="bi bi-collection"></i>
-                    </div>
-                    <h2 className="fs-4 fw-bold">Requisiciones Molienda</h2>
-                    <Link
-                      to="/almacen/requisicion-molienda"
-                      className="btn btn-primary"
-                    >
-                      Ingresar
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              {/* REQUISICIONES SELECCION */}
               <div className="col-lg-6 col-xxl-4 mb-5">
                 <div className="card bg-light border-0 h-100">
                   <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
@@ -43,6 +28,7 @@ const HomeAlmacen = () => {
                   </div>
                 </div>
               </div>
+              {/* ENTRADAS DE STOCK */}
               <div className="col-lg-6 col-xxl-4 mb-5">
                 <div className="card bg-light border-0 h-100">
                   <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
@@ -59,6 +45,7 @@ const HomeAlmacen = () => {
                   </div>
                 </div>
               </div>
+              {/* REPORTES ALMACEN */}
               <div className="col-lg-6 col-xxl-4 mb-5">
                 <div className="card bg-light border-0 h-100">
                   <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
@@ -72,22 +59,7 @@ const HomeAlmacen = () => {
                   </div>
                 </div>
               </div>
-              <div className="col-lg-6 col-xxl-4 mb-5">
-                <div className="card bg-light border-0 h-100">
-                  <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
-                    <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
-                      <i className="bi bi-collection"></i>
-                    </div>
-                    <h2 className="fs-4 fw-bold">Productos lote</h2>
-                    <Link
-                      to="/almacen/productos-lote"
-                      className="btn btn-primary"
-                    >
-                      Ingresar
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              {/* LOTE PRODUCCION */}
               <div className="col-lg-6 col-xxl-4 mb-5">
                 <div className="card bg-light border-0 h-100">
                   <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
@@ -97,6 +69,23 @@ const HomeAlmacen = () => {
                     <h2 className="fs-4 fw-bold">Lote produccion</h2>
                     <Link
                       to="/almacen/lote-produccion"
+                      className="btn btn-primary"
+                    >
+                      Ingresar
+                    </Link>
+                  </div>
+                </div>
+              </div>
+              {/* STOCK ALMACENES */}
+              <div className="col-lg-6 col-xxl-4 mb-5">
+                <div className="card bg-light border-0 h-100">
+                  <div className="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                    <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                      <i className="bi bi-collection"></i>
+                    </div>
+                    <h2 className="fs-4 fw-bold">Stock almacenes</h2>
+                    <Link
+                      to="/almacen/stock-almacen"
                       className="btn btn-primary"
                     >
                       Ingresar

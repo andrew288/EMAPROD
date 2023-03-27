@@ -295,8 +295,10 @@ export const ActualizarFormula = () => {
 
   // Traer datos de la formula y su detalle
   const traerDatosFormulaDetalle = async () => {
+    console.log(idFor);
     // realizamos la peticion
     const resultPeticion = await getFormulaWithDetalleById(idFor);
+    console.log(resultPeticion);
     const { message_error, description_error, result } = resultPeticion;
     if (message_error.length === 0) {
       setformula({
