@@ -20,8 +20,8 @@ export const RowProductosAgregadosProduccion = ({ detalle }) => {
       </TableCell>
       <TableCell align="left">{detalle.simMed}</TableCell>
       <TableCell align="left">{detalle.desCla}</TableCell>
-      <TableCell align="left">{detalle.desSubCla}</TableCell>
-      <TableCell align="left">{detalle.canDis}</TableCell>
+      <TableCell align="left">{detalle.canTotProgProdFin}</TableCell>
+      <TableCell align="left">{detalle.canTotIngProdFin}</TableCell>
     </TableRow>
   );
 };

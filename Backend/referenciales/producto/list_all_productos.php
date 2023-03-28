@@ -16,12 +16,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         M.idMed,
         ME.simMed,
         M.nomProd,
-        M.codProd2,
         M.esMatPri,
         M.esProFin,
-        M.esProProd
+        M.esProProd,
+        M.esEnvEnc
         FROM producto M
-        LEFT JOIN medida ME ON M.idMed = ME.id
+        JOIN medida ME ON M.idMed = ME.id
         ";
 
         try {

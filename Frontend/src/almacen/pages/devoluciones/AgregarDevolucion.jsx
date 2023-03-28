@@ -287,6 +287,12 @@ export const AgregarDevolucion = () => {
   const handleSubmitDevolucionesLoteProduccion = (e) => {
     e.preventDefault();
     if (detalleProductosDevueltos.length === 0) {
+      // MANEJAMOS FORMULARIOS INCOMPLETOS
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: "No has agregado items al detalle",
+      });
+      handleClickFeeback();
     } else {
       // hacemos una verificacio de los motivos
       const validMotivoDevolucion = detalleProductosDevueltos.find(

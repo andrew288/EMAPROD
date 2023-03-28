@@ -7,7 +7,7 @@ export const RouterAlmacenProductosLote = [
     element: <ListProductosLoteProduccion />,
   },
   {
-    path: "agregar/:id",
+    path: "crear",
     element: <AgregarProductosLoteProduccion />,
   },
 ];

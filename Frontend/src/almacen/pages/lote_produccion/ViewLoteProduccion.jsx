@@ -203,7 +203,12 @@ export const ViewLoteProduccion = () => {
           <div className="card d-flex mb-4">
             <h6 className="card-header">Acciones</h6>
             <div className="card-body align-self-center">
-              <Link className="btn btn-primary">Agregar productos finales</Link>
+              <Link
+                to={`/almacen/productos-lote/crear?idLotProdc=${id}`}
+                className="btn btn-primary"
+              >
+                Agregar productos finales
+              </Link>
               <Link
                 to={`/almacen/produccion-devoluciones/crear?idLotProdc=${id}`}
                 className="btn btn-warning ms-3"

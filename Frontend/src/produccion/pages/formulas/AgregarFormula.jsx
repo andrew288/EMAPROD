@@ -246,7 +246,6 @@ export const AgregarFormula = () => {
 
   // FUNCION PARA CREAR FORMULARIO
   const crearFormula = async () => {
-    // console.log(formula);
     const { message_error, description_error } = await createFormulaWithDetalle(
       formula
     );

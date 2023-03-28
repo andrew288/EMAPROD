@@ -11,7 +11,7 @@ export const FilterAllProductos = ({ onNewInput }) => {
     const resultPeticion = await getAllProductos();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.codProd2,
+        value: element.id,
         label: element.nomProd,
         id: element.id,
       };
@@ -32,7 +32,13 @@ export const FilterAllProductos = ({ onNewInput }) => {
       <Autocomplete
         options={result}
         disableClearable
-        getOptionLabel={(option) => option.label}
+        renderOption={(props, option) => {
+          return (
+            <li {...props} key={option.id}>
+              {option.label}
+            </li>
+          );
+        }}
         onChange={handledChange}
         renderInput={(params) => <TextField {...params} size="small" />}
       />

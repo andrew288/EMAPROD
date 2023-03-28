@@ -118,7 +118,7 @@ export const ListFormulaPorProducto = () => {
               {/* BOTON AGREGAR FORMULA */}
               <div className="col-6">
                 <Link
-                  to={"/produccion/formula/crear"}
+                  to={"/produccion/formula-producto/crear"}
                   className="btn btn-primary d-inline-flex justify-content-end align-items-center"
                 >
                   <svg
