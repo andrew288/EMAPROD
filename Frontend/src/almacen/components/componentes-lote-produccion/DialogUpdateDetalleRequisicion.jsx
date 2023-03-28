@@ -37,20 +37,15 @@ export const DialogUpdateDetalleRequisicion = ({
             </button>
           </div>
           <div className="modal-body">
-            <p className="fw-bolder text-danger">
+            <b className="fw-bolder text-danger d-block mb-2">
               ¿Quieres actualizar este detalle?
-            </p>
-            <p>
-              <b className="me-2">Materia Prima:</b>
+            </b>
+              <b className="me-2 d-block">Materia Prima:</b>
               {itemUpdate.nomProd}
-            </p>
-            <p>
-              <b className="me-2">Cantidad:</b>
+              <b className="me-2 d-block mt-2">Cantidad:</b>
               {itemUpdate.canReqDet}
-              <span className="ms-2">{itemUpdate.itemUpdateUM}</span>
-            </p>
-            <p>
-              <b className="me-2">Nueva cantidad</b>
+              <span className="ms-2">{itemUpdate.simMed}</span>
+              <b className="me-2 d-block mt-2">Nueva cantidad</b>
               <TextField
                 value={inputValue}
                 onChange={handleInputValue}
@@ -58,7 +53,20 @@ export const DialogUpdateDetalleRequisicion = ({
                 type="number"
                 autoComplete="off"
               />
-            </p>
+            {/* ¿Quieres actualizar este detalle?
+            <b className="me-2">Materia Prima:</b>
+              {itemUpdate.nomProd}
+              <b className="me-2">Cantidad:</b>
+              {itemUpdate.canReqDet}
+              <span className="ms-2">{itemUpdate.itemUpdateUM}</span>
+              <b className="me-2">Nueva cantidad</b>
+              <TextField
+                value={inputValue}
+                onChange={handleInputValue}
+                size="small"
+                type="number"
+                autoComplete="off"
+              /> */}
           </div>
           <div className="modal-footer">
             <button

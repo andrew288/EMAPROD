@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import { createSalidasStockAutomaticas } from "./../../helpers/lote-produccion/createSalidasStockAutomaticas";
 import { DialogUpdateDetalleRequisicion } from "../../components/componentes-lote-produccion/DialogUpdateDetalleRequisicion";
+import { updateProduccionDetalleRequisicion } from "../../helpers/lote-produccion/updateProduccionDetalleRequisicion";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -98,7 +99,6 @@ export const ViewLoteProduccion = () => {
 
   // crear salidas correspondientes
   const onCreateSalidasStock = async (requisicion_detalle) => {
-    // console.log(requisicion_detalle);
     // abrimos el loader
     openLoader();
     const resultPeticion = await createSalidasStockAutomaticas(
@@ -129,42 +129,8 @@ export const ViewLoteProduccion = () => {
     }
   };
 
-  // actualizar detalle de requisicion
-  const updateDetalleRequisicion = async (itemUpdate, cantidadNueva) => {
-    const { id, idAre } = itemUpdate;
-    let body = {
-      id: id,
-      idAre: idAre,
-      cantidadNueva: cantidadNueva,
-    };
-    console.log(body);
-    // const resultPeticion = await updateDetalleRequisciion(body);
-    // const { message_error, description_error } = resultPeticion;
-    // if (message_error.length === 0) {
-    //   // cerramos el modal
-    //   closeDialogUpdateDetalleRequisicion();
-    //   // mostramos el feedback
-    //   setfeedbackMessages({
-    //     style_message: "success",
-    //     feedback_description_error:
-    //       "Se actualizó el detalle de la requisicion con exito",
-    //   });
-    //   handleClickFeeback();
-    // } else {
-    //   // cerramos el modal
-    //   closeDialogUpdateDetalleRequisicion();
-    //   // mostramos el feedback
-    //   setfeedbackMessages({
-    //     style_message: "error",
-    //     feedback_description_error: description_error,
-    //   });
-    //   handleClickFeeback();
-    // }
-  };
-
   // mostrar y setear dialog update de detalle de requisicion
   const showAndSetDialogUpdateDetalleRequisicion = (item) => {
-    console.log(item);
     // establecemos los valores
     setItemSeleccionado(item);
     // abrimos el modal
@@ -174,6 +140,39 @@ export const ViewLoteProduccion = () => {
   const closeDialogUpdateDetalleRequisicion = () => {
     setshowDialogUpdate(false);
     setItemSeleccionado(null);
+  };
+
+  // actualizar detalle de requisicion
+  const updateDetalleRequisicion = async (itemUpdate, cantidadNueva) => {
+    const { id } = itemUpdate;
+    let body = {
+      id: id,
+      cantidadNueva: cantidadNueva,
+    };
+    const resultPeticion = await updateProduccionDetalleRequisicion(body);
+    const { message_error, description_error } = resultPeticion;
+    if (message_error.length === 0) {
+      // actualizamos la cantidad
+      obtenerDataProduccionRequisicionesDetalle();
+      // cerramos el modal
+      closeDialogUpdateDetalleRequisicion();
+      // mostramos el feedback
+      setfeedbackMessages({
+        style_message: "success",
+        feedback_description_error:
+          "Se actualizó el detalle de la requisicion con exito",
+      });
+      handleClickFeeback();
+    } else {
+      // cerramos el modal
+      closeDialogUpdateDetalleRequisicion();
+      // mostramos el feedback
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
   };
 
   // funcion para obtener la produccion con sus requisiciones y su detalle
