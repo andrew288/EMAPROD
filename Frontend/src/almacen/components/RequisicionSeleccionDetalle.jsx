@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import "../styles/style-modal.css";
 
 export const RequisicionSeleccionDetalle = ({ detalle, onClose }) => {
+  console.log(detalle);
   return (
     <div
       className="modal"

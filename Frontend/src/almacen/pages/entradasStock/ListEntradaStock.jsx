@@ -282,6 +282,8 @@ const ListEntradaStock = () => {
         break;
     }
   };
+
+  // RESET FILTERS
   const resetData = () => {
     setdataEntStoTmp(dataEntSto);
   }

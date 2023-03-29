@@ -339,6 +339,7 @@ export const CrearProduccionLote = () => {
         const resultPeticion = await getFormulaProductoDetalleByProducto(
           idProdFin
         );
+        console.log(resultPeticion);
         const { message_error, description_error, result } = resultPeticion;
         if (message_error.length === 0) {
           const { id, idProdFin, nomProd, simMed, reqDet } = result[0]; // obtenemos la requisicion

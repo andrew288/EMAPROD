@@ -14,8 +14,8 @@ import MuiAlert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { createRequisicionSeleccionWithDetalle } from "./../../helpers/requisicion/createRequisicionSeleccionWithDetalle";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
-import { FilterMateriaPrimaPorSeleccionar } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrimaPorSeleccionar";
 import { RowDetalleRequisicionSeleccion } from "../../components/RowDetalleRequisicionSeleccion";
+import { FilterAllProductos } from "../../../components/ReferencialesFilters/Producto/FilterAllProductos";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -277,7 +277,7 @@ export const AgregarRequisicionSeleccion = () => {
                   <label htmlFor="inputPassword4" className="form-label">
                     Materia Prima
                   </label>
-                  <FilterMateriaPrimaPorSeleccionar
+                  <FilterAllProductos
                     onNewInput={onMateriaPrimaId}
                   />
                 </div>
