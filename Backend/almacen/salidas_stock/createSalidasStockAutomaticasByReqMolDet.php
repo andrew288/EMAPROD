@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         es.canTotDis 
     FROM entrada_stock AS es
     WHERE idProd = ? AND idEntStoEst = ? AND canTotDis <> 0.000
-    ORDER BY es.refNumIngEntSto ASC";
+    ORDER BY es.fecEntSto ASC";
 
         try {
             $stmt_consult_entradas_disponibles = $pdo->prepare($sql_consult_entradas_disponibles);

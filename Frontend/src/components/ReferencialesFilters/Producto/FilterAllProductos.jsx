@@ -11,7 +11,7 @@ export const FilterAllProductos = ({ onNewInput }) => {
     const resultPeticion = await getAllProductos();
     const formatSelect = resultPeticion.map((element) => {
       return {
-        value: element.id,
+        value: element.codProd2 === null ? "000000" : element.codProd2,
         label: element.nomProd,
         id: element.id,
       };

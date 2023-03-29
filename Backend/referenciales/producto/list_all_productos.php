@@ -16,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         M.idMed,
         ME.simMed,
         M.nomProd,
+        M.codProd2,
         M.esMatPri,
         M.esProFin,
         M.esProProd,

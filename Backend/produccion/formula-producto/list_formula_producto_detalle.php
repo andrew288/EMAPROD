@@ -21,14 +21,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             fpt.idProdFin,
             p.nomProd,
             cl.desCla,
-            sc.desSubCla,
             me.simMed,
             fpt.fecActForProTer
             FROM formula_producto_terminado fpt
             JOIN producto as p on p.id = fpt.idProdFin
             JOIN medida as me on me.id = p.idMed
             JOIN clase as cl on cl.id = p.idCla
-            JOIN sub_clase as sc on sc.id = p.idSubCla
             ORDER BY fpt.fecCreForProTer DESC
             ";
         try {

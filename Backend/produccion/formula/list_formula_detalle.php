@@ -50,13 +50,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 a.desAre,
                 p.nomProd,
                 c.desCla,
-                sc.desSubCla,
                 fd.canMatPriFor
                 FROM formula_detalle fd
                 JOIN producto as p on p.id = fd.idMatPri
                 JOIN area as a on a.id = fd.idAre
                 JOIN clase as c on p.idCla = c.id
-                JOIN sub_clase as sc on p.idSubCla = sc.id
                 WHERE fd.idFor = ?
                 ";
 

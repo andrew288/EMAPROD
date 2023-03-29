@@ -32,6 +32,7 @@ const AgregarEntradaStock = () => {
     idAlm,
     esSel,
     canTotEnt,
+    canExe,
     docEntSto,
     fecVenEntSto,
     fecEntSto,
@@ -47,6 +48,7 @@ const AgregarEntradaStock = () => {
     idAlm: 0,
     esSel: false,
     canTotEnt: 0,
+    canExe: 0,
     docEntSto: "",
     fecVenEntSto: "",
     fecEntSto: "",
@@ -131,6 +133,8 @@ const AgregarEntradaStock = () => {
       diaJulEntSto: DiaJuliano(requestJSON.fecEntSto),
       letAniEntSto: letraAnio(requestJSON.fecEntSto),
     };
+
+    console.log(requestJSON);
     // AHORA ENVIAMOS LA DATA AL BACKEND
     const { message_error, description_error } = await createEntradaStock(
       requestJSON
@@ -146,8 +150,9 @@ const AgregarEntradaStock = () => {
       });
       handleClickFeeback();
       // habilitamos el boton de crear
-      setdisableButton(false);
     }
+
+    setdisableButton(false);
   };
 
   // SUBMIT DE UNA formState COMUNICACION CON BACKEND
@@ -210,14 +215,14 @@ const AgregarEntradaStock = () => {
             <div className="col-md-3">
               <FilterAllProductos onNewInput={onAddCodProd} />
             </div>
-            <div className="col-md-3 form-check d-flex justify-content-start align-items-center">
+            {/* <div className="col-md-3 form-check d-flex justify-content-start align-items-center">
               <label className="form-check-label">Para seleccionar</label>
               <Checkbox
                 checked={esSel}
                 onChange={onChangeEsSel}
                 inputProps={{ "aria-label": "controlled" }}
               />
-            </div>
+            </div> */}
           </div>
 
           {/* CODIGO PROVEEDOR*/}
@@ -311,6 +316,25 @@ const AgregarEntradaStock = () => {
                 value={canTotEnt}
                 type="number"
                 name="canTotEnt"
+                className="form-control"
+              />
+            </div>
+          </div>
+
+          {/* INPUT CANTIDAD EXEDIDA */}
+          <div className="mb-3 row">
+            <label
+              htlmfor={"cantidad-ingresada"}
+              className="col-sm-2 col-form-label"
+            >
+              Cantidad excedida
+            </label>
+            <div className="col-md-2">
+              <input
+                onChange={onInputChange}
+                value={canExe}
+                type="number"
+                name="canExe"
                 className="form-control"
               />
             </div>

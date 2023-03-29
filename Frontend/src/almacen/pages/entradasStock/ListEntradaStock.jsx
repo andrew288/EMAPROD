@@ -25,7 +25,7 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { getEntradasStock } from "./../../helpers/entradas-stock/getEntradasStock";
 // FILTROS
-import {FilterAllProductos} from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos"
+import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
 import { FilterMateriaPrima } from "./../../../components/ReferencialesFilters/Producto/FilterMateriaPrima";
 import { FilterProveedor } from "./../../../components/ReferencialesFilters/Proveedor/FilterProveedor";
 import { FilterAlmacen } from "./../../../components/ReferencialesFilters/Almacen/FilterAlmacen";
@@ -286,7 +286,7 @@ const ListEntradaStock = () => {
   // RESET FILTERS
   const resetData = () => {
     setdataEntStoTmp(dataEntSto);
-  }
+  };
 
   useEffect(() => {
     obtenerDataEntradaStock();
@@ -521,12 +521,12 @@ const ListEntradaStock = () => {
                         <TableCell align="left">{row.fecEntSto}</TableCell>
                         <TableCell align="left">
                           <div className="btn-toolbar">
-                            <button
+                            <Link
                               // onClick={() => {
                               //   showFormulaDetalle(i);
                               // }}
+                              to={`/almacen/entradas-stock/view/${row.id}`}
                               className="btn btn-primary me-2 btn"
-                              data-toggle="modal"
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -539,7 +539,7 @@ const ListEntradaStock = () => {
                                 <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
                                 <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
                               </svg>
-                            </button>
+                            </Link>
                           </div>
                         </TableCell>
                       </TableRow>

@@ -207,7 +207,7 @@ export const ViewLoteProduccion = () => {
                 to={`/almacen/productos-lote/crear?idLotProdc=${id}`}
                 className="btn btn-primary"
               >
-                Agregar productos finales
+                Registrar productos finales
               </Link>
               <Link
                 to={`/almacen/produccion-devoluciones/crear?idLotProdc=${id}`}

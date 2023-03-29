@@ -1,6 +1,7 @@
 import ListEntradaStock from "./ListEntradaStock";
 import AgregarEntradaStock from "./AgregarEntradaStock";
-import ActualizarEntradaStock from "./ActualizarEntradaStock";
+import { ViewEntradaStock } from "./ViewEntradaStock";
+// import ActualizarEntradaStock from "./ActualizarEntradaStock";
 
 export const RouterAlmacenEntradaStock = [
   {
@@ -11,8 +12,12 @@ export const RouterAlmacenEntradaStock = [
     path: "crear",
     element: <AgregarEntradaStock />,
   },
+  // {
+  //   path: "actualizar/:id",
+  //   element: <ActualizarEntradaStock />,
+  // },
   {
-    path: "actualizar/:id",
-    element: <ActualizarEntradaStock />,
+    path: "view/:id",
+    element: <ViewEntradaStock />,
   },
 ];

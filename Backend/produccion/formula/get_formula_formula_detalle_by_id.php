@@ -28,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             FROM formula f
             JOIN producto as p on p.id = f.idProd
             JOIN clase c ON p.idCla = c.id
-            JOIN sub_clase sc ON p.idSubCla = sc.id
             WHERE f.id = ?
             ";
         try {
@@ -52,13 +51,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 p.nomProd,
                 m.simMed,
                 c.desCla,
-                sc.desSubCla,
                 fd.canMatPriFor
                 FROM formula_detalle fd
                 JOIN producto as p on p.id = fd.idMatPri
                 JOIN area as a on a.id = fd.idAre
                 JOIN clase as c on p.idCla = c.id
-                JOIN sub_clase as sc on p.idSubCla = sc.id
                 JOIN medida as m on p.idMed = m.id 
                 WHERE fd.idFor = ?
                 ";

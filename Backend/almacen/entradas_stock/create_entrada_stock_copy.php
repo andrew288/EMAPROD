@@ -28,8 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fecEntSto = $data["fecEntSto"];
 
     // SOLO SI ES SELECCION
-    $idEntStoEst = 1; // estado de disponible
-    $canTotDis = $canTotEnt; // cantidad total disponible
+    $idEntStoEst = 0; // estado de las entrada
+    $canTotDis = 0; // cantidad total disponible
     $canSel = 0;
     $canPorSel = 0;
     $merTot = 0;
@@ -37,15 +37,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($pdo) {
 
+        // VERIFICAMOS QUE LA ENTRADA SEA DE SELECCION O NO
+        if ($esSel) {
+            // LA CANTIDAD POR SELECCIONAR ES IGUAL A LA CANTIDAD ENTRANTE
+            $canPorSel = $canTotEnt;
+            $idEntStoEst = 3; // ESTADO DE POR PROCESAR
+        } else {
+            // LA CANTIDAD DISPONIBLE ES IGUAL A LA CANTIDAD ENTRANTE
+            $canTotDis = $canTotEnt;
+            $idEntStoEst = 1; // ESTADO DE DISPONIBLE
+        }
+
         // OBTENEMOS EL NUMERO DE INGRESO DE DICHA MATERIA PRIMA
-        // EL NUMERO DE INGRESO DE UN PRODUCTO SE RESTABLECE A 1 CADA AÑO
-        $anioActual = explode("-", explode(" ", $fecEntSto)[0])[0]; // año actual
         $sql_numero_entrada =
             "SELECT 
-        MAX(CAST(refNumIngEntSto AS UNSIGNED)) as refNumIngEntSto
+        max(refNumIngEntSto) as refNumIngEntSto
         FROM entrada_stock
-        WHERE idProd = ? AND YEAR(fecEntSto) = ?
-        ORDER BY refNumIngEntSto DESC LIMIT 1";
+        WHERE idProd = ?
+        ORDER BY refNumIngEntSto DESC";
 
         try {
 
@@ -54,29 +63,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // ***** OBTENEMOS EN NUMERO DE REFERENCIA DE INGRESO ******
             $stmt_numero_entrada = $pdo->prepare($sql_numero_entrada);
             $stmt_numero_entrada->bindParam(1, $idProd, PDO::PARAM_INT);
-            $stmt_numero_entrada->bindParam(2, $anioActual);
             $stmt_numero_entrada->execute();
 
             // Recorremos los resultados
+            $result_numero_entrada = [];
             $refNumIngEntSto = 0;
-
-            // si hay ingresos de ese producto ese año
-            if ($stmt_numero_entrada->rowCount() == 1) {
-                while ($row = $stmt_numero_entrada->fetch(PDO::FETCH_ASSOC)) {
-                    $refNumIngEntSto = $row["refNumIngEntSto"] + 1;
+            while ($row = $stmt_numero_entrada->fetch(PDO::FETCH_ASSOC)) {
+                if (isset($row["refNumIngEntSto"])) {
+                    array_push($result_numero_entrada, $row);
                 }
-            } else {
-                // si no hay ingresos de productos ese año
-                $refNumIngEntSto = 1;
             }
 
-            // EL CODIGO DE INGRESO ES DE 
-            $refNumIngEntSto = str_pad(strval($refNumIngEntSto), 3, "0", STR_PAD_LEFT);
+            // COMPROBAMOS SI NO HUBO ENTRADAS DE ESE PRODUCTO
+            if (empty($result_numero_entrada)) {
+                // SERA LA PRIMERA INSERCION DEL AÑO
+                $refNumIngEntSto = 1;
+            } else {
+                $refNumIngEntSto = $result_numero_entrada[0]["refNumIngEntSto"] + 1;
+            }
 
             // ***** FORMAMOS EL CODIGO DE ENTRADA ******
-            $codEntSto = $codProd . $codProv . $letAniEntSto . $diaJulEntSto . $refNumIngEntSto;
+            $codEntSto = "$codProd" . "$codProv" . "$letAniEntSto" . "$diaJulEntSto" . "$refNumIngEntSto";
 
-            // echo $refNumIngEntSto . " " . $codEntSto;
             // ***** REALIZAMOS LA ENTRADA RESPECTIVA ******
             $sql =
                 "INSERT INTO
@@ -90,13 +98,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             diaJulEntSto, 
             refNumIngEntSto,
             esSel,
+            canSel,
+            canPorSel,
+            merTot,
             canTotEnt,
             canTotDis,
-            canExe,
             docEntSto,
             fecVenEntSto,
             fecEntSto)
-            VALUES (?,?,?,?,?,?,?,?,?,$canTotEnt, $canTotDis, $canExe,?,?,?)
+            VALUES (?,?,?,?,?,?,?,?,?,$canSel, $canPorSel, $merTot, $canTotEnt, $canTotDis,?,?,?)
             ";
 
             try {
@@ -166,6 +176,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $description_error = $e->getMessage();
                         }
                     }
+
+                    // $sql_update_producto =
+                    //     "UPDATE producto
+                    //     SET stoActPro = stoActPro + $canTotEnt
+                    //     WHERE id = ?";
+                    // try {
+                    //     $stmt_update_producto = $pdo->prepare($sql_update_producto);
+                    //     $stmt_update_producto->bindParam(1, $idProd, PDO::PARAM_INT);
+                    //     $stmt_update_producto->execute();
+                    // } catch (PDOException $e) {
+                    //     $message_error = "ERROR INTERNO SERVER AL MODIFICAR ALMACEN";
+                    //     $description_error = $e->getMessage();
+                    // }
 
                     // TERMINAMOS LA TRANSACCION
                     $pdo->commit();
