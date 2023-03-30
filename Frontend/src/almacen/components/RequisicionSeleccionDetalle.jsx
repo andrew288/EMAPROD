@@ -9,8 +9,11 @@ import Paper from "@mui/material/Paper";
 import { Link } from "react-router-dom";
 import "../styles/style-modal.css";
 
-export const RequisicionSeleccionDetalle = ({ detalle, onClose }) => {
-  console.log(detalle);
+export const RequisicionSeleccionDetalle = ({
+  detalle,
+  onClose,
+  onCreateSalidas,
+}) => {
   return (
     <div
       className="modal"
@@ -79,12 +82,12 @@ export const RequisicionSeleccionDetalle = ({ detalle, onClose }) => {
                           <span
                             className={
                               detalle.idReqSelDetEst === 1
-                                ? "badge text-bg-danger"
+                                ? "badge text-bg-danger p-2"
                                 : detalle.idReqSelDetEst === 2
-                                ? "badge text-bg-primary"
+                                ? "badge text-bg-primary p-2"
                                 : detalle.idReqSelDetEst === 3
-                                ? "badge text-bg-warning"
-                                : "badge text-bg-success"
+                                ? "badge text-bg-warning p-2"
+                                : "badge text-bg-success p-2"
                             }
                           >
                             {detalle.desReqSelDetEst}
@@ -92,16 +95,17 @@ export const RequisicionSeleccionDetalle = ({ detalle, onClose }) => {
                         </TableCell>
                         <TableCell align="left">
                           <div className="btn-toolbar">
-                            <Link
-                              style={{
-                                pointerEvents:
-                                  detalle.idReqSelDetEst !== 1 ? "none" : "",
+                            <button
+                              onClick={() => {
+                                onCreateSalidas(detalle);
                               }}
-                              to={`/almacen/requisicion-seleccion/salida-stock?idReqSelDet=${detalle.id}`}
+                              disabled={
+                                detalle.idReqSelDetEst !== 1 ? true : false
+                              }
                               className={
                                 detalle.idReqSelDetEst !== 1
                                   ? "btn btn-secondary me-2"
-                                  : "btn btn-warning me-2"
+                                  : "btn btn-success me-2"
                               }
                             >
                               <svg
@@ -109,12 +113,12 @@ export const RequisicionSeleccionDetalle = ({ detalle, onClose }) => {
                                 width="16"
                                 height="16"
                                 fill="currentColor"
-                                className="bi bi-caret-down-fill"
+                                className="bi bi-check2"
                                 viewBox="0 0 16 16"
                               >
-                                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
                               </svg>
-                            </Link>
+                            </button>
                             <Link
                               style={{
                                 pointerEvents:

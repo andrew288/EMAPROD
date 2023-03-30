@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $idReqSelDet = $data["id"]; // id requisicion seleccion detalle
     $idReqSel = $data["idReqSel"]; // id requisicion seleccion
     $idProdt = $data["idMatPri"]; // id producto
-    $canReqSelDet = floatval($data["canReqSelDet"]); // cantidad requisicion
+    $canReqDet = floatval($data["canReqSelDet"]); // cantidad requisicion
     $idAlmDes = 9; // almacen destino (seleccion)
     $idSalEntSelEst = 1; // ESTADO DE SALIDA COMPLETA
 
@@ -143,7 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             // CREAMOS LA CONSULTA PARA GENERAR LAS SALIDAS ENTRADAS DE SELECCION
                             $sql =
                                 "INSERT
-                            salida_entrada_stock
+                            salida_entrada_seleccion
                             (idEntSto, idReqSel, idMatPri, idSalEntSelEst, canSalStoReqSel)
                             VALUES (?, ?, ?, ?, $canSalStoReq)";
 
@@ -190,6 +190,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $stmt_update_entrada_stock->bindParam(2, $idEntSto, PDO::PARAM_INT);
                                 $stmt_update_entrada_stock->execute();
                             }
+
+                            // ACTUALIZAMOS EL ALMACEN CORRESPONDIENTE A LA ENTRADA
+                            $sql_update_almacen_stock =
+                                "UPDATE almacen_stock
+                                    SET canSto = canSto - $canSalStoReq, canStoDis = canStoDis - $canSalStoReq
+                                    WHERE idAlm = ? AND idProd = ?";
+
+                            $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
+                            $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
+                            $stmt_update_almacen_stock->bindParam(2, $idProdt, PDO::PARAM_INT);
+                            $stmt_update_almacen_stock->execute();
 
                             // TERMINAMOS LA TRANSACCION
                             $pdo->commit();

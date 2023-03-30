@@ -22,7 +22,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $diaJulEntSto = $data["diaJulEntSto"]; // dia juliano
     $esSel = $data["esSel"]; // es para seleccionar
     $canTotEnt = $data["canTotEnt"]; // cantidad total entrada
-    $canExe = $data["canExe"]; // cantidad exedida
+    $canTotCom = $data["canTotCom"]; // cantidad total compra
+    $canVar = $data["canVar"]; // cantidad variacion
     $docEntSto = $data["docEntSto"]; // documento de entrada
     $fecVenEntSto = $data["fecVenEntSto"]; // fecha de vencimiento
     $fecEntSto = $data["fecEntSto"];
@@ -90,13 +91,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             diaJulEntSto, 
             refNumIngEntSto,
             esSel,
+            canTotCom,
             canTotEnt,
             canTotDis,
-            canExe,
+            canVar,
             docEntSto,
             fecVenEntSto,
             fecEntSto)
-            VALUES (?,?,?,?,?,?,?,?,?,$canTotEnt, $canTotDis, $canExe,?,?,?)
+            VALUES (?,?,?,?,?,?,?,?,?,$canTotCom,$canTotEnt, $canTotDis, $canVar,?,?,?)
             ";
 
             try {

@@ -26,6 +26,7 @@ import FechaPickerDay from "./../../../components/Fechas/FechaPickerDay";
 import { TextField } from "@mui/material";
 import { FilterEstadoRequisicionSeleccion } from "../../../components/ReferencialesFilters/EstadoRequisicionSeleccion/FilterEstadoRequisicionSeleccion";
 import { RequisicionSeleccionDetalle } from "./../../components/RequisicionSeleccionDetalle";
+import { createSalidasByReqSelDetAutomatico } from "../../helpers/requisicion-seleccion/createSalidasByReqSelDetAutomatico";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -214,7 +215,7 @@ export const ListRequisicionSeleccion = () => {
     }
   };
 
-  // ******* REQUISICION MOLIENDA DETALLE ********
+  // ******* REQUISICION SELECCION DETALLE ********
 
   const closeDetalleRequisicionSeleccion = () => {
     // ocultamos el modal
@@ -233,10 +234,38 @@ export const ListRequisicionSeleccion = () => {
     setMostrarDetalle(true);
   };
 
+  // funciona para generar las salidas de requisicion seleccion
+  const createSalidasRequisicionSeleccionDetalle = async (detalle) => {
+    console.log(detalle);
+    // realizamos una peticion post
+    const resultPeticion = await createSalidasByReqSelDetAutomatico(detalle);
+
+    const { message_error, description_error } = resultPeticion;
+
+    if (message_error.length === 0) {
+      // cerramos el modal
+      closeDetalleRequisicionSeleccion();
+      // volvemos a traer la data
+      obtenerDataRequisicionSeleccion();
+      // mostramos el feedback
+      setfeedbackMessages({
+        style_message: "success",
+        feedback_description_error: "Se generaron las salidas con exito",
+      });
+      handleClickFeeback();
+    } else {
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+  };
+
   // RESET FILTER
   const resetData = () => {
     setdataRequisicionTemp(dataRequisicion);
-  }
+  };
 
   // TRAEMOS LA DATA ANTES DE QUE SE RENDERICE EL COMPONENTE
   useEffect(() => {
@@ -383,10 +412,10 @@ export const ListRequisicionSeleccion = () => {
                           <span
                             className={
                               row.idReqSelEst === 1
-                                ? "badge text-bg-danger"
+                                ? "badge text-bg-danger p-2"
                                 : row.idReqSelEst === 2
-                                ? "badge text-bg-warning"
-                                : "badge text-bg-success"
+                                ? "badge text-bg-warning p-2"
+                                : "badge text-bg-success p-2"
                             }
                           >
                             {row.desReqSelEst}
@@ -462,6 +491,7 @@ export const ListRequisicionSeleccion = () => {
             <RequisicionSeleccionDetalle
               detalle={detalleSeleccionado}
               onClose={closeDetalleRequisicionSeleccion}
+              onCreateSalidas={createSalidasRequisicionSeleccionDetalle}
             />
           )}
         </div>

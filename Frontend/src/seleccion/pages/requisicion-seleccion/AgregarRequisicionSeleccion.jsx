@@ -327,17 +327,14 @@ export const AgregarRequisicionSeleccion = () => {
                           },
                         }}
                       >
-                        <TableCell align="left" width={100}>
-                          <b>Codigo</b>
+                        <TableCell align="left" width={200}>
+                          <b>Nombre</b>
                         </TableCell>
                         <TableCell align="left" width={120}>
                           <b>Clase</b>
                         </TableCell>
                         <TableCell align="left" width={140}>
                           <b>Sub clase</b>
-                        </TableCell>
-                        <TableCell align="left" width={200}>
-                          <b>Nombre</b>
                         </TableCell>
                         <TableCell align="left" width={150}>
                           <b>Cantidad</b>

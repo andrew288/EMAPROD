@@ -226,29 +226,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             }
 
                             // ACTUALIZAMOS EL ALMACEN CORRESPONDIENTE A LA ENTRADA
-                            if ($esSel) {
-                                // SI ES SELECCION SOLO DISMINUIMOS EL STOCK DISPONIBLE 
-                                $sql_update_almacen_stock =
-                                    "UPDATE almacen_stock
-                                SET canStoDis = canStoDis - $canSalStoReq
-                                WHERE idAlm = ? AND idProd = ?";
-
-                                $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
-                                $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
-                                $stmt_update_almacen_stock->bindParam(2, $idProdt, PDO::PARAM_INT);
-                                $stmt_update_almacen_stock->execute();
-                            } else {
-                                // SI NO ES SELECCIÓN DISMINUIMOS AMBOS CAMPOS DE STOCK
-                                $sql_update_almacen_stock =
-                                    "UPDATE almacen_stock
+                            $sql_update_almacen_stock =
+                                "UPDATE almacen_stock
                                     SET canSto = canSto - $canSalStoReq, canStoDis = canStoDis - $canSalStoReq
                                     WHERE idAlm = ? AND idProd = ?";
 
-                                $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
-                                $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
-                                $stmt_update_almacen_stock->bindParam(2, $idProdt, PDO::PARAM_INT);
-                                $stmt_update_almacen_stock->execute();
-                            }
+                            $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
+                            $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
+                            $stmt_update_almacen_stock->bindParam(2, $idProdt, PDO::PARAM_INT);
+                            $stmt_update_almacen_stock->execute();
+
+                            // if ($esSel) {
+                            //     // SI ES SELECCION SOLO DISMINUIMOS EL STOCK DISPONIBLE 
+                            //     $sql_update_almacen_stock =
+                            //         "UPDATE almacen_stock
+                            //     SET canStoDis = canStoDis - $canSalStoReq
+                            //     WHERE idAlm = ? AND idProd = ?";
+
+                            //     $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
+                            //     $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
+                            //     $stmt_update_almacen_stock->bindParam(2, $idProdt, PDO::PARAM_INT);
+                            //     $stmt_update_almacen_stock->execute();
+                            // } else {
+                            //     // SI NO ES SELECCIÓN DISMINUIMOS AMBOS CAMPOS DE STOCK
+                            //     $sql_update_almacen_stock =
+                            //         "UPDATE almacen_stock
+                            //         SET canSto = canSto - $canSalStoReq, canStoDis = canStoDis - $canSalStoReq
+                            //         WHERE idAlm = ? AND idProd = ?";
+
+                            //     $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
+                            //     $stmt_update_almacen_stock->bindParam(1, $idAlmacen, PDO::PARAM_INT);
+                            //     $stmt_update_almacen_stock->bindParam(2, $idProdt, PDO::PARAM_INT);
+                            //     $stmt_update_almacen_stock->execute();
+                            // }
 
                             // TERMINAMOS LA TRANSACCION
                             $pdo->commit();

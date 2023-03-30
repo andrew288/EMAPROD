@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "./../../../hooks/useForm";
 // IMPORT DE EFECHA PICKER
 import FechaPicker from "./../../../components/Fechas/FechaPicker";
@@ -30,9 +30,9 @@ const AgregarEntradaStock = () => {
     idProd,
     idProv,
     idAlm,
-    esSel,
+    canTotCom,
     canTotEnt,
-    canExe,
+    canVar,
     docEntSto,
     fecVenEntSto,
     fecEntSto,
@@ -47,8 +47,9 @@ const AgregarEntradaStock = () => {
     idProv: 0,
     idAlm: 0,
     esSel: false,
+    canTotCom: 0,
     canTotEnt: 0,
-    canExe: 0,
+    canVar: 0,
     docEntSto: "",
     fecVenEntSto: "",
     fecEntSto: "",
@@ -103,17 +104,14 @@ const AgregarEntradaStock = () => {
 
   // SET VALOR DE FECHA DE VENCIMIENTO
   const onAddFecVenEntSto = (newfecVentEntSto) => {
+    console.log(newfecVentEntSto);
     setFormState({ ...formState, fecVenEntSto: newfecVentEntSto });
   };
 
   // SET VALOR DE FECHA DE formState
   const onAddFecEntSto = (newfecEntSto) => {
+    console.log(newfecEntSto);
     setFormState({ ...formState, fecEntSto: newfecEntSto });
-  };
-
-  //SETEAMOS EL VALOR DE ES SELECCION
-  const onChangeEsSel = (event) => {
-    setFormState({ ...formState, esSel: event.target.checked });
   };
 
   // CREAR ENTRADA DE STOCK
@@ -166,6 +164,7 @@ const AgregarEntradaStock = () => {
       idAlm === 0 ||
       docEntSto.length === 0 ||
       canTotEnt <= 0 ||
+      canTotCom <= 0 ||
       fecVenEntSto.length === 0
     ) {
       if (fecVenEntSto.length === 0) {
@@ -192,6 +191,21 @@ const AgregarEntradaStock = () => {
       crearEntradaStock();
     }
   };
+
+  useEffect(() => {
+    if (canTotCom.length === 0 || canTotEnt.length === 0) {
+      setFormState({
+        ...formState,
+        canVar: 0,
+      });
+    } else {
+      const cantidadVariacion = parseFloat(canTotEnt) - parseFloat(canTotCom);
+      setFormState({
+        ...formState,
+        canVar: cantidadVariacion,
+      });
+    }
+  }, [canTotCom, canTotEnt]);
 
   return (
     <>
@@ -302,6 +316,25 @@ const AgregarEntradaStock = () => {
             </div>
           </div>
 
+          {/* INPUT CANTIDAD COMPRA */}
+          <div className="mb-3 row">
+            <label
+              htlmfor={"cantidad-ingresada"}
+              className="col-sm-2 col-form-label"
+            >
+              Cantidad compra
+            </label>
+            <div className="col-md-2">
+              <input
+                onChange={onInputChange}
+                value={canTotCom}
+                type="number"
+                name="canTotCom"
+                className="form-control"
+              />
+            </div>
+          </div>
+
           {/* INPUT CANTIDAD formState */}
           <div className="mb-3 row">
             <label
@@ -327,15 +360,18 @@ const AgregarEntradaStock = () => {
               htlmfor={"cantidad-ingresada"}
               className="col-sm-2 col-form-label"
             >
-              Cantidad excedida
+              Cantidad variacion
             </label>
             <div className="col-md-2">
               <input
+                disabled={true}
                 onChange={onInputChange}
-                value={canExe}
+                value={canVar}
                 type="number"
-                name="canExe"
-                className="form-control"
+                name="canVar"
+                className={`form-control ${
+                  parseFloat(canVar) < 0 ? "text-danger" : "text-success"
+                }`}
               />
             </div>
           </div>

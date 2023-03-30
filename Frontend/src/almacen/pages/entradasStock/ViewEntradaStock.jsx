@@ -40,27 +40,23 @@ export const ViewEntradaStock = () => {
     canPorSel: 0,
     merDis: 0,
     merTot: 0,
+    canTotCom: 0,
     canTotEnt: 0,
     canTotDis: 0,
-    canExe: 0,
+    canVar: 0,
     fecFinSto: "",
   });
 
   const {
-    idProd,
     nomProd,
     codProd,
     codProd2,
     codProd3,
-    desCla,
-    idProv,
     nomProv,
     apeProv,
     codProv,
-    idAlm,
     nomAlm,
     codAlm,
-    idEntStoEst,
     desEntStoEst,
     codEntSto,
     fecEntSto,
@@ -70,9 +66,10 @@ export const ViewEntradaStock = () => {
     canPorSel,
     merDis,
     merTot,
+    canTotCom,
     canTotEnt,
     canTotDis,
-    canExe,
+    canVar,
     fecFinSto,
   } = entradaStock;
 
@@ -415,6 +412,34 @@ export const ViewEntradaStock = () => {
                       fecFinSto === null ? "Entrada no terminada" : fecFinSto
                     }
                     className="form-control"
+                  />
+                </div>
+              </div>
+              <div className="mb-4 row">
+                {/* CANTIDAD COMPRA */}
+                <div className="col-md-3">
+                  <label htmlFor="nombre" className="form-label">
+                    <b>Cantidad compra</b>
+                  </label>
+                  <input
+                    type="text"
+                    disabled={true}
+                    value={canTotCom}
+                    className="form-control"
+                  />
+                </div>
+                {/* MERMA TOTAL */}
+                <div className="col-md-3">
+                  <label htmlFor="nombre" className="form-label">
+                    <b>Cantidad variacion</b>
+                  </label>
+                  <input
+                    type="text"
+                    disabled={true}
+                    value={canVar}
+                    className={`form-control ${
+                      parseFloat(canVar) < 0 ? "text-danger" : "text-success"
+                    }`}
                   />
                 </div>
               </div>

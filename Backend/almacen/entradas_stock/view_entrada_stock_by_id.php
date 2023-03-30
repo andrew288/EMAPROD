@@ -42,9 +42,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         es.canPorSel,
         es.merDis,
         es.merTot,
+        es.canTotCom,
         es.canTotEnt,
         es.canTotDis,
-        es.canExe,
+        es.canVar,
         es.fecFinSto
         FROM entrada_stock es
         JOIN producto AS p ON p.id = es.idProd
