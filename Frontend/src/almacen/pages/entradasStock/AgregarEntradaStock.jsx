@@ -199,7 +199,9 @@ const AgregarEntradaStock = () => {
         canVar: 0,
       });
     } else {
-      const cantidadVariacion = parseFloat(canTotEnt) - parseFloat(canTotCom);
+      const cantidadVariacion = (
+        parseFloat(canTotEnt) - parseFloat(canTotCom)
+      ).toFixed(3);
       setFormState({
         ...formState,
         canVar: cantidadVariacion,

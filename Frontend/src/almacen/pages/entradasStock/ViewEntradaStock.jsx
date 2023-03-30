@@ -156,7 +156,7 @@ export const ViewEntradaStock = () => {
                 {/* CODIGO EMAPROD */}
                 <div className="col-md-3">
                   <label htmlFor="nombre" className="form-label">
-                    <b>Codigo CONTANET</b>
+                    <b>Codigo EMAPROD</b>
                   </label>
                   <input
                     type="text"
@@ -372,7 +372,7 @@ export const ViewEntradaStock = () => {
                   <input
                     type="text"
                     disabled={true}
-                    value={esSel === 0 ? "Es seleccion" : "No es seleccion"}
+                    value={esSel === 0 ? "No es seleccion" : "Es seleccion"}
                     className="form-control"
                   />
                 </div>
