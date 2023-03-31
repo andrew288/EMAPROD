@@ -98,6 +98,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     // comprobamos finalmente que la cantidad faltante sea exactamente 0
                     if ($cantidad_faltante == 0) {
+                        // CONSULTAMOS EL ALMACEN DESTINO
+                        $sql_consult_almacen_destino =
+                            "SELECT id FROM 
+                        almacen WHERE idAre = ?";
+                        $stmt_consult_almacen_destino = $pdo->prepare($sql_consult_almacen_destino);
+                        $stmt_consult_almacen_destino->bindParam(1, $idAre, PDO::PARAM_INT);
+                        $stmt_consult_almacen_destino->execute();
+                        while ($row_consult_almacen_destino = $stmt_consult_almacen_destino->fetch(PDO::FETCH_ASSOC)) {
+                            $idAlmDes = $row_consult_almacen_destino["id"];
+                        }
+
+                        // AHORA CREAMOS EL REGISTRO CORRESPONDIENTE
+                        // FINALMENTE CREAMOS LA AGREGACION DETALLE
+                        $idLastInsert = 0;
+                        $sql_insert_detalle_agregacion_lote_produccion =
+                            "INSERT INTO produccion_agregacion
+                        (idProdc, idProdt, idAlm, idProdAgrMot, canProdAgr)
+                        VALUES (?, ?, ?, ?, $canProdAgr)";
+
+                        $stmt_insert_detalle_agregacion_lote_produccion = $pdo->prepare($sql_insert_detalle_agregacion_lote_produccion);
+                        $stmt_insert_detalle_agregacion_lote_produccion->bindParam(1, $idProdc, PDO::PARAM_INT);
+                        $stmt_insert_detalle_agregacion_lote_produccion->bindParam(2, $idProdt, PDO::PARAM_INT);
+                        $stmt_insert_detalle_agregacion_lote_produccion->bindParam(3, $idAlmDes, PDO::PARAM_INT);
+                        $stmt_insert_detalle_agregacion_lote_produccion->bindParam(4, $idProdAgrMot, PDO::PARAM_INT);
+                        $stmt_insert_detalle_agregacion_lote_produccion->execute();
+
+                        $idLastInsert = $pdo->lastInsertId(); // obtenemos la referencia
+
+
                         // RECORREMOS TODAS LAS ENTRADAS UTILIZADAS PARA LA SALIDA
                         foreach ($entradasUtilizadas as $item) {
                             try {
@@ -187,6 +216,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $stmt_update_almacen_stock->bindParam(2, $idProdt, PDO::PARAM_INT);
                                 $stmt_update_almacen_stock->execute();
 
+                                // CREAMOS LA TRAZABILIDAD
+                                $sql_insert_producto_agregacion_trazabilidad =
+                                    "INSERT INTO producto_agregacion_trazabilidad
+                                (idProdAgr, idEntSto, canProdAgrTra)
+                                VALUES(?,?,$canSalStoReq)";
+
+                                $stmt_insert_producto_agregacion_trazabilidad = $pdo->prepare($sql_insert_producto_agregacion_trazabilidad);
+                                $stmt_insert_producto_agregacion_trazabilidad->bindParam(1, $idLastInsert, PDO::PARAM_INT);
+                                $stmt_insert_producto_agregacion_trazabilidad->bindParam(2, $idEntSto, PDO::PARAM_INT);
+                                $stmt_insert_producto_agregacion_trazabilidad->execute();
+
                                 // TERMINAMOS LA TRANSACCION
                                 $pdo->commit();
                             } catch (PDOException $e) {
@@ -198,19 +238,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         // AHORA REALIZAMOS LA TRANSFERENCIA DE ALMACEN Y CREACION DEL REGISTRO
                         if (empty($message_error)) {
-
-                            // CONSULTAMOS EL ALMACEN DESTINO
-                            $sql_consult_almacen_destino =
-                                "SELECT id FROM 
-                                almacen WHERE idAre = ?";
-
-                            $stmt_consult_almacen_destino = $pdo->prepare($sql_consult_almacen_destino);
-                            $stmt_consult_almacen_destino->bindParam(1, $idAre, PDO::PARAM_INT);
-                            $stmt_consult_almacen_destino->execute();
-                            while ($row_consult_almacen_destino = $stmt_consult_almacen_destino->fetch(PDO::FETCH_ASSOC)) {
-                                $idAlmDes = $row_consult_almacen_destino["id"];
-                            }
-
                             // ACTUALIZAMOS EL ALMACEN DESTINO CORRESPONDIENTE
                             $sql_consult_almacen_stock_destino =
                                 "SELECT * FROM almacen_stock
@@ -234,24 +261,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         $stmt_update_almacen_destino->bindParam(1, $idAlmDes, PDO::PARAM_INT);
                                         $stmt_update_almacen_destino->bindParam(2, $idProdt, PDO::PARAM_INT);
                                         $stmt_update_almacen_destino->execute();
-
-                                        // FINALMENTE CREAMOS LA AGREGACION DETALLE
-                                        $sql_insert_detalle_agregacion_lote_produccion =
-                                            "INSERT INTO produccion_agregacion
-                                            (idProdc, idProdt, idAlm, idProdAgrMot, canProdAgr)
-                                            VALUES (?, ?, ?, ?, $canProdAgr)";
-
-                                        try {
-                                            $stmt_insert_detalle_agregacion_lote_produccion = $pdo->prepare($sql_insert_detalle_agregacion_lote_produccion);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->bindParam(1, $idProdc, PDO::PARAM_INT);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->bindParam(2, $idProdt, PDO::PARAM_INT);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->bindParam(3, $idAlmDes, PDO::PARAM_INT);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->bindParam(4, $idProdAgrMot, PDO::PARAM_INT);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->execute();
-                                        } catch (PDOException $e) {
-                                            $message_error = "ERROR EN LA INSERCION DE AGREGACION DETALLE";
-                                            $description_error = $e->getMessage();
-                                        }
                                     } catch (PDOException $e) {
                                         $message_error = "ERROR EN LA ACTUALIZACION DEL STOCK DEL ALMACEN DESTINO";
                                         $description_error = $e->getMessage();
@@ -267,24 +276,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         $stmt_insert_almacen_destino->bindParam(1, $idProdt, PDO::PARAM_INT);
                                         $stmt_insert_almacen_destino->bindParam(2, $idAlmDes, PDO::PARAM_INT);
                                         $stmt_insert_almacen_destino->execute();
-
-                                        // FINALMENTE CREAMOS LA AGREGACION DETALLE
-                                        $sql_insert_detalle_agregacion_lote_produccion =
-                                            "INSERT INTO produccion_agregacion
-                                            (idProdc, idProdt, idAlm, idProdAgrMot, canProdAgr)
-                                            VALUES (?, ?, ?, ?, $canProdAgr)";
-
-                                        try {
-                                            $stmt_insert_detalle_agregacion_lote_produccion = $pdo->prepare($sql_insert_detalle_agregacion_lote_produccion);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->bindParam(1, $idProdc, PDO::PARAM_INT);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->bindParam(2, $idProdt, PDO::PARAM_INT);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->bindParam(3, $idAlmDes, PDO::PARAM_INT);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->bindParam(4, $idProdAgrMot, PDO::PARAM_INT);
-                                            $stmt_insert_detalle_agregacion_lote_produccion->execute();
-                                        } catch (PDOException $e) {
-                                            $message_error = "ERROR EN LA INSERCION DE AGREGACION DETALLE";
-                                            $description_error = $e->getMessage();
-                                        }
                                     } catch (PDOException $e) {
                                         $message_error = "ERROR EN LA INSERCION DEL STOCK DEL ALMACEN DESTINO";
                                         $description_error = $e->getMessage();

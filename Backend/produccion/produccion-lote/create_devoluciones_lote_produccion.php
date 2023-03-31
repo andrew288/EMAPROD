@@ -28,7 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $idProdt = $value["idProdt"]; // producto
             $idProdDevMot = $value["idProdDevMot"]; // motivo de devolucion
             $canProdDev = $value["canProdDev"]; // cantidad devuelta
-            $nomProd = $value["nomProd"];
+            $nomProd = $value["nomProd"]; // nombre del producto
+            $idMed = $value["idMed"]; // medida del producto
 
             // obtenemos el almacen de destino
             switch ($idProdDevMot) {
@@ -106,7 +107,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $canSalStoReq = $value["canSalStoReq"]; // cantidad
 
                                 // REALIZAMOS EL PRORRATEO
-                                $prorrateo = ($canProdDev * $canSalStoReq) / $totalRequisicionProducto;
+                                if ($idMed == 1 || $idMed == 2) {
+                                    // prorratero de KG y LT
+                                    $prorrateo = round((($canProdDev * $canSalStoReq) / $totalRequisicionProducto), 3);
+                                } else {
+                                    // prorrateo de UND, DP, ETC (todas las unidades)
+                                    $prorrateo = round((($canProdDev * $canSalStoReq) / $totalRequisicionProducto));
+                                }
 
                                 // ACTUALIZAMOS LA ENTRADA
                                 $idEntStoEst = 1; // disponible
@@ -197,7 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         }
                     } else {
                         $message_error = "No se genero las salidas del producto";
-                        $description_error = "No se generaron las salidas del producto: $nomProd";
+                        $description_error = $description_error . "No se generaron las salidas del producto: $nomProd" . "\n";
                     }
                 } catch (PDOException $e) {
                     $message_error = "ERROR EN LA SELECCION DE SALIDAS";

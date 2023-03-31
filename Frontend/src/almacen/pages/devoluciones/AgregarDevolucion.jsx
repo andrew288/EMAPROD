@@ -153,6 +153,7 @@ export const AgregarDevolucion = () => {
             desSubCla,
             nomProd,
             simMed,
+            idMed,
           } = result[0];
           // generamos nuestro detalle
           const detalle = {
@@ -163,6 +164,7 @@ export const AgregarDevolucion = () => {
             desCla: desCla, // clase del producto
             desSubCla: desSubCla, // subclase del producto
             nomProd: nomProd, // nombre del producto
+            idMed: idMed,
             simMed: simMed, // medida del producto
             canProdDev: cantidadDevuelta, // cantidad devuelta
           };
