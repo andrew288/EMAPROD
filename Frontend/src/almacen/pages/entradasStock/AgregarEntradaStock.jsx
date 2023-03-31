@@ -228,7 +228,7 @@ const AgregarEntradaStock = () => {
               />
             </div>
             {/* SEARCH NAME PRODUCTO */}
-            <div className="col-md-3">
+            <div className="col-md-8">
               <FilterAllProductos onNewInput={onAddCodProd} />
             </div>
             {/* <div className="col-md-3 form-check d-flex justify-content-start align-items-center">
@@ -255,7 +255,7 @@ const AgregarEntradaStock = () => {
               />
             </div>
             {/* SEARCH NAME PROVEEDOR */}
-            <div className="col-md-3">
+            <div className="col-md-8">
               <FilterProveedor onNewInput={onAddCodProv} />
             </div>
           </div>
@@ -274,7 +274,7 @@ const AgregarEntradaStock = () => {
               />
             </div>
             {/* SEARCH NAME PROVEEDOR */}
-            <div className="col-md-3">
+            <div className="col-md-6">
               <FilterAlmacen onNewInput={onAddCodAlm} />
             </div>
           </div>

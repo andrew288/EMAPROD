@@ -265,22 +265,22 @@ export const AgregarDevolucion = () => {
   // ********** SUBMIT DE DEVOLUCIONES ***********
   const crearDevolucionesLoteProduccion = async () => {
     console.log(detalleProductosDevueltos);
-    // const resultPeticion = await createDevolucionesLoteProduccion(
-    //   detalleProductosDevueltos
-    // );
-    // console.log(resultPeticion);
-    // const { message_error, description_error } = resultPeticion;
+    const resultPeticion = await createDevolucionesLoteProduccion(
+      detalleProductosDevueltos
+    );
+    console.log(resultPeticion);
+    const { message_error, description_error } = resultPeticion;
 
-    // if (message_error.length === 0) {
-    //   // regresamos a la anterior vista
-    //   onNavigateBack();
-    // } else {
-    //   setfeedbackMessages({
-    //     style_message: "error",
-    //     feedback_description_error: description_error,
-    //   });
-    //   handleClickFeeback();
-    // }
+    if (message_error.length === 0) {
+      // regresamos a la anterior vista
+      onNavigateBack();
+    } else {
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
     setdisableButton(false);
   };
 
