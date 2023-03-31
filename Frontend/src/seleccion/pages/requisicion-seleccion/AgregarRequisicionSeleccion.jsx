@@ -273,17 +273,15 @@ export const AgregarRequisicionSeleccion = () => {
             <div className="card-body">
               <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
                 {/* AGREGAR MATERIA PRIMA */}
-                <div className="col-md-3">
+                <div className="col-md-6">
                   <label htmlFor="inputPassword4" className="form-label">
                     Materia Prima
                   </label>
-                  <FilterAllProductos
-                    onNewInput={onMateriaPrimaId}
-                  />
+                  <FilterAllProductos onNewInput={onMateriaPrimaId} />
                 </div>
 
                 {/* AGREGAR CANTIDAD*/}
-                <div className="col-md-4">
+                <div className="col-md-2">
                   <label htmlFor="inputPassword4" className="form-label">
                     Cantidad
                   </label>

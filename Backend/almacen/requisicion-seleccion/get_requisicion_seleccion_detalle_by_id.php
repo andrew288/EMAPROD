@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             rs.codLotSel,
             p.nomProd,
             p.codProd,
+            p.codProd2,
             rsd.idReqSelDetEst,
             rsde.desReqSelDetEst,
             rsd.canReqSelDet

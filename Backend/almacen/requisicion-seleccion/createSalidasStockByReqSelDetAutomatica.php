@@ -167,7 +167,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $sql_update_entrada_stock =
                                     "UPDATE
                                     entrada_stock
-                                    SET canTotDis = $canResAftOpe, merDis = merDis - $merSalStoReq, idEntStoEst = ?, fecFinSto = ?
+                                    SET canTotDis = $canResAftOpe, canSel = canSel + $canSalStoReq, merDis = merDis - $merSalStoReq, idEntStoEst = ?, fecFinSto = ?
                                     WHERE id = ?
                                     ";
                                 $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);
@@ -182,7 +182,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $sql_update_entrada_stock =
                                     "UPDATE
                                     entrada_stock
-                                    SET canTotDis = $canResAftOpe, merDis = merDis - $merSalStoReq, idEntStoEst = ?
+                                    SET canTotDis = $canResAftOpe, canSel = canSel + $canSalStoReq, merDis = merDis - $merSalStoReq, idEntStoEst = ?
                                     WHERE id = ?
                                     ";
                                 $stmt_update_entrada_stock = $pdo->prepare($sql_update_entrada_stock);

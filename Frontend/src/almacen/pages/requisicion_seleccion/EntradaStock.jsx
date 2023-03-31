@@ -10,6 +10,7 @@ import { getSalidasDisponiblesForSeleccion } from "./../../helpers/requisicion-s
 import { createEntradasStockByReqSelDet } from "../../helpers/requisicion-seleccion/createEntradasStockByReqSelDet";
 import FechaPicker from "./../../../components/Fechas/FechaPicker";
 import { RowSalidaDisponibleSeleccion } from "./../../components/RowSalidaDisponibleSeleccion";
+import { FilterAllProductos } from "../../../components/ReferencialesFilters/Producto/FilterAllProductos";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -22,12 +23,16 @@ export const EntradaStock = () => {
 
   // ESTADOS PARA EL FORMULARIO DE SALIDA
   const [entradaSeleccion, setentradaSeleccion] = useState({
+    codLotSel: "",
     idReqSelDet: 0,
     idReqSel: 0,
     codReqSel: "",
     idMatPri: 0,
     codMatPri: "",
     salStoSelDet: [],
+    codProd: "",
+    codProd2: "",
+    canReqSelDet: 0,
   });
 
   const {
@@ -35,14 +40,17 @@ export const EntradaStock = () => {
     codLotSel,
     idMatPri,
     codProd,
+    codProd2,
     nomProd,
-    fecSalStoReqSel,
     canReqSelDet,
     salStoSelDet,
   } = entradaSeleccion;
 
   // ESTADO PARA LA ENTRADA DE REQUISICION SELECCION
   const [canReqSelEnt, setCanReqSelEnt] = useState(0);
+
+  // ESTADO PARA EL PRODUCTO DE ENTRADA
+  const [prodtEnt, setprodtEnt] = useState(0);
 
   // ESTADO PARA LAS SALIDAS DISPONIBLES
   const [salidasDisponibles, setsalidasDisponibles] = useState([]);
@@ -144,6 +152,7 @@ export const EntradaStock = () => {
             idMatPri,
             codLotSel,
             codProd,
+            codProd2,
             canReqSelDet,
           } = result[0];
           // SETEAMOS EL CONTADOR
@@ -156,6 +165,7 @@ export const EntradaStock = () => {
             idMatPri: idMatPri,
             codLotSel: codLotSel,
             codProd: codProd,
+            codProd2: codProd2,
             canReqSelDet: canReqSelDet,
           });
           // TRAEMOS LOS DATOS DE SUS SALIDAS CORRESPONDIENTE A LA MATERIA PRIMA
@@ -186,19 +196,19 @@ export const EntradaStock = () => {
 
   const crearEntradasStockByRequisicionSeleccionDetalle = async (body) => {
     console.log(body);
-    const { message_error, description_error } =
-      await createEntradasStockByReqSelDet(body);
+    // const { message_error, description_error } =
+    //   await createEntradasStockByReqSelDet(body);
 
-    if (message_error.length === 0) {
-      // Volvemos a la vista de requisiciones
-      onNavigateBack();
-    } else {
-      setfeedbackMessages({
-        style_message: "error",
-        feedback_description_error: description_error,
-      });
-      handleClickFeeback();
-    }
+    // if (message_error.length === 0) {
+    //   // Volvemos a la vista de requisiciones
+    //   onNavigateBack();
+    // } else {
+    //   setfeedbackMessages({
+    //     style_message: "error",
+    //     feedback_description_error: description_error,
+    //   });
+    //   handleClickFeeback();
+    // }
     setdisableButton(false);
   };
 
@@ -320,7 +330,7 @@ export const EntradaStock = () => {
               </h6>
               <div className="card-body">
                 <div className="row">
-                  <div className="form-group col-md-2">
+                  <div className="form-group col-md-5">
                     <label
                       htmlFor="codigo-materia-prima"
                       className="col-form-label"
@@ -345,7 +355,22 @@ export const EntradaStock = () => {
                     <input
                       type="text"
                       name="codProd"
-                      value={codProd}
+                      value={codProd === null ? "No establecido" : codProd}
+                      disabled
+                      className="form-control"
+                    />
+                  </div>
+                  <div className="form-group col-md-2">
+                    <label
+                      htmlFor="codigo-materia-prima"
+                      className="col-form-label"
+                    >
+                      <b>Codigo EMAPROD</b>
+                    </label>
+                    <input
+                      type="text"
+                      name="codProd"
+                      value={codProd2 === null ? "No establecido" : codProd2}
                       disabled
                       className="form-control"
                     />
@@ -363,7 +388,7 @@ export const EntradaStock = () => {
               <div className="card-body">
                 <div className="row">
                   <form>
-                    <div className="form-group col-md-12 d-flex">
+                    <div className="form-group col-md-6 d-flex">
                       <label
                         htmlFor="codigo-materia-prima"
                         className="col-form-label"
@@ -393,6 +418,17 @@ export const EntradaStock = () => {
                             <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2 .5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5zm0 4v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM4.5 9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM4 12.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM7.5 6a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM7 9.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM10 6.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5h-1z" />
                           </svg>
                         </button>
+                      </div>
+                    </div>
+                    <div className="form-group col-md-6 d-flex">
+                      <label
+                        htmlFor="codigo-materia-prima"
+                        className="col-form-label"
+                      >
+                        Producto entrada
+                      </label>
+                      <div className="col d-flex ms-3">
+                        <FilterAllProductos />
                       </div>
                     </div>
                   </form>
