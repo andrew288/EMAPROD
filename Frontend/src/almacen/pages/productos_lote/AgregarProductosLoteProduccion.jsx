@@ -23,6 +23,11 @@ import { FilterAllProductos } from "../../../components/ReferencialesFilters/Pro
 import { TextField } from "@mui/material";
 import { getMateriaPrimaById } from "../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { createProductosFinalesLoteProduccion } from "./../../helpers/producto-produccion/createProductosFinalesLoteProduccion";
+import {
+  DiaJuliano,
+  FormatDateTimeMYSQLNow,
+  letraAnio,
+} from "../../../utils/functions/FormatDate";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -142,6 +147,7 @@ export const AgregarProductosLoteProduccion = () => {
           const {
             id: idProd,
             codProd,
+            codProd2,
             desCla,
             desSubCla,
             nomProd,
@@ -152,6 +158,7 @@ export const AgregarProductosLoteProduccion = () => {
             idProdc: id, // lote de produccion asociado
             idProdt: idProd, // producto
             codProd: codProd, // codigo de producto
+            codProd2: codProd2, // codigo emaprod
             desCla: desCla, // clase del producto
             desSubCla: desSubCla, // subclase del producto
             nomProd: nomProd, // nombre del producto
@@ -231,9 +238,21 @@ export const AgregarProductosLoteProduccion = () => {
 
   // ****** SUBMIT PRODUCTOS FINALES ******
   const crearProductosFinalesLoteProduccion = async () => {
-    console.log(detalleProductosFinales);
+    const { idProdTip } = proFinProd;
+    // obtenemos la fecha de ingreso
+    const fechaIngreso = FormatDateTimeMYSQLNow();
+
+    // data entrada
+    const dataEntrada = {
+      letAniEntSto: letraAnio(fechaIngreso),
+      diaJulEntSto: DiaJuliano(fechaIngreso),
+      fecEntSto: fechaIngreso,
+    };
+    console.log(detalleProductosFinales, idProdTip, dataEntrada);
     const resultPeticion = await createProductosFinalesLoteProduccion(
-      detalleProductosFinales
+      detalleProductosFinales,
+      idProdTip,
+      dataEntrada
     );
     console.log(resultPeticion);
     const { message_error, description_error } = resultPeticion;

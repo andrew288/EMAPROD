@@ -19,7 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sql =
                 "SELECT
             p.id,
-            p.codProd, 
+            p.codProd,
+            p.codProd2,
             p.idCla,
             c.desCla,
             p.idMed,
