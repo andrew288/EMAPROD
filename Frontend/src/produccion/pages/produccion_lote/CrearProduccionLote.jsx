@@ -840,6 +840,7 @@ export const CrearProduccionLote = () => {
                   <label className="form-label">Cantidad</label>
                   <TextField
                     size="small"
+                    type="number"
                     name="cantidadRequisicion"
                     onChange={handleInputsProductosRequisicion}
                   />

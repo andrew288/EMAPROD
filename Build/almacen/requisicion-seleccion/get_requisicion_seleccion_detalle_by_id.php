@@ -21,13 +21,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             rsd.idMatPri,
             rsd.idReqSel,
             rs.codReqSel,
-            mp.nomMatPri,
-            mp.codMatPri,
+            rs.codLotSel,
+            p.nomProd,
+            p.codProd,
+            p.codProd2,
             rsd.idReqSelDetEst,
             rsde.desReqSelDetEst,
             rsd.canReqSelDet
             FROM requisicion_seleccion_detalle as rsd
-            JOIN materia_prima as mp on mp.id = rsd.idMatPri
+            JOIN producto as p on p.id = rsd.idMatPri
             JOIN requisicion_seleccion_detalle_estado as rsde on rsde.id = rsd.idReqSelDetEst
             JOIN requisicion_seleccion as rs on rs.id = rsd.idreqSel
             WHERE rsd.id = ?

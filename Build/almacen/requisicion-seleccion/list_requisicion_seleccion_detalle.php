@@ -2,6 +2,7 @@
 include_once "../../common/cors.php";
 header('Content-Type: application/json; charset=utf-8');
 require('../../common/conexion.php');
+require_once('../../common/utils.php');
 
 $pdo = getPDO();
 $result = [];
@@ -13,6 +14,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
 
+    $fechasMes = getStartEndDateNow();
+    $fechaInicio = $fechasMes[0]; // inicio del mes
+    $fechaFin = $fechasMes[1]; // fin del mes
+
+    if (isset($data)) {
+        if (!empty($data["fecReqMolIni"])) {
+            $fechaInicio = $data["fecReqMolIni"];
+        }
+        if (!empty($data["fecReqMolFin"])) {
+            $fechaFin = $data["fecReqMolFin"];
+        }
+    }
+
+
     $data_requisicion_seleccion = [];
 
     if ($pdo) {
@@ -21,16 +36,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             rs.id,
             rs.idReqSelEst,
             rse.desReqSelEst,
-            rs.codReqSel,
-            rs.canReqSel,
-            DATE(rs.fecPedReqSel) as fecPedReqSel,
-            DATE(rs.fecTerReqSel) as fecTerReqSel
+            rs.codLotSel,
+            rs.fecPedReqSel,
+            rs.fecTerReqSel
             FROM requisicion_seleccion rs
             JOIN requisicion_seleccion_estado as rse on rse.id = rs.idReqSelEst
+            WHERE DATE(rs.fecPedReqSel) BETWEEN '$fechaInicio' AND '$fechaFin'
+            ORDER BY rs.fecPedReqSel DESC
             ";
-        // PREPARAMOS LA CONSULTA
-        $stmt = $pdo->prepare($sql);
+
         try {
+            // PREPARAMOS LA CONSULTA
+            $stmt = $pdo->prepare($sql);
             $stmt->execute();
         } catch (Exception $e) {
             $message_error = "ERROR INTERNO SERVER";
@@ -47,13 +64,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             rsd.id,
             rsd.idReqSel,
             rsd.idMatPri,
-            mp.nomMatPri,
-            mp.codMatPri,
+            p.nomProd,
+            p.codProd,
             rsd.idReqSelDetEst,
             rsde.desReqSelDetEst,
             rsd.canReqSelDet
             FROM requisicion_seleccion_detalle rsd
-            JOIN materia_prima as mp on mp.id = rsd.idMatPri
+            JOIN producto as p on p.id = rsd.idMatPri
             JOIN requisicion_seleccion_detalle_estado as rsde on rsde.id = rsd.idReqSelDetEst
             WHERE rsd.idReqSel = ?
             ";

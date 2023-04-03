@@ -22,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ses.idEntSto,
             ses.idMatPri,
             es.codEntSto,
+            es.idAlm,
             es.canTotDis,
             es.canPorSel,
             es.canSel,

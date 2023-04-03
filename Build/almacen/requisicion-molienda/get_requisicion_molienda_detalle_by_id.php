@@ -12,29 +12,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
-    $idReqMolDet = $data["id"];
+    $idReqDet = $data["id"];
 
     if ($pdo) {
         $sql =
             "SELECT
-            rmd.id,
-            rmd.idMatPri,
-            rmd.idReqMol,
-            rm.codLotReqMol,
-            mp.nomMatPri,
-            mp.codMatPri,
-            rmd.idReqMolDetEst,
-            rmde.desReqMolDetEst,
-            rmd.canReqMolDet
-            FROM requisicion_molienda_detalle as rmd
-            JOIN materia_prima as mp on mp.id = rmd.idMatPri
-            JOIN requisicion_molienda_detalle_estado as rmde on rmde.id = rmd.idReqMolDetEst
-            JOIN requisicion_molienda as rm on rm.id = rmd.idreqMol
-            WHERE rmd.id = ?
+            rd.id,
+            rd.idProdt,
+            rd.idReq,
+            rd.idReqDetEst,
+            pd.codLotProd,
+            p.nomProd,
+            p.codProd,
+            p.codProd2,
+            rde.desReqDetEst,
+            rd.canReqMolDet
+            FROM requisicion_detalle as rd
+            JOIN producto as p on p.id = rd.idProdt
+            JOIN requisicion_detalle_estado as rde on rde.id = rd.idReqDetEst
+            JOIN requisicion as r on r.id = rd.idReq
+            JOIN produccion pd on pd.id = r.idProdc
+            WHERE rd.id = ?
             ";
         // PREPARAMOS LA CONSULTA
         $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(1, $idReqMolDet, PDO::PARAM_INT);
+        $stmt->bindParam(1, $idReqDet, PDO::PARAM_INT);
         try {
             $stmt->execute();
         } catch (Exception $e) {

@@ -166,6 +166,7 @@ export const AgregarProductosLoteProduccion = () => {
             fecVenEntProdFin: fecVenLotProd, // fecha de vencimiento del lote
             canProdFin: cantidadIngresada, // cantidad devuelta
           };
+          console.log(detalle);
 
           // seteamos el detalle
           const dataDetalle = [...detalleProductosFinales, detalle];

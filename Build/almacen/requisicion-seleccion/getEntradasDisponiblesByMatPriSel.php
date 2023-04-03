@@ -18,6 +18,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql =
             "SELECT
             es.id,
+            es.idAlm,
+            a.nomAlm,
             es.codEntSto,
             es.refNumIngEntSto,
             DATE(es.fecEntSto) AS fecEntSto,
@@ -25,15 +27,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             es.canPorSel,
             es.canSel 
         FROM entrada_stock AS es
-        WHERE idMatPri = ? AND canPorSel <> 0.00
+        JOIN almacen a ON a.id = es.idAlm 
+        WHERE idProd = ? AND canPorSel <> 0.00 AND es.esSel = ?
         ORDER BY es.refNumIngEntSto DESC
         ";
         //Preparamos la consulta
         $stmt = $pdo->prepare($sql);
 
         $idEntStoEst = 1; // ESTADO DISPONIBLE DE LAS ENTRADAS
+        $esSel = 1;
 
         $stmt->bindParam(1, $idMatPri, PDO::PARAM_INT);
+        $stmt->bindParam(2, $esSel, PDO::PARAM_BOOL);
 
         // Comprobamos la respuesta
         try {

@@ -323,7 +323,7 @@ export const AgregarFormulaPorProducto = () => {
                   <label htmlFor="nombre" className="col-sm-2 col-form-label">
                     Producto final
                   </label>
-                  <div className="col-md-4">
+                  <div className="col-md-6">
                     <FilterAllProductos onNewInput={onAddProducto} />
                   </div>
                 </div>
