@@ -110,7 +110,6 @@ const AgregarEntradaStock = () => {
 
   // SET VALOR DE FECHA DE formState
   const onAddFecEntSto = (newfecEntSto) => {
-    console.log(newfecEntSto);
     setFormState({ ...formState, fecEntSto: newfecEntSto });
   };
 

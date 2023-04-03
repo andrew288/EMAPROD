@@ -11,6 +11,12 @@ import { createEntradasStockByReqSelDet } from "../../helpers/requisicion-selecc
 import FechaPicker from "./../../../components/Fechas/FechaPicker";
 import { RowSalidaDisponibleSeleccion } from "./../../components/RowSalidaDisponibleSeleccion";
 import { FilterAllProductos } from "../../../components/ReferencialesFilters/Producto/FilterAllProductos";
+import FechaPickerYear from "../../../components/Fechas/FechaPickerYear";
+import {
+  DiaJuliano,
+  FormatDateTimeMYSQLNow,
+  letraAnio,
+} from "../../../utils/functions/FormatDate";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -50,7 +56,28 @@ export const EntradaStock = () => {
   const [canReqSelEnt, setCanReqSelEnt] = useState(0);
 
   // ESTADO PARA EL PRODUCTO DE ENTRADA
-  const [prodtEnt, setprodtEnt] = useState(0);
+  const [datosEntrada, setdatosEntrada] = useState({
+    prodtEnt: 0,
+    codProdEnt: "",
+    fecVenEntSto: "",
+  });
+
+  const { prodtEnt, fecVenEntSto, codProdEnt } = datosEntrada;
+
+  // *********** FUNCIONES PARA MANEJO DE DATOS DE ENTRADA **********
+  // agregar materia prima seleccionada
+  const onAddProductoSeleccionadoEntrada = ({ id, value }) => {
+    setdatosEntrada({
+      ...datosEntrada,
+      prodtEnt: id,
+      codProdEnt: value,
+    });
+  };
+
+  // agregar fecha de vencimiento
+  const onAddFecVenEntSto = (newfecEntSto) => {
+    setdatosEntrada({ ...datosEntrada, fecVenEntSto: newfecEntSto });
+  };
 
   // ESTADO PARA LAS SALIDAS DISPONIBLES
   const [salidasDisponibles, setsalidasDisponibles] = useState([]);
@@ -194,21 +221,39 @@ export const EntradaStock = () => {
     setsalidasDisponibles(result);
   };
 
-  const crearEntradasStockByRequisicionSeleccionDetalle = async (body) => {
-    console.log(body);
-    // const { message_error, description_error } =
-    //   await createEntradasStockByReqSelDet(body);
+  const crearEntradasStockByRequisicionSeleccionDetalle = async () => {
+    // obtenemos la fecha de ingreso
+    const fechaIngreso = FormatDateTimeMYSQLNow();
 
-    // if (message_error.length === 0) {
-    //   // Volvemos a la vista de requisiciones
-    //   onNavigateBack();
-    // } else {
-    //   setfeedbackMessages({
-    //     style_message: "error",
-    //     feedback_description_error: description_error,
-    //   });
-    //   handleClickFeeback();
-    // }
+    // datos de la entrada
+    const datEntSto = {
+      ...datosEntrada,
+      letAniEntSto: letraAnio(fechaIngreso),
+      diaJulEntSto: DiaJuliano(fechaIngreso),
+      fecEntSto: fechaIngreso,
+    };
+
+    // datos para el backend
+    const data = {
+      ...entradaSeleccion,
+      salStoSelDet: salidasDisponibles,
+      datEntSto: datEntSto,
+    };
+    console.log(data);
+
+    const { message_error, description_error } =
+      await createEntradasStockByReqSelDet(data);
+
+    if (message_error.length === 0) {
+      // Volvemos a la vista de requisiciones
+      onNavigateBack();
+    } else {
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
     setdisableButton(false);
   };
 
@@ -216,7 +261,13 @@ export const EntradaStock = () => {
   const onSubmitSalidaStock = (e) => {
     e.preventDefault();
     // CONDICIONES DE ENVIO
-    if (salidasDisponibles.length === 0 || idReqSel === 0 || idMatPri === 0) {
+    if (
+      salidasDisponibles.length === 0 ||
+      idReqSel === 0 ||
+      idMatPri === 0 ||
+      prodtEnt === 0 ||
+      fecVenEntSto.length === 0
+    ) {
       // MANEJAMOS FORMULARIOS INCOMPLETOS
       if (salidasDisponibles.length === 0) {
         setfeedbackMessages({
@@ -256,9 +307,8 @@ export const EntradaStock = () => {
       // evaluamos el valor del mensaje de error
 
       if (message_error.length === 0) {
-        const data = { ...entradaSeleccion, salStoSelDet: salidasDisponibles };
         setdisableButton(true);
-        crearEntradasStockByRequisicionSeleccionDetalle(data);
+        crearEntradasStockByRequisicionSeleccionDetalle();
       } else {
         setfeedbackMessages({
           style_message: "warning",
@@ -380,6 +430,35 @@ export const EntradaStock = () => {
             </div>
           </div>
 
+          {/* DATOS DE LA ENTRADA */}
+          <div className="mb-3 row">
+            <div className="card d-flex">
+              <h6 className="card-header" id="response-serie-number-sale">
+                <b>Datos de entrada</b>
+              </h6>
+              <div className="card-body">
+                <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
+                  <div className="col-md-6">
+                    <label htmlFor="inputPassword4" className="form-label">
+                      Materia Prima Seleccionada
+                    </label>
+                    <FilterAllProductos
+                      onNewInput={onAddProductoSeleccionadoEntrada}
+                    />
+                  </div>
+
+                  {/* AGREGAR CANTIDAD*/}
+                  <div className="col-md-4">
+                    <label htmlFor="inputPassword4" className="form-label">
+                      Fecha de vencimiento
+                    </label>
+                    <FechaPickerYear onNewfecEntSto={onAddFecVenEntSto} />
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
           <div className="mb-3 row">
             <div className="card d-flex">
               <h6 className="card-header" id="response-serie-number-sale">
@@ -420,17 +499,6 @@ export const EntradaStock = () => {
                         </button>
                       </div>
                     </div>
-                    <div className="form-group col-md-6 d-flex">
-                      <label
-                        htmlFor="codigo-materia-prima"
-                        className="col-form-label"
-                      >
-                        Producto entrada
-                      </label>
-                      <div className="col d-flex ms-3">
-                        <FilterAllProductos />
-                      </div>
-                    </div>
                   </form>
                 </div>
                 <div className="table-responsive mt-4">
@@ -438,7 +506,6 @@ export const EntradaStock = () => {
                     <thead className="table-success ">
                       <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Fecha ingreso</th>
                         <th scope="col">Salida</th>
                         <th scope="col">Ingreso</th>
                         <th scope="col">Merma</th>

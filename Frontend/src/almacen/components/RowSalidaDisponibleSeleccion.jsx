@@ -16,13 +16,6 @@ export const RowSalidaDisponibleSeleccion = ({
   return (
     <tr>
       <td scope="row">{index + 1}</td>
-      <td>
-        <FechaPicker
-          onNewFechaEntrada={() => {
-            console.log("GAA");
-          }}
-        />
-      </td>
       <td>{element.canSalStoReqSel}</td>
       <td>
         <input

@@ -111,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bindParam(5, $codEntSto, PDO::PARAM_STR); // codigo de entrada
                 $stmt->bindParam(6, $letAniEntSto, PDO::PARAM_STR); // letra de año
                 $stmt->bindParam(7, $diaJulEntSto, PDO::PARAM_STR); // dia juliano
-                $stmt->bindParam(8, $refNumIngEntSto, PDO::PARAM_INT); // referencia de numero de ingreso
+                $stmt->bindParam(8, $refNumIngEntSto, PDO::PARAM_STR); // referencia de numero de ingreso
                 $stmt->bindParam(9, $esSel, PDO::PARAM_BOOL); // es seleccion
                 $stmt->bindParam(10, $docEntSto, PDO::PARAM_STR); // documento
                 $stmt->bindParam(11, $fecVenEntSto, PDO::PARAM_STR); // fecha de vencimiento
@@ -155,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         // CREATE NUEVO REGISTRO ALMACEN STOCK
                         $sql_create_almacen_stock =
                             "INSERT INTO almacen_stock (idProd, idAlm, canSto, canStoDis)
-                        VALUE (?,?,$canTotEnt,$canTotDis)";
+                        VALUES (?,?,$canTotEnt,$canTotDis)";
                         try {
                             $stmt_create_almacen_stock = $pdo->prepare($sql_create_almacen_stock);
                             $stmt_create_almacen_stock->bindParam(1, $idProd, PDO::PARAM_INT);
