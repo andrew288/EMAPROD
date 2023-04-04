@@ -18,46 +18,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $idMatPri = $data["idMatPri"]; // id materia prima
     $salStoSelDet = $data["salStoSelDet"]; // salida
     $datEntSto =  $data["datEntSto"]; // datos de la entrada
-    $cantidadTotalEntrada = 0;
+    $cantidadTotalEntrada = 0; // cantidad total ingresada
+    $mermaTotalIngresada = 0; // merma total generada
 
     if ($pdo) {
         $sql = "";
         foreach ($salStoSelDet as $item) {
 
+            // OBTENEMOS LOS DATOS
+            $idSalEntStoSel = $item["id"]; // id salida entrada stock seleccion
+            $idEntSto = $item["idEntSto"]; // id entrada stock
+            $canSalStoReqSel = $item["canSalStoReqSel"]; // cantidad de salida
+            $canEntStoReqSel = $item["canEntStoReqSel"]; // cantidad entrada prorrateada
+            $merReqSel = $item["merReqSel"]; // merma total
+            $idAlm = $item["idAlm"]; // id de la entrada
+            $fecEntStoReqSel = date('Y-m-d H:i:s'); // Fecha de la entrada a stock
+
+            $idSalEntSelEst = 2; // ESTADO DE ENTRADA COMPLETADA
+
+            // ACTUALIZAMOS LA SALIDA_ENTRADA_SELECCION
+            $idSalEntSelEstSalidaCompleta = 1;
+
+            // sql de actualizacion
+            $sql_update_entrada_seleccion =
+                "UPDATE
+            salida_entrada_seleccion
+            SET canEntStoReqSel = $canEntStoReqSel, merReqSel = $merReqSel, idSalEntSelEst = ?, fecEntStoReqSel = ?
+            WHERE id = ? AND idSalEntSelEst = ?";
+
             try {
                 // INICIAMOS UNA TRANSACCION
                 $pdo->beginTransaction();
 
-                // OBTENEMOS LOS DATOS
-                $idSalEntStoSel = $item["id"]; // id salida entrada stock seleccion
-                $idEntSto = $item["idEntSto"]; // id entrada stock
-                $canSalStoReqSel = $item["canSalStoReqSel"]; // cantidad de salida
-                $canEntStoReqSel = $item["canEntStoReqSel"]; // cantidad entrada prorrateada
-                $merReqSel = $item["merReqSel"]; // merma total
-                $idAlm = $item["idAlm"]; // id de la entrada
-                $fecEntStoReqSel = date('Y-m-d H:i:s'); // Fecha de la entrada a stock
-
-                $idSalEntSelEst = 2; // ESTADO DE ENTRADA COMPLETADA
-
-                // ACTUALIZAMOS LA SALIDA_ENTRADA_SELECCION
-                $idSalEntSelEstSalidaCompleta = 1;
-                $sql =
-                    "UPDATE
-                    salida_entrada_seleccion
-                    SET canEntStoReqSel = $canEntStoReqSel, merReqSel = $merReqSel, idSalEntSelEst = ?, fecEntStoReqSel = ?
-                    WHERE id = ? AND idSalEntSelEst = ?";
-
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(1, $idSalEntSelEst, PDO::PARAM_INT);
-                $stmt->bindParam(2, $fecEntStoReqSel); // fecha de la entrada
-                $stmt->bindParam(3, $idSalEntStoSel, PDO::PARAM_INT);
-                $stmt->bindParam(4, $idSalEntSelEstSalidaCompleta, PDO::PARAM_INT);
+                $stmt_update_entrada_seleccion = $pdo->prepare($sql_update_entrada_seleccion);
+                $stmt_update_entrada_seleccion->bindParam(1, $idSalEntSelEst, PDO::PARAM_INT);
+                $stmt_update_entrada_seleccion->bindParam(2, $fecEntStoReqSel); // fecha de la entrada
+                $stmt_update_entrada_seleccion->bindParam(3, $idSalEntStoSel, PDO::PARAM_INT);
+                $stmt_update_entrada_seleccion->bindParam(4, $idSalEntSelEstSalidaCompleta, PDO::PARAM_INT);
 
                 // EJECUTAMOS LA ACTUALIZACION DE LA TABLA
-                $stmt->execute();
+                $stmt_update_entrada_seleccion->execute();
 
                 // AUMENTAMOS LA CANTIDAD TOTAL
                 $cantidadTotalEntrada += $canEntStoReqSel;
+                $mermaTotalIngresada += $merReqSel;
                 // TERMINAMOS LA TRANSACCION
                 $pdo->commit();
             } catch (PDOException $e) {
@@ -93,9 +97,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ORDER BY refNumIngEntSto DESC LIMIT 1";
 
             try {
-
-                $pdo->beginTransaction(); // EMPEZAMOS UNA TRANSACCION
-
                 // ***** OBTENEMOS EN NUMERO DE REFERENCIA DE INGRESO ******
                 $stmt_numero_entrada = $pdo->prepare($sql_numero_entrada);
                 $stmt_numero_entrada->bindParam(1, $idProd, PDO::PARAM_INT);
@@ -119,6 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $refNumIngEntSto = str_pad(strval($refNumIngEntSto), 3, "0", STR_PAD_LEFT);
                 // ***** FORMAMOS EL CODIGO DE ENTRADA ******
                 $codEntSto = $codProd . $codProv . $letAniEntSto . $diaJulEntSto . $refNumIngEntSto;
+                // sql de insert entrada seleccion
                 $sql_insert_entrada_seleccion =
                     "INSERT INTO entrada_stock
                 (idProd,
@@ -132,10 +134,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 esSel,
                 canTotEnt,
                 canTotDis,
+                merDis,
+                merTot,
                 docEntSto,
                 fecEntSto,
                 fecVenEntSto)
-                VALUES (?,?,?,?,?,?,?,?,?, $cantidadTotalEntrada, $cantidadTotalEntrada,?,?,?)";
+                VALUES (?,?,?,?,?,?,?,?,?, $cantidadTotalEntrada, $cantidadTotalEntrada, $mermaTotalIngresada, $mermaTotalIngresada,?,?,?)";
 
                 try {
                     $stmt_insert_entrada_seleccion = $pdo->prepare($sql_insert_entrada_seleccion);
@@ -149,11 +153,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt_insert_entrada_seleccion->bindParam(8, $refNumIngEntSto, PDO::PARAM_STR);
                     $stmt_insert_entrada_seleccion->bindParam(9, $esSel, PDO::PARAM_BOOL);
                     $stmt_insert_entrada_seleccion->bindParam(10, $docEntSto, PDO::PARAM_STR);
-                    $stmt_insert_entrada_seleccion->bindParam(12, $fecEntSto);
-                    $stmt_insert_entrada_seleccion->bindParam(11, $fecVenEntSto);
+                    $stmt_insert_entrada_seleccion->bindParam(11, $fecEntSto);
+                    $stmt_insert_entrada_seleccion->bindParam(12, $fecVenEntSto);
 
                     $stmt_insert_entrada_seleccion->execute();
-
                     // ACTUALIZAMOS EL STOCK TOTAL DEL ALMACEN Y LA MATERIA PRIMA
                     // SI NO ES UNA ENTRADA DE SELECCION, ENTONCES ACTUALIZAMOS DIRECTAMENTE EL STOCK
 
@@ -176,13 +179,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 WHERE idProd = ? AND idAlm = ?";
                             try {
                                 $stmt_update_almacen_stock = $pdo->prepare($sql_update_almacen_stock);
-                                $stmt_update_almacen_stock->bindParam(1, $fecEntSto, PDO::PARAM_INT);
+                                $stmt_update_almacen_stock->bindParam(1, $fecEntSto);
                                 $stmt_update_almacen_stock->bindParam(2, $idProd, PDO::PARAM_INT);
                                 $stmt_update_almacen_stock->bindParam(3, $idAlm, PDO::PARAM_INT);
 
                                 $stmt_update_almacen_stock->execute(); // ejecutamos
                             } catch (PDOException $e) {
-                                $pdo->rollback();
                                 $message_error = "ERROR INTERNO SERVER AL ACTUALIZAR ALMACEN STOCK";
                                 $description_error = $e->getMessage();
                             }
@@ -198,16 +200,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 $stmt_create_almacen_stock->execute(); // ejecutamos
                             } catch (PDOException $e) {
-                                $pdo->rollback();
                                 $message_error = "ERROR INTERNO SERVER AL CREAR ALMACEN STOCK";
                                 $description_error = $e->getMessage();
                             }
                         }
-
-                        // TERMINAMOS LA TRANSACCION
-                        $pdo->commit();
                     } catch (PDOException $e) {
-                        $pdo->rollback();
                         $message_error = "ERROR INTERNO SERVER AL CONSULTAR ALMACEN STOCK";
                         $description_error = $e->getMessage();
                     }
@@ -216,8 +213,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $description_error = $e->getMessage();
                 }
             } catch (PDOException $e) {
-                // No se pudo realizar la conexion a la base de datos
-                $pdo->rollback();
                 $message_error = "ERROR AL OBTENER EL NUMERO DE INGRESO";
                 $description_error = $e->getMessage();
             }
@@ -227,13 +222,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (empty($message_error)) {
 
             // PRIMERO ACTUALIZAMOS EL DETALLE DE REQUISICION SELECCION
+            $idSalEntSelEst = 1; // ESTADO DE SALIDA TERMINADA
+
+            $sql_consulta_salida_entrada_seleccion =
+                "SELECT * FROM salida_entrada_seleccion
+                WHERE idSalEntSelEst = ? AND idReqSel = ? AND idMatPri = ?";
+
             try {
                 // Iniciamos una transaccion
                 $pdo->beginTransaction();
-                $idSalEntSelEst = 1; // ESTADO DE SALIDA TERMINADA
-                $sql_consulta_salida_entrada_seleccion =
-                    "SELECT * FROM salida_entrada_seleccion
-                WHERE idSalEntSelEst = ? AND idReqSel = ? AND idMatPri = ?";
                 $stmt_consulta_salida_entrada_seleccion = $pdo->prepare($sql_consulta_salida_entrada_seleccion);
                 $stmt_consulta_salida_entrada_seleccion->bindParam(1, $idSalEntSelEst, PDO::PARAM_INT);
                 $stmt_consulta_salida_entrada_seleccion->bindParam(2, $idReqSel, PDO::PARAM_INT);
@@ -261,14 +258,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt_update_requisicion_seleccion_detalle->bindParam(4, $idReqSelDet, PDO::PARAM_INT);
                 $stmt_update_requisicion_seleccion_detalle->execute();
 
-                // TERMINAMOS LA TRANSACCION
-                $pdo->commit();
-
-
                 // POR ULTIMO ACTUALIZAMOS EL MAESTRO DE REQUISICION SELECCION
                 try {
-                    // Iniciamos una transaccion
-                    $pdo->beginTransaction();
                     $idReqSelDetEst = 4; // ESTADO DE DETALLE REQUISICION SELECCION COMPLETADO
                     $sql_consulta_requisicion_seleccion_detalle =
                         "SELECT * FROM requisicion_seleccion_detalle
@@ -310,14 +301,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $stmt_update_requsicion_seleccion->execute();
                         }
                     }
-
-                    // TERMINAMOS LA TRANSACCION
-                    $pdo->commit();
                 } catch (PDOException $e) {
-                    $pdo->rollback();
                     $message_error = "ERROR INTERNO SERVER: fallo en la actualización del estadp de requisicion seleccion";
                     $description_error = $e->getMessage();
                 }
+
+                // TERMINAMOS LA TRANSACCION
+                $pdo->commit();
             } catch (PDOException $e) {
                 $pdo->rollback();
                 $message_error = "ERROR INTERNO SERVER: fallo en la actualización del estado de requision seleccion detalle";

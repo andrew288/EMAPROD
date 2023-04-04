@@ -241,8 +241,9 @@ export const EntradaStock = () => {
     };
     console.log(data);
 
-    const { message_error, description_error } =
-      await createEntradasStockByReqSelDet(data);
+    const resultPeticion = await createEntradasStockByReqSelDet(data);
+    console.log(resultPeticion);
+    const { message_error, description_error } = resultPeticion;
 
     if (message_error.length === 0) {
       // Volvemos a la vista de requisiciones
