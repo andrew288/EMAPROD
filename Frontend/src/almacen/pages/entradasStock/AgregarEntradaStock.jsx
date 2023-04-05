@@ -20,6 +20,7 @@ import { createEntradaStock } from "./../../helpers/entradas-stock/createEntrada
 import { FilterProveedor } from "./../../../components/ReferencialesFilters/Proveedor/FilterProveedor";
 import { FilterAlmacen } from "./../../../components/ReferencialesFilters/Almacen/FilterAlmacen";
 import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
+import { Typography } from "@mui/material";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -133,21 +134,21 @@ const AgregarEntradaStock = () => {
 
     console.log(requestJSON);
     // AHORA ENVIAMOS LA DATA AL BACKEND
-    const { message_error, description_error } = await createEntradaStock(
-      requestJSON
-    );
-    if (message_error.length === 0) {
-      // navegamos a la anterior vista
-      onNavigateBack();
-    } else {
-      // mostramos el error recepcionado del backend
-      setfeedbackMessages({
-        style_message: "error",
-        feedback_description_error: description_error,
-      });
-      handleClickFeeback();
-      // habilitamos el boton de crear
-    }
+    // const { message_error, description_error } = await createEntradaStock(
+    //   requestJSON
+    // );
+    // if (message_error.length === 0) {
+    //   // navegamos a la anterior vista
+    //   onNavigateBack();
+    // } else {
+    //   // mostramos el error recepcionado del backend
+    //   setfeedbackMessages({
+    //     style_message: "error",
+    //     feedback_description_error: description_error,
+    //   });
+    //   handleClickFeeback();
+    //   // habilitamos el boton de crear
+    // }
 
     setdisableButton(false);
   };
@@ -155,7 +156,7 @@ const AgregarEntradaStock = () => {
   // SUBMIT DE UNA formState COMUNICACION CON BACKEND
   const onSubmitformState = (event) => {
     event.preventDefault();
-
+    let advertenciaFormularioIncompleto = "";
     // VERIFICAMOS SI SE INGRESARON LOS CAMPOS REQUERIDOS
     if (
       idProd === 0 ||
@@ -166,23 +167,59 @@ const AgregarEntradaStock = () => {
       canTotCom <= 0 ||
       fecVenEntSto.length === 0
     ) {
-      if (fecVenEntSto.length === 0) {
-        // MANEJAMOS FORMULARIOS INCOMPLETOS
-        setfeedbackMessages({
-          style_message: "warning",
-          feedback_description_error:
-            "Asegurese de ingresar una fecha de vencimiento",
-        });
-        handleClickFeeback();
-      } else {
-        // MANEJAMOS FORMULARIOS INCOMPLETOS
-        setfeedbackMessages({
-          style_message: "warning",
-          feedback_description_error:
-            "Asegurese de llenar los datos requeridos",
-        });
-        handleClickFeeback();
+      console.log("Entro aqui");
+      // if (fecVenEntSto.length === 0) {
+      //   // MANEJAMOS FORMULARIOS INCOMPLETOS
+      //   setfeedbackMessages({
+      //     style_message: "warning",
+      //     feedback_description_error:
+      //       "Asegurese de ingresar una fecha de vencimiento",
+      //   });
+      //   handleClickFeeback();
+      // } else {
+      //   // MANEJAMOS FORMULARIOS INCOMPLETOS
+      //   setfeedbackMessages({
+      //     style_message: "warning",
+      //     feedback_description_error:
+      //       "Asegurese de llenar los datos requeridos",
+      //   });
+      //   handleClickFeeback();
+      // }
+      if (idProd === 0) {
+        advertenciaFormularioIncompleto +=
+          "Falta llenar informacion del producto\n";
       }
+      if (idProv === 0) {
+        advertenciaFormularioIncompleto +=
+          "Falta llenar informacion del provedor\n";
+      }
+      if (idAlm === 0) {
+        advertenciaFormularioIncompleto +=
+          "Falta llenar informacion del almacen\n";
+      }
+      if (docEntSto.length === 0) {
+        advertenciaFormularioIncompleto +=
+          "Falta llenar informacion del documento de entrada\n";
+      }
+      if (fecVenEntSto.length === 0) {
+        advertenciaFormularioIncompleto +=
+          "Falta llenar informacion de la fecha de vencimiento\n";
+      }
+      if (canTotEnt <= 0) {
+        advertenciaFormularioIncompleto +=
+          "Asegurarse de proporcionar informacion de la cantidad de entrada\n";
+      }
+      if (canTotCom <= 0) {
+        advertenciaFormularioIncompleto +=
+          "Asegurarse de proporcionar informacion de la cantidad de compra\n";
+      }
+
+      // mostramos el error recepcionado del backend
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: advertenciaFormularioIncompleto,
+      });
+      handleClickFeeback();
     } else {
       // DESABILTIAMOS EL BOTON DE ENVIAR
       setdisableButton(true);
@@ -409,7 +446,9 @@ const AgregarEntradaStock = () => {
           severity={style_message}
           sx={{ width: "100%" }}
         >
-          {feedback_description_error}
+          <Typography whiteSpace={"pre-line"}>
+            {feedback_description_error}
+          </Typography>
         </Alert>
       </Snackbar>
     </>

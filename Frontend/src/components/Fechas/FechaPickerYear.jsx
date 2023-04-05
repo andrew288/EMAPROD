@@ -7,7 +7,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { FormatDateTimeMYSQL } from "../../utils/functions/FormatDate";
 
 const FechaPickerYear = ({ onNewfecEntSto }) => {
-  const [value, setValue] = useState();
+  const [value, setValue] = useState(null);
 
   const formatFechaMYSQL = (newValue) => {
     setValue(newValue);
@@ -19,8 +19,9 @@ const FechaPickerYear = ({ onNewfecEntSto }) => {
       <DatePicker
         value={value}
         openTo={"year"}
+        inputFormat="DD/MM/yyyy"
         onChange={formatFechaMYSQL}
-        renderInput={(params) => <TextField disabled={false} {...params} />}
+        renderInput={(params) => <TextField disabled={true} {...params} />}
       />
     </LocalizationProvider>
   );

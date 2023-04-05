@@ -131,53 +131,62 @@ export const AgregarAgregacion = () => {
   const handleAddproductoAgregado = async (e) => {
     e.preventDefault();
     if (idProdAgr !== 0 && cantidadAgregada > 0.0 && idAreaEncargada !== 0) {
-      const itemFound = detalleProductosAgregados.find(
-        (element) => element.idProdt === idProdAgr
-      );
+      if (idAreaEncargada === 5 || idAreaEncargada === 6) {
+        const itemFound = detalleProductosAgregados.find(
+          (element) => element.idProdt === idProdAgr
+        );
 
-      if (itemFound) {
-        setfeedbackMessages({
-          style_message: "warning",
-          feedback_description_error: "Ya se agrego este producto al detalle",
-        });
-        handleClickFeeback();
-      } else {
-        const resultPeticion = await getMateriaPrimaById(idProdAgr);
-        const { message_error, description_error, result } = resultPeticion;
-        if (message_error.length === 0) {
-          const {
-            id: idProd,
-            codProd,
-            desCla,
-            desSubCla,
-            nomProd,
-            simMed,
-          } = result[0];
-          // generamos nuestro detalle
-          const detalle = {
-            idProdc: id, // lote de produccion asociado
-            idProdt: idProd, // producto
-            idProdAgrMot: 0, // motivo de devolucion
-            idAre: idAreaEncargada,
-            codProd: codProd, // codigo de producto
-            desCla: desCla, // clase del producto
-            desSubCla: desSubCla, // subclase del producto
-            nomProd: nomProd, // nombre del producto
-            simMed: simMed, // medida del producto
-            canProdAgr: cantidadAgregada, // cantidad devuelta
-          };
-          console.log(detalle);
-
-          // seteamos el detalle
-          const dataDetalle = [...detalleProductosAgregados, detalle];
-          setdetalleProductosAgregados(dataDetalle);
-        } else {
+        if (itemFound) {
           setfeedbackMessages({
-            style_message: "error",
-            feedback_description_error: description_error,
+            style_message: "warning",
+            feedback_description_error: "Ya se agrego este producto al detalle",
           });
           handleClickFeeback();
+        } else {
+          const resultPeticion = await getMateriaPrimaById(idProdAgr);
+          const { message_error, description_error, result } = resultPeticion;
+          if (message_error.length === 0) {
+            const {
+              id: idProd,
+              codProd,
+              desCla,
+              desSubCla,
+              nomProd,
+              simMed,
+            } = result[0];
+            // generamos nuestro detalle
+            const detalle = {
+              idProdc: id, // lote de produccion asociado
+              idProdt: idProd, // producto
+              idProdAgrMot: 0, // motivo de devolucion
+              idAre: idAreaEncargada,
+              codProd: codProd, // codigo de producto
+              desCla: desCla, // clase del producto
+              desSubCla: desSubCla, // subclase del producto
+              nomProd: nomProd, // nombre del producto
+              simMed: simMed, // medida del producto
+              canProdAgr: cantidadAgregada, // cantidad devuelta
+            };
+            console.log(detalle);
+
+            // seteamos el detalle
+            const dataDetalle = [...detalleProductosAgregados, detalle];
+            setdetalleProductosAgregados(dataDetalle);
+          } else {
+            setfeedbackMessages({
+              style_message: "error",
+              feedback_description_error: description_error,
+            });
+            handleClickFeeback();
+          }
         }
+      } else {
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error:
+            "Solo se pueden hacer agregaciones de envasado o encajado",
+        });
+        handleClickFeeback();
       }
     } else {
       setfeedbackMessages({
