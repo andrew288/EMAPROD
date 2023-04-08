@@ -18,6 +18,7 @@ import { FilterProductoProduccion } from "./../../../components/ReferencialesFil
 import { FilterTipoFormula } from "./../../../components/ReferencialesFilters/Formula/FilterTipoFormula";
 import { RowDetalleFormula } from "./../../components/RowDetalleFormula";
 import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
+import { Typography } from "@mui/material";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -39,7 +40,7 @@ export const AgregarFormula = () => {
   // ESTADOS PARA DATOS DE DETALLE FORMULA (DETALLE)
   const [materiaPrimaDetalle, setmateriaPrimaDetalle] = useState({
     idMateriaPrima: 0,
-    cantidadMateriaPrima: 0,
+    cantidadMateriaPrima: "",
     idArea: 0,
   });
   const { idMateriaPrima, cantidadMateriaPrima, idArea } = materiaPrimaDetalle;
@@ -102,7 +103,7 @@ export const AgregarFormula = () => {
       if (itemFound) {
         setfeedbackMessages({
           style_message: "warning",
-          feedback_description_error: "Ya se agrego esta materia prima",
+          feedback_description_error: "Ya se agrego un detalle con la materia prima elegida",
         });
         handleClickFeeback();
       } else {
@@ -143,9 +144,16 @@ export const AgregarFormula = () => {
         }
       }
     } else {
+      let advertenciaDetalleFormula = "";
+      if(idMateriaPrima === 0){
+        advertenciaDetalleFormula += "Asigne una materia prima para agregar el detalle\n";
+      }
+      if(cantidadMateriaPrima <= 0){
+        advertenciaDetalleFormula += "Asigne una cantidad mayor a 0 para agregar el detalle\n";
+      }
       setfeedbackMessages({
         style_message: "warning",
-        feedback_description_error: "Asegurese de llenar los datos requeridos",
+        feedback_description_error: advertenciaDetalleFormula,
       });
       handleClickFeeback();
     }
@@ -265,18 +273,34 @@ export const AgregarFormula = () => {
 
   // CONTROLADOR DE SUBMIT
   const handleSubmitFormula = (e) => {
+    let advertenciaFormularioIncompleto = "";
     e.preventDefault();
     if (
       nomFor.length === 0 ||
       idTipFor === 0 ||
       idProd === 0 ||
-      lotKgrFor < 0 ||
+      lotKgrFor <= 0 ||
       forDet.length === 0
     ) {
+      if(idProd === 0) {
+        advertenciaFormularioIncompleto += "No se proporciono un subproducto\n";
+      }
+      if(idTipFor === 0){
+        advertenciaFormularioIncompleto += "No se indicó el tipo de formula\n";
+      }
+      if(nomFor.length === 0){
+        advertenciaFormularioIncompleto += "No se proporciono un nombre para la formula\n";
+      }
+      if(lotKgrFor <= 0){
+        advertenciaFormularioIncompleto += "No se puede establecer un peso menor o igual a 0\n";
+      }
+      if(forDet.length === 0){
+        advertenciaFormularioIncompleto += "Debe proporcionar al menos un detalle de la formula\n";
+      }
       // MANEJAMOS FORMULARIOS INCOMPLETOS
       setfeedbackMessages({
         style_message: "warning",
-        feedback_description_error: "Asegurese de llenar los datos requeridos",
+        feedback_description_error: advertenciaFormularioIncompleto,
       });
       handleClickFeeback();
     } else {
@@ -310,7 +334,7 @@ export const AgregarFormula = () => {
                 {/* PRODUCTO */}
                 <div className="mb-3 row">
                   <label htmlFor="nombre" className="col-sm-2 col-form-label">
-                    Producto
+                    Subproducto
                   </label>
                   <div className="col-md-6">
                     <FilterProductoProduccion onNewInput={onAddProducto} />
@@ -333,7 +357,7 @@ export const AgregarFormula = () => {
                   >
                     Nombre Formula
                   </label>
-                  <div className="col-md-4">
+                  <div className="col-md-6">
                     <input
                       type="text"
                       name="nomFor"
@@ -352,7 +376,7 @@ export const AgregarFormula = () => {
                   >
                     Descripción
                   </label>
-                  <div className="col-md-4">
+                  <div className="col-md-6">
                     <div className="form-floating">
                       <textarea
                         value={desFor}
@@ -524,7 +548,9 @@ export const AgregarFormula = () => {
           severity={style_message}
           sx={{ width: "100%" }}
         >
-          {feedback_description_error}
+          <Typography whiteSpace={"pre-line"}>
+            {feedback_description_error}
+          </Typography>
         </Alert>
       </Snackbar>
     </>

@@ -18,6 +18,7 @@ import { TextField } from "@mui/material";
 import { FilterAreaEncargada } from "../../components/FilterAreaEncargada";
 import { RowEditDetalleFormulaProducto } from "./../../components/componentes-formula-producto/RowEditDetalleFormulaProducto";
 import { createFormulaProductoWithDetalle } from "../../helpers/formula_producto/createFormulaProductoWithDetalle";
+import { FilterPresentacionFinal } from "../../../components/ReferencialesFilters/Producto/FilterPresentacionFinal";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -321,10 +322,10 @@ export const AgregarFormulaPorProducto = () => {
                 {/* PRESENTACION FINAL */}
                 <div className="mb-3 row">
                   <label htmlFor="nombre" className="col-sm-2 col-form-label">
-                    Producto final
+                    Presentacion final
                   </label>
-                  <div className="col-md-6">
-                    <FilterAllProductos onNewInput={onAddProducto} />
+                  <div className="col-md-8">
+                    <FilterPresentacionFinal onNewInput={onAddProducto} />
                   </div>
                 </div>
               </form>

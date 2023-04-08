@@ -28,6 +28,7 @@ import { updateFormulaDetalle } from "./../../helpers/formula/updateFormulaDetal
 import { DialogDeleteDetalle } from "../../components/DialogDeleteDetalle";
 import { deleteDetalleFormula } from "./../../helpers/formula/deleteDetalleFormula";
 import { RowEditDetalleFormula } from "./../../components/RowEditDetalleFormula";
+import { Typography } from "@mui/material";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -51,7 +52,7 @@ export const ActualizarFormula = () => {
   // ESTADOS PARA DATOS DE DETALLE FORMULA (DETALLE)
   const [materiaPrimaDetalle, setmateriaPrimaDetalle] = useState({
     idMateriaPrima: 0,
-    cantidadMateriaPrima: 0,
+    cantidadMateriaPrima: "",
     idArea: 0,
   });
   const { idMateriaPrima, cantidadMateriaPrima, idArea } = materiaPrimaDetalle;
@@ -88,7 +89,21 @@ export const ActualizarFormula = () => {
   const onNavigateBack = () => {
     navigate(-1);
   };
+  
+  // ESTADOS PARA LA PAGINACIÓN
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  // MANEJADORES DE LA PAGINACION
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // ******* MANEJADORES PARA DETALLE DE FORMULA ********
   // MANEJADOR DE AGREGAR MATERIA PRIMA A DETALLE DE FORMULA
   const onMateriaPrimaId = ({ id }) => {
     setmateriaPrimaDetalle({
@@ -105,7 +120,17 @@ export const ActualizarFormula = () => {
     });
   };
 
-  // MANEJADOR PARA AGREGAR MATERIA PRIMA A FORMULA
+  // CONTROLADOR DE FORMULARIO
+  const handledForm = ({ target }) => {
+    const { name, value } = target;
+    setformula({
+      ...formula,
+      [name]: value,
+    });
+  };
+
+  // ***** EVENTOS PARA DETALLE DE FORMULA ************
+  // AÑADIR MATERIA PRIMA A FORMULA
   const handleAddNewMateriPrimaDetalle = async (e) => {
     e.preventDefault();
 
@@ -131,7 +156,6 @@ export const ActualizarFormula = () => {
 
           // GENERAMOS NUESTRO DETALLE DE FORMULA DE MATERIA PRIMA
           const detalleFormulaMateriaPrima = {
-            // idFor: parseInt(idFor, 10),
             idMatPri: id,
             idAre: idArea,
             codProd: codProd,
@@ -160,15 +184,22 @@ export const ActualizarFormula = () => {
         }
       }
     } else {
+      let advertenciaDetalleFormula = "";
+      if(idMateriaPrima === 0){
+        advertenciaDetalleFormula += "Asigne una materia prima para agregar el detalle\n";
+      }
+      if(cantidadMateriaPrima <= 0){
+        advertenciaDetalleFormula += "Asigne una cantidad mayor a 0 para agregar el detalle\n";
+      }
       setfeedbackMessages({
         style_message: "warning",
-        feedback_description_error: "Asegurese de llenar los datos requeridos",
+        feedback_description_error: advertenciaDetalleFormula,
       });
       handleClickFeeback();
     }
   };
 
-  // MANEJADOR DE ELIMINACION DE MATERIA PRIMA
+  // MANEJADOR DE ELIMINACION DE MATERIA PRIMA (para los recien agregados)
   const deleteDetalleMateriaPrima = (idItem) => {
     // FILTRAMOS EL ELEMENTO ELIMINADO
     const nuevaDataDetalleFormulario = forDet.filter((element) => {
@@ -185,8 +216,6 @@ export const ActualizarFormula = () => {
       forDet: nuevaDataDetalleFormulario,
     });
   };
-
-  // MANEJADOR DE ELIMINACION DE DETALLE DE FORMULA
 
   // MANEJADOR PARA ACTUALIZAR REQUISICION
   const handledFormularioDetalle = ({ target }, idItem) => {
@@ -208,6 +237,7 @@ export const ActualizarFormula = () => {
     });
   };
 
+  // ACTUALIZAR AREA ENCARGADA DE REQUISICION 
   const handledAreaEncargada = (idAre, idItem) => {
     const editFormDetalle = forDet.map((element) => {
       if (element.idMatPri === idItem) {
@@ -226,94 +256,7 @@ export const ActualizarFormula = () => {
     });
   };
 
-  // CONTROLADOR DE FORMULARIO
-  const handledForm = ({ target }) => {
-    const { name, value } = target;
-    setformula({
-      ...formula,
-      [name]: value,
-    });
-  };
-
-  // ESTADOS PARA LA PAGINACIÓN
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  // MANEJADORES DE LA PAGINACION
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  // FUNCION PARA ACTUALIZAR FORMULARIO
-  const updateFormula = async () => {
-    const resultPeticion = await updateFormulaDetalle(formula);
-    const { message_error, description_error, result } = resultPeticion;
-    if (message_error.length === 0) {
-      // regresamos a la anterior vista
-      onNavigateBack();
-    } else {
-      setfeedbackMessages({
-        style_message: "error",
-        feedback_description_error: description_error,
-      });
-      handleClickFeeback();
-    }
-    setdisableButton(false);
-  };
-
-  // CONTROLADOR DE SUBMIT
-  const handleSubmitFormula = (e) => {
-    e.preventDefault();
-    if (nomFor.length === 0 || forDet.length === 0) {
-      // MANEJAMOS FORMULARIOS INCOMPLETOS
-      setfeedbackMessages({
-        style_message: "warning",
-        feedback_description_error: "Asegurese de llenar los datos requeridos",
-      });
-      handleClickFeeback();
-    } else {
-      const validAreaEncargada = forDet.find((element) => element.idAre === 0);
-      if (validAreaEncargada) {
-        // MANEJAMOS FORMULARIOS INCOMPLETOS
-        setfeedbackMessages({
-          style_message: "warning",
-          feedback_description_error:
-            "Asegurese de asignar areas encargadas para cada item nuevo agregado",
-        });
-        handleClickFeeback();
-      } else {
-        setdisableButton(true);
-        // LLAMAMOS A LA FUNCION CREAR MATERIA PRIMA
-        updateFormula();
-      }
-    }
-  };
-
-  // Traer datos de la formula y su detalle
-  const traerDatosFormulaDetalle = async () => {
-    console.log(idFor);
-    // realizamos la peticion
-    const resultPeticion = await getFormulaWithDetalleById(idFor);
-    console.log(resultPeticion);
-    const { message_error, description_error, result } = resultPeticion;
-    if (message_error.length === 0) {
-      setformula({
-        ...result[0],
-      });
-    } else {
-      setfeedbackMessages({
-        style_message: "warning",
-        feedback_description_error: description_error,
-      });
-      handleClickFeeback();
-    }
-  };
-
-  // ****** DELETE DETALLE DE FORMULA *******
+  // PARA ELIMINAR UN DETALLE YA REGISTRADO EN LA BASE DE DATOS
   const closeDialogDeleteDetalle = () => {
     // ocultamos el modal
     setMostrarDialog(false);
@@ -330,10 +273,18 @@ export const ActualizarFormula = () => {
         return false;
       }
     });
-    // seteamos la data de la requisicion seleccionada
-    setItemSeleccionado(formulaDetalle[0]);
-    // mostramos el modal
-    setMostrarDialog(true);
+    
+    // recuperamos el item seleccionado
+    const itemSelected = formulaDetalle[0];
+    // si es una nueva materia prima agregada
+    if(itemSelected.id !== undefined){
+      // seteamos la data de la requisicion seleccionada
+      setItemSeleccionado(itemSelected);
+      // mostramos el modal
+      setMostrarDialog(true);
+    } else {
+      deleteDetalleMateriaPrima(itemSelected.idMatPri);
+    }
   };
 
   // ELIMINAR DETALLE DE FORMULA
@@ -373,6 +324,77 @@ export const ActualizarFormula = () => {
     }
   };
 
+  // ****** FUNCIONES PARA EL SUBMIT DEL FORMULARIO ACTUALIZADO ********++
+  const updateFormula = async () => {
+    const resultPeticion = await updateFormulaDetalle(formula);
+    const { message_error, description_error, result } = resultPeticion;
+    if (message_error.length === 0) {
+      // regresamos a la anterior vista
+      onNavigateBack();
+    } else {
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+    setdisableButton(false);
+  };
+
+  // CONTROLADOR DE SUBMIT
+  const handleSubmitUpdateFormula = (e) => {
+    e.preventDefault();
+    if (nomFor.length === 0 || forDet.length === 0) {
+      let advertenciaUpdateFormula = "";
+
+      if(nomFor.length === 0){
+        advertenciaUpdateFormula += "Asegurate de proporcionar un nombre para la formula\n";
+      }
+      if(forDet.length === 0){
+        advertenciaUpdateFormula += "Debe proporcionar al menos un detalle de la formula\n";
+      }
+      // MANEJAMOS FORMULARIOS INCOMPLETOS
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: advertenciaUpdateFormula,
+      });
+      handleClickFeeback();
+    } else {
+      const validAreaEncargada = forDet.find((element) => element.idAre === 0);
+      if (validAreaEncargada) {
+        // MANEJAMOS FORMULARIOS INCOMPLETOS
+        setfeedbackMessages({
+          style_message: "warning",
+          feedback_description_error:
+            "Asegurese de asignar areas encargadas para cada item nuevo agregado",
+        });
+        handleClickFeeback();
+      } else {
+        setdisableButton(true);
+        // LLAMAMOS A LA FUNCION CREAR MATERIA PRIMA
+        updateFormula();
+      }
+    }
+  };
+
+  // Traer datos de la formula y su detalle
+  const traerDatosFormulaDetalle = async () => {
+    // realizamos la peticion
+    const resultPeticion = await getFormulaWithDetalleById(idFor);
+    const { message_error, description_error, result } = resultPeticion;
+    if (message_error.length === 0) {
+      setformula({
+        ...result[0],
+      });
+    } else {
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+    }
+  };
+
   useEffect(() => {
     // traer la data de la formula
     traerDatosFormulaDetalle();
@@ -391,7 +413,7 @@ export const ActualizarFormula = () => {
                 {/* PRODUCTO */}
                 <div className="mb-3 row">
                   <label htmlFor="nombre" className="col-sm-2 col-form-label">
-                    Producto
+                    SubProducto
                   </label>
                   <div className="col-md-4">
                     <input
@@ -587,7 +609,7 @@ export const ActualizarFormula = () => {
           <button
             type="submit"
             disabled={disableButton}
-            onClick={handleSubmitFormula}
+            onClick={handleSubmitUpdateFormula}
             className="btn btn-primary"
           >
             Guardar
@@ -616,7 +638,9 @@ export const ActualizarFormula = () => {
           severity={style_message}
           sx={{ width: "100%" }}
         >
-          {feedback_description_error}
+          <Typography whiteSpace={"pre-line"}>
+            {feedback_description_error}
+          </Typography>
         </Alert>
       </Snackbar>
     </>

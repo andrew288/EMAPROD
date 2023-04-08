@@ -49,7 +49,7 @@ export const HomeProduccion = () => {
                     <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
                       <i className="bi bi-collection"></i>
                     </div>
-                    <h2 className="fs-4 fw-bold">Formula producto</h2>
+                    <h2 className="fs-4 fw-bold">Formula presentaciones</h2>
                     <Link
                       to="/produccion/formula-producto"
                       className="btn btn-primary"

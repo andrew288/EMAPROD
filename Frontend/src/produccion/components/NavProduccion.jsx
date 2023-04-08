@@ -98,7 +98,7 @@ const NavProduccion = () => {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  Formula por producto
+                  Formula presentaciones
                 </button>
                 <ul className="dropdown-menu">
                   <li>
