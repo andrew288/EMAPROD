@@ -131,24 +131,23 @@ const AgregarEntradaStock = () => {
       diaJulEntSto: DiaJuliano(requestJSON.fecEntSto),
       letAniEntSto: letraAnio(requestJSON.fecEntSto),
     };
-
-    console.log(requestJSON);
+    
     // AHORA ENVIAMOS LA DATA AL BACKEND
-    // const { message_error, description_error } = await createEntradaStock(
-    //   requestJSON
-    // );
-    // if (message_error.length === 0) {
-    //   // navegamos a la anterior vista
-    //   onNavigateBack();
-    // } else {
-    //   // mostramos el error recepcionado del backend
-    //   setfeedbackMessages({
-    //     style_message: "error",
-    //     feedback_description_error: description_error,
-    //   });
-    //   handleClickFeeback();
-    //   // habilitamos el boton de crear
-    // }
+    const { message_error, description_error } = await createEntradaStock(
+      requestJSON
+    );
+    if (message_error.length === 0) {
+      // navegamos a la anterior vista
+      onNavigateBack();
+    } else {
+      // mostramos el error recepcionado del backend
+      setfeedbackMessages({
+        style_message: "error",
+        feedback_description_error: description_error,
+      });
+      handleClickFeeback();
+      // habilitamos el boton de crear
+    }
 
     setdisableButton(false);
   };
@@ -167,24 +166,6 @@ const AgregarEntradaStock = () => {
       canTotCom <= 0 ||
       fecVenEntSto.length === 0
     ) {
-      console.log("Entro aqui");
-      // if (fecVenEntSto.length === 0) {
-      //   // MANEJAMOS FORMULARIOS INCOMPLETOS
-      //   setfeedbackMessages({
-      //     style_message: "warning",
-      //     feedback_description_error:
-      //       "Asegurese de ingresar una fecha de vencimiento",
-      //   });
-      //   handleClickFeeback();
-      // } else {
-      //   // MANEJAMOS FORMULARIOS INCOMPLETOS
-      //   setfeedbackMessages({
-      //     style_message: "warning",
-      //     feedback_description_error:
-      //       "Asegurese de llenar los datos requeridos",
-      //   });
-      //   handleClickFeeback();
-      // }
       if (idProd === 0) {
         advertenciaFormularioIncompleto +=
           "Falta llenar informacion del producto\n";
@@ -205,13 +186,13 @@ const AgregarEntradaStock = () => {
         advertenciaFormularioIncompleto +=
           "Falta llenar informacion de la fecha de vencimiento\n";
       }
-      if (canTotEnt <= 0) {
-        advertenciaFormularioIncompleto +=
-          "Asegurarse de proporcionar informacion de la cantidad de entrada\n";
-      }
       if (canTotCom <= 0) {
         advertenciaFormularioIncompleto +=
           "Asegurarse de proporcionar informacion de la cantidad de compra\n";
+      }
+      if (canTotEnt <= 0) {
+        advertenciaFormularioIncompleto +=
+          "Asegurarse de proporcionar informacion de la cantidad de entrada\n";
       }
 
       // mostramos el error recepcionado del backend
@@ -318,7 +299,7 @@ const AgregarEntradaStock = () => {
           {/* FECHA DE LA formState */}
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label">
-              Fecha de Entrada Stock
+              Fecha de Entrada
             </label>
             <div className="col-md-4">
               <FechaPicker onNewfecEntSto={onAddFecEntSto} />
@@ -360,7 +341,7 @@ const AgregarEntradaStock = () => {
               htlmfor={"cantidad-ingresada"}
               className="col-sm-2 col-form-label"
             >
-              Cantidad compra
+              Cantidad de la compra
             </label>
             <div className="col-md-2">
               <input

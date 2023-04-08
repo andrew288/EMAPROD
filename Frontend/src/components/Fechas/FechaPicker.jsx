@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { FormatDateTimeMYSQL } from "../../utils/functions/FormatDate";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 
 const FechaPicker = ({ onNewfecEntSto, disabled = false }) => {
   const [value, setValue] = useState();
@@ -14,14 +13,17 @@ const FechaPicker = ({ onNewfecEntSto, disabled = false }) => {
     onNewfecEntSto(FormatDateTimeMYSQL(newValue._d));
   };
 
+  const handleKeyDown = (event) => {
+    event.preventDefault();
+  }
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <DatePicker
-        disabled={disabled}
         value={value}
-        inputFormat="DD/MM/yyyy HH:mm:ss"
+        inputFormat="DD/MM/YYYY HH:mm:ss"
         onChange={formatFechaMYSQL}
-        renderInput={(params) => <TextField {...params} readOnly={true} />}
+        renderInput={(params) => <TextField {...params} onKeyDown={handleKeyDown} />}
       />
     </LocalizationProvider>
   );

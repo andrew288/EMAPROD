@@ -1,6 +1,6 @@
 
 const dev = {
-    API_URL: "http://localhost/EMAPROD_BUILD/EMAPROD/Backend"
+    API_URL: "http://localhost/EMAPROD/Backend"
     // API_URL: "http://192.168.1.136/EMAPROD/Backend"
 }
 const prod = {
