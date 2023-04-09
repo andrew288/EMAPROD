@@ -14,7 +14,7 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { getMateriaPrimaById } from "./../../../helpers/Referenciales/producto/getMateriaPrimaById";
 import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
-import { TextField } from "@mui/material";
+import { TextField, Typography } from "@mui/material";
 import { FilterAreaEncargada } from "../../components/FilterAreaEncargada";
 import { RowEditDetalleFormulaProducto } from "./../../components/componentes-formula-producto/RowEditDetalleFormulaProducto";
 import { createFormulaProductoWithDetalle } from "../../helpers/formula_producto/createFormulaProductoWithDetalle";
@@ -38,12 +38,11 @@ export const AgregarFormulaPorProducto = () => {
   // DETALLES DEL FILTRO DE PRODUCTO
   const [productoDetalle, setproductoDetalle] = useState({
     idProd: 0,
-    canForProDet: 0.0,
+    canForProDet: "",
     idAre: 0,
-    idAlm: 0,
   });
 
-  const { idProd, canForProDet, idAre, idAlm } = productoDetalle;
+  const { idProd, canForProDet, idAre } = productoDetalle;
 
   // ************* FEEDBACK ******************
   const [feedbackCreate, setfeedbackCreate] = useState(false);
@@ -102,7 +101,6 @@ export const AgregarFormulaPorProducto = () => {
 
   // *********** MANEJADOR DE ACCIONES ***************
   const handleAddProductoDetalle = async (e) => {
-    console.log(productoDetalle);
     e.preventDefault();
 
     // primero verificamos que se tenga información
@@ -119,44 +117,65 @@ export const AgregarFormulaPorProducto = () => {
         });
         handleClickFeeback();
       } else {
-        // hacemos una consulta al producto y desestructuramos
-        const resultPeticion = await getMateriaPrimaById(idProd);
-        const { message_error, description_error, result } = resultPeticion;
+        if (idAre !== 1 && idAre !== 3 && idAre !== 4) {
+          // hacemos una consulta al producto y desestructuramos
+          const resultPeticion = await getMateriaPrimaById(idProd);
+          const { message_error, description_error, result } = resultPeticion;
 
-        if (message_error.length === 0) {
-          const { id, codProd, desCla, desSubCla, nomProd, simMed } = result[0];
-          // generamos nuestro detalle de formula
-          const detalleFormulaProducto = {
-            idProd: id,
-            idAre: idAre, // area
-            idAlm: 0, // almacen de orgien
-            codProd: codProd,
-            desCla: desCla,
-            desSubCla: desSubCla,
-            nomProd: nomProd,
-            simMed: simMed,
-            canForProDet: canForProDet, // cantidad
-          };
+          if (message_error.length === 0) {
+            const { id, codProd, desCla, desSubCla, nomProd, simMed } =
+              result[0];
+            // generamos nuestro detalle de formula
+            const detalleFormulaProducto = {
+              idProd: id,
+              idAre: idAre, // area
+              idAlm: 1, // almacen principal
+              codProd: codProd,
+              desCla: desCla,
+              desSubCla: desSubCla,
+              nomProd: nomProd,
+              simMed: simMed,
+              canForProDet: canForProDet, // cantidad
+            };
 
-          // seteamos el detalle en general de la formula
-          const dataDetalle = [...forProdTerDet, detalleFormulaProducto];
-          console.log(dataDetalle);
-          setformula({
-            ...formula,
-            forProdTerDet: dataDetalle,
-          });
+            // seteamos el detalle en general de la formula
+            const dataDetalle = [...forProdTerDet, detalleFormulaProducto];
+            setformula({
+              ...formula,
+              forProdTerDet: dataDetalle,
+            });
+          } else {
+            setfeedbackMessages({
+              style_message: "error",
+              feedback_description_error: description_error,
+            });
+            handleClickFeeback();
+          }
         } else {
           setfeedbackMessages({
-            style_message: "error",
-            feedback_description_error: description_error,
+            style_message: "warning",
+            feedback_description_error:
+              "El area seleccionada no esta permitido",
           });
           handleClickFeeback();
         }
       }
     } else {
+      let advertenciaDetalleFormula = "";
+      if (idProd === 0) {
+        advertenciaDetalleFormula +=
+          "Asigne un producto para agregar el detalle\n";
+      }
+      if (canForProDet <= 0) {
+        advertenciaDetalleFormula +=
+          "Asigne una cantidad mayor a 0 para agregar el detalle\n";
+      }
+      if (idAre === 0) {
+        advertenciaDetalleFormula += "Asigne un area para agregar el detalle\n";
+      }
       setfeedbackMessages({
         style_message: "warning",
-        feedback_description_error: "Asegurese de llenar los datos requeridos",
+        feedback_description_error: advertenciaDetalleFormula,
       });
       handleClickFeeback();
     }
@@ -253,10 +272,8 @@ export const AgregarFormulaPorProducto = () => {
 
   // FUNCION PARA CREAR FORMULARIO
   const crearFormula = async () => {
-    console.log(formula);
-    const { message_error, description_error } =
-      await createFormulaProductoWithDetalle(formula);
-
+    const resultPeticion = await createFormulaProductoWithDetalle(formula);
+    const { message_error, description_error } = resultPeticion;
     if (message_error.length === 0) {
       // regresamos a la anterior vista
       onNavigateBack();
@@ -272,24 +289,23 @@ export const AgregarFormulaPorProducto = () => {
 
   const handleSubmitFormula = (e) => {
     e.preventDefault();
-    if (idProd === 0 || forProdTerDet.length === 0) {
-      if (forProdTerDet.length === 0) {
-        // MANEJAMOS FORMULARIOS INCOMPLETOS
-        setfeedbackMessages({
-          style_message: "warning",
-          feedback_description_error:
-            "El detalle de la formula no puede estar vacio",
-        });
-        handleClickFeeback();
-      } else {
-        // MANEJAMOS FORMULARIOS INCOMPLETOS
-        setfeedbackMessages({
-          style_message: "warning",
-          feedback_description_error:
-            "Asegurese de llenar los datos requeridos",
-        });
-        handleClickFeeback();
+    if (idProdFin === 0 || forProdTerDet.length === 0) {
+      let advertenciaDetalleFormulaProducto = "";
+
+      if (idProdFin === 0) {
+        advertenciaDetalleFormulaProducto +=
+          "No se proporciono una presentacion final\n";
       }
+      if (forProdTerDet.length === 0) {
+        advertenciaDetalleFormulaProducto +=
+          "El detalle de la formula debe tener al menos 1 item\n";
+      }
+      // MANEJAMOS FORMULARIOS INCOMPLETOS
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: advertenciaDetalleFormulaProducto,
+      });
+      handleClickFeeback();
     } else {
       const validAlmacenOrigen = forProdTerDet.find(
         (element) => element.idAlm === 0
@@ -313,7 +329,9 @@ export const AgregarFormulaPorProducto = () => {
   return (
     <>
       <div className="container-fluid mx-3">
-        <h1 className="mt-4 text-center">Agregar Formula de producto</h1>
+        <h1 className="mt-4 text-center">
+          Agregar formula de presentacion final
+        </h1>
         <div className="row mt-4 mx-2">
           <div className="card d-flex">
             <h6 className="card-header">Datos de la formula</h6>
@@ -338,8 +356,8 @@ export const AgregarFormulaPorProducto = () => {
             <div className="card-body">
               <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
                 {/* AGREGAR PRODUCTO */}
-                <div className="col-md-3">
-                  <label className="form-label">Producto</label>
+                <div className="col-md-5">
+                  <label className="form-label">Subproducto u materiales</label>
                   <FilterAllProductos onNewInput={onProductoId} />
                 </div>
 
@@ -398,19 +416,16 @@ export const AgregarFormulaPorProducto = () => {
                               },
                             }}
                           >
-                            <TableCell align="left" width={200}>
+                            <TableCell align="left" width={280}>
                               <b>Nombre</b>
                             </TableCell>
                             <TableCell align="left" width={20}>
                               <b>U.M</b>
                             </TableCell>
-                            <TableCell align="left" width={150}>
-                              <b>Almacen</b>
-                            </TableCell>
-                            <TableCell align="left" width={150}>
+                            <TableCell align="left" width={120}>
                               <b>Cantidad</b>
                             </TableCell>
-                            <TableCell align="left" width={150}>
+                            <TableCell align="left" width={120}>
                               <b>Acciones</b>
                             </TableCell>
                           </TableRow>
@@ -455,19 +470,16 @@ export const AgregarFormulaPorProducto = () => {
                               },
                             }}
                           >
-                            <TableCell align="left" width={200}>
+                            <TableCell align="left" width={280}>
                               <b>Nombre</b>
                             </TableCell>
                             <TableCell align="left" width={20}>
                               <b>U.M</b>
                             </TableCell>
-                            <TableCell align="left" width={150}>
-                              <b>Almacen</b>
-                            </TableCell>
-                            <TableCell align="left" width={150}>
+                            <TableCell align="left" width={120}>
                               <b>Cantidad</b>
                             </TableCell>
-                            <TableCell align="left" width={150}>
+                            <TableCell align="left" width={120}>
                               <b>Acciones</b>
                             </TableCell>
                           </TableRow>
@@ -512,19 +524,16 @@ export const AgregarFormulaPorProducto = () => {
                               },
                             }}
                           >
-                            <TableCell align="left" width={200}>
+                            <TableCell align="left" width={280}>
                               <b>Nombre</b>
                             </TableCell>
                             <TableCell align="left" width={20}>
                               <b>U.M</b>
                             </TableCell>
-                            <TableCell align="left" width={150}>
-                              <b>Almacen</b>
-                            </TableCell>
-                            <TableCell align="left" width={150}>
+                            <TableCell align="left" width={120}>
                               <b>Cantidad</b>
                             </TableCell>
-                            <TableCell align="left" width={150}>
+                            <TableCell align="left" width={120}>
                               <b>Acciones</b>
                             </TableCell>
                           </TableRow>
@@ -587,7 +596,9 @@ export const AgregarFormulaPorProducto = () => {
           severity={style_message}
           sx={{ width: "100%" }}
         >
-          {feedback_description_error}
+          <Typography whiteSpace={"pre-line"}>
+            {feedback_description_error}
+          </Typography>
         </Alert>
       </Snackbar>
     </>

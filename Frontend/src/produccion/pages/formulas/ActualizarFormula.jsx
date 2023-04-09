@@ -89,7 +89,7 @@ export const ActualizarFormula = () => {
   const onNavigateBack = () => {
     navigate(-1);
   };
-  
+
   // ESTADOS PARA LA PAGINACIÓN
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -185,11 +185,13 @@ export const ActualizarFormula = () => {
       }
     } else {
       let advertenciaDetalleFormula = "";
-      if(idMateriaPrima === 0){
-        advertenciaDetalleFormula += "Asigne una materia prima para agregar el detalle\n";
+      if (idMateriaPrima === 0) {
+        advertenciaDetalleFormula +=
+          "Asigne una materia prima para agregar el detalle\n";
       }
-      if(cantidadMateriaPrima <= 0){
-        advertenciaDetalleFormula += "Asigne una cantidad mayor a 0 para agregar el detalle\n";
+      if (cantidadMateriaPrima <= 0) {
+        advertenciaDetalleFormula +=
+          "Asigne una cantidad mayor a 0 para agregar el detalle\n";
       }
       setfeedbackMessages({
         style_message: "warning",
@@ -237,7 +239,7 @@ export const ActualizarFormula = () => {
     });
   };
 
-  // ACTUALIZAR AREA ENCARGADA DE REQUISICION 
+  // ACTUALIZAR AREA ENCARGADA DE REQUISICION
   const handledAreaEncargada = (idAre, idItem) => {
     const editFormDetalle = forDet.map((element) => {
       if (element.idMatPri === idItem) {
@@ -273,11 +275,11 @@ export const ActualizarFormula = () => {
         return false;
       }
     });
-    
+
     // recuperamos el item seleccionado
     const itemSelected = formulaDetalle[0];
     // si es una nueva materia prima agregada
-    if(itemSelected.id !== undefined){
+    if (itemSelected.id !== undefined) {
       // seteamos la data de la requisicion seleccionada
       setItemSeleccionado(itemSelected);
       // mostramos el modal
@@ -347,11 +349,13 @@ export const ActualizarFormula = () => {
     if (nomFor.length === 0 || forDet.length === 0) {
       let advertenciaUpdateFormula = "";
 
-      if(nomFor.length === 0){
-        advertenciaUpdateFormula += "Asegurate de proporcionar un nombre para la formula\n";
+      if (nomFor.length === 0) {
+        advertenciaUpdateFormula +=
+          "Asegurate de proporcionar un nombre para la formula\n";
       }
-      if(forDet.length === 0){
-        advertenciaUpdateFormula += "Debe proporcionar al menos un detalle de la formula\n";
+      if (forDet.length === 0) {
+        advertenciaUpdateFormula +=
+          "Debe proporcionar al menos un detalle de la formula\n";
       }
       // MANEJAMOS FORMULARIOS INCOMPLETOS
       setfeedbackMessages({

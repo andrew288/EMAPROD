@@ -103,7 +103,8 @@ export const AgregarFormula = () => {
       if (itemFound) {
         setfeedbackMessages({
           style_message: "warning",
-          feedback_description_error: "Ya se agrego un detalle con la materia prima elegida",
+          feedback_description_error:
+            "Ya se agrego un detalle con la materia prima elegida",
         });
         handleClickFeeback();
       } else {
@@ -145,11 +146,13 @@ export const AgregarFormula = () => {
       }
     } else {
       let advertenciaDetalleFormula = "";
-      if(idMateriaPrima === 0){
-        advertenciaDetalleFormula += "Asigne una materia prima para agregar el detalle\n";
+      if (idMateriaPrima === 0) {
+        advertenciaDetalleFormula +=
+          "Asigne una materia prima para agregar el detalle\n";
       }
-      if(cantidadMateriaPrima <= 0){
-        advertenciaDetalleFormula += "Asigne una cantidad mayor a 0 para agregar el detalle\n";
+      if (cantidadMateriaPrima <= 0) {
+        advertenciaDetalleFormula +=
+          "Asigne una cantidad mayor a 0 para agregar el detalle\n";
       }
       setfeedbackMessages({
         style_message: "warning",
@@ -282,20 +285,23 @@ export const AgregarFormula = () => {
       lotKgrFor <= 0 ||
       forDet.length === 0
     ) {
-      if(idProd === 0) {
+      if (idProd === 0) {
         advertenciaFormularioIncompleto += "No se proporciono un subproducto\n";
       }
-      if(idTipFor === 0){
+      if (idTipFor === 0) {
         advertenciaFormularioIncompleto += "No se indicó el tipo de formula\n";
       }
-      if(nomFor.length === 0){
-        advertenciaFormularioIncompleto += "No se proporciono un nombre para la formula\n";
+      if (nomFor.length === 0) {
+        advertenciaFormularioIncompleto +=
+          "No se proporciono un nombre para la formula\n";
       }
-      if(lotKgrFor <= 0){
-        advertenciaFormularioIncompleto += "No se puede establecer un peso menor o igual a 0\n";
+      if (lotKgrFor <= 0) {
+        advertenciaFormularioIncompleto +=
+          "No se puede establecer un peso menor o igual a 0\n";
       }
-      if(forDet.length === 0){
-        advertenciaFormularioIncompleto += "Debe proporcionar al menos un detalle de la formula\n";
+      if (forDet.length === 0) {
+        advertenciaFormularioIncompleto +=
+          "Debe proporcionar al menos un detalle de la formula\n";
       }
       // MANEJAMOS FORMULARIOS INCOMPLETOS
       setfeedbackMessages({

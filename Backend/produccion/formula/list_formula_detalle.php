@@ -50,7 +50,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 a.desAre,
                 p.nomProd,
                 c.desCla,
-                fd.canMatPriFor
+                fd.canMatPriFor,
+                fd.fecCreFor,
+                fd.fecActFor
                 FROM formula_detalle fd
                 JOIN producto as p on p.id = fd.idMatPri
                 JOIN area as a on a.id = fd.idAre

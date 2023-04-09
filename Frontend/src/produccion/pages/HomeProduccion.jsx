@@ -18,9 +18,9 @@ export const HomeProduccion = () => {
                     <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
                       <i className="bi bi-collection"></i>
                     </div>
-                    <h2 className="fs-4 fw-bold">Crear produccion lote</h2>
+                    <h2 className="fs-4 fw-bold">Orden de produccion</h2>
                     <Link
-                      to="/produccion/produccion-lote/crear"
+                      to="/produccion/produccion-lote"
                       className="btn btn-primary"
                     >
                       Ingresar
@@ -35,7 +35,7 @@ export const HomeProduccion = () => {
                     <div className="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
                       <i className="bi bi-collection"></i>
                     </div>
-                    <h2 className="fs-4 fw-bold">Formulas</h2>
+                    <h2 className="fs-4 fw-bold">Formula subproducto</h2>
                     <Link to="/produccion/formula" className="btn btn-primary">
                       Ingresar
                     </Link>

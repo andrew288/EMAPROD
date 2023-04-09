@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $idForProdFin = $row["id"];
-                $row["reqDet"] = [];
+                $row["forDet"] = [];
 
                 $sql_detalle =
                     "SELECT
@@ -51,7 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ar.desAre,
                 fptd.idAlm,
                 al.nomAlm,
-                fptd.canForProDet
+                fptd.canForProDet,
+                fptd.fecActForProTerDet
                 FROM formula_producto_terminado_detalle fptd
                 JOIN producto as p on p.id = fptd.idProd
                 JOIN medida as me on me.id = p.idMed
@@ -66,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt_detalle->execute();
 
                 while ($row_detalle = $stmt_detalle->fetch(PDO::FETCH_ASSOC)) {
-                    array_push($row["reqDet"], $row_detalle);
+                    array_push($row["forDet"], $row_detalle);
                 }
                 //AÑADIMOS TODA LA DATA FORMATEADA
                 array_push($result, $row);

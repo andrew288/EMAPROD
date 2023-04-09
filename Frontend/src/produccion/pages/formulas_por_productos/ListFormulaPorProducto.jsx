@@ -15,6 +15,8 @@ import { TextField } from "@mui/material";
 import { Link } from "react-router-dom";
 import FechaPickerDay from "./../../../components/Fechas/FechaPickerDay";
 import { FormulaProductoDetalle } from "./../../components/componentes-formula-producto/FormulaProductoDetalle";
+import { FilterPresentacionFinal } from "../../../components/ReferencialesFilters/Producto/FilterPresentacionFinal";
+import { FilterClase } from "../../../components/ReferencialesFilters/Clase/FilterClase";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -69,8 +71,89 @@ export const ListFormulaPorProducto = () => {
     filter(value, name);
   };
 
+  const onChangeProducto = ({ label }) => {
+    filter(label, "filterProducto");
+  };
+
+  const onChangeClase = ({ label }) => {
+    filter(label, "filterClase");
+  };
+  const onChangeDateFechaActualizado = (newDate) => {
+    const dateFilter = newDate.split(" ");
+    filter(dateFilter[0], "filterFechaActualizado");
+  };
+
   // funcion para filtrar la data
-  const filter = (terminoBusqueda, name) => {};
+  const filter = (terminoBusqueda, name) => {
+    let resultSearch = [];
+    switch (name) {
+      case "filterProducto":
+        resultSearch = dataFormula.filter((element) => {
+          if (
+            element.nomProd
+              .toString()
+              .toLowerCase()
+              .includes(terminoBusqueda.toLowerCase())
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        setdataFormulaTemp(resultSearch);
+        break;
+      case "filterClase":
+        resultSearch = dataFormula.filter((element) => {
+          if (
+            element.desCla
+              .toString()
+              .toLowerCase()
+              .includes(terminoBusqueda.toLowerCase())
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        setdataFormulaTemp(resultSearch);
+        break;
+      case "filterUnidadMedida":
+        resultSearch = dataFormula.filter((element) => {
+          if (
+            element.simMed
+              .toString()
+              .toLowerCase()
+              .includes(terminoBusqueda.toLowerCase())
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        setdataFormulaTemp(resultSearch);
+        break;
+      case "filterFechaActualizado":
+        resultSearch = dataFormula.filter((element) => {
+          if (element.fecActForProTer !== null) {
+            let aux = element.fecActForProTer.split(" ");
+            if (
+              aux[0]
+                .toString()
+                .toLowerCase()
+                .includes(terminoBusqueda.toLowerCase())
+            ) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        });
+        setdataFormulaTemp(resultSearch);
+        break;
+      default:
+        break;
+    }
+  };
 
   // FUNCION PARA OBTENER LA DATA
   const obtenerDataFormulaPorProducto = async () => {
@@ -97,7 +180,7 @@ export const ListFormulaPorProducto = () => {
 
   // MOSTRAR Y OCULTAR DETALLE DE REQUISICION MOLIENDA
   const showFormulaDetalle = (idPosElement) => {
-    const formulaDetalle = dataFormulaTemp[idPosElement].reqDet;
+    const formulaDetalle = dataFormulaTemp[idPosElement].forDet;
     // seteamos la data de la requisicion seleccionada
     setDetalleSeleccionado(formulaDetalle);
     // mostramos el modal
@@ -182,22 +265,34 @@ export const ListFormulaPorProducto = () => {
                       },
                     }}
                   >
-                    <TableCell align="left" width={200}>
+                    <TableCell align="left" width={220}>
                       <b>Producto</b>
+                      <FilterPresentacionFinal onNewInput={onChangeProducto} />
                     </TableCell>
                     <TableCell align="left" width={80}>
                       <b>Clase</b>
-                    </TableCell>
-                    <TableCell align="left" width={80}>
-                      <b>Sub clase</b>
+                      <FilterClase onNewInput={onChangeClase} />
                     </TableCell>
                     <TableCell align="left" width={20}>
                       <b>Medida</b>
+                      <TextField
+                        name="filterUnidadMedida"
+                        type="text"
+                        onChange={handleFormFilter}
+                        size="small"
+                        autoComplete="off"
+                        InputProps={{
+                          style: {
+                            color: "black",
+                            background: "white",
+                          },
+                        }}
+                      />
                     </TableCell>
-                    <TableCell align="left" width={140}>
+                    <TableCell align="left" width={120}>
                       <b>Fecha actualizado</b>
                       <FechaPickerDay
-                      // onNewfecEntSto={onChangeDateFechaActualizado}
+                        onNewfecEntSto={onChangeDateFechaActualizado}
                       />
                     </TableCell>
                     <TableCell align="left" width={100}>
@@ -217,7 +312,6 @@ export const ListFormulaPorProducto = () => {
                       >
                         <TableCell align="left">{row.nomProd}</TableCell>
                         <TableCell align="left">{row.desCla}</TableCell>
-                        <TableCell align="left">{row.desSubCla}</TableCell>
                         <TableCell align="left">{row.simMed}</TableCell>
                         <TableCell align="left">
                           {row.fecActForProTer}

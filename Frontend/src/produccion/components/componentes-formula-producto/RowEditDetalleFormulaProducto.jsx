@@ -12,10 +12,6 @@ export const RowEditDetalleFormulaProducto = ({
 }) => {
   const [disabledInput, setdisabledInput] = useState(true);
 
-  const handleDetalleChangeAlmacenEncargado = (value) => {
-    onChangeAlmacenEncargadoDetalle(value.id, detalle.idProd);
-  };
-
   return (
     <TableRow
       sx={{
@@ -27,16 +23,6 @@ export const RowEditDetalleFormulaProducto = ({
       </TableCell>
       <TableCell component="th" scope="row">
         {detalle.simMed}
-      </TableCell>
-      <TableCell align="left">
-        {detalle.nomAlm === undefined ? (
-          <FilterAlmacen
-            onNewInput={handleDetalleChangeAlmacenEncargado}
-            disabled={disabledInput}
-          />
-        ) : (
-          detalle.nomAlm
-        )}
       </TableCell>
       <TableCell align="left">
         <div className="d-inline-flex align-items-center">

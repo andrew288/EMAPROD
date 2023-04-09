@@ -172,7 +172,7 @@ export const ListFormulas = () => {
         break;
       case "filterFechaActualizado":
         resultSearch = dataFormula.filter((element) => {
-          if (element.fecTerReqMol !== null) {
+          if (element.fecActFor !== null) {
             let aux = element.fecActFor.split(" ");
             if (
               aux[0]
