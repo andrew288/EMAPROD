@@ -14,7 +14,7 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import FechaPicker from "../../../components/Fechas/FechaPicker";
 import { FilterProductoProduccion } from "./../../../components/ReferencialesFilters/Producto/FilterProductoProduccion";
-import { Checkbox, TextField } from "@mui/material";
+import { Checkbox, TextField, Typography } from "@mui/material";
 import FechaPickerYear from "./../../../components/Fechas/FechaPickerYear";
 import { FilterAllProductos } from "./../../../components/ReferencialesFilters/Producto/FilterAllProductos";
 import { getFormulaProductoDetalleByProducto } from "../../helpers/formula_producto/getFormulaProductoDetalleByProducto";
@@ -27,6 +27,7 @@ import { createProduccionLoteWithRequisiciones } from "./../../helpers/produccio
 // IMPROTACIONES PARA LINEA DE PROGRESION
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
+import { FilterPresentacionFinal } from "../../../components/ReferencialesFilters/Producto/FilterPresentacionFinal";
 
 // CONFIGURACION DE FEEDBACK
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -238,59 +239,84 @@ export const CrearProduccionLote = () => {
         });
         handleClickFeeback();
       } else {
-        const resultPeticion = await getMateriaPrimaById(idProdReq);
-        const { message_error, description_error, result } = resultPeticion;
+        // solo permitir agregaciones de area embalaje y encajonado
+        if (idAre === 5 || idAre === 6) {
+          const resultPeticion = await getMateriaPrimaById(idProdReq);
+          const { message_error, description_error, result } = resultPeticion;
 
-        if (message_error.length === 0) {
-          const { id, codProd, desCla, desSubCla, nomProd, simMed } = result[0];
-          // generamos nuestro detalle de formula
-          const detalleFormulaProducto = {
-            idProd: id,
-            idAre: idAre, // area
-            idAlm: 1, // almacen de orgien
-            nomAlm: "Almacen Principal",
-            codProd: codProd,
-            desCla: desCla,
-            desSubCla: desSubCla,
-            nomProd: nomProd,
-            simMed: simMed,
-            canForProDet: 1,
-            canReqProdLot: cantidadRequisicion, // cantidad
-          };
+          if (message_error.length === 0) {
+            const { id, codProd, desCla, desSubCla, nomProd, simMed } =
+              result[0];
+            // generamos nuestro detalle de formula
+            const detalleFormulaProducto = {
+              idProd: id,
+              idAre: idAre, // area
+              idAlm: 1, // almacen de orgien
+              nomAlm: "Almacen Principal",
+              codProd: codProd,
+              desCla: desCla,
+              desSubCla: desSubCla,
+              nomProd: nomProd,
+              simMed: simMed,
+              canForProDet: 1,
+              canReqProdLot: cantidadRequisicion, // cantidad
+            };
 
-          // seteamos el detalle en general de la formula
-          const dataDetalle = [...reqDetProdc, detalleFormulaProducto];
+            // seteamos el detalle en general de la formula
+            const dataDetalle = [...reqDetProdc, detalleFormulaProducto];
 
-          console.log(dataDetalle);
-          setproduccionLote({
-            ...produccionLote,
-            reqDetProdc: dataDetalle,
-          });
+            setproduccionLote({
+              ...produccionLote,
+              reqDetProdc: dataDetalle,
+            });
+          } else {
+            setfeedbackMessages({
+              style_message: "error",
+              feedback_description_error: description_error,
+            });
+            handleClickFeeback();
+          }
         } else {
           setfeedbackMessages({
-            style_message: "error",
-            feedback_description_error: description_error,
+            style_message: "warning",
+            feedback_description_error:
+              "Solo se adminte areas de envasado y encajonado",
           });
           handleClickFeeback();
         }
       }
     } else {
+      let advertenciaDetalleRequisicion = "";
+      if (idProdReq === 0) {
+        advertenciaDetalleRequisicion +=
+          "Debe elegir un envase, embalaje u otro material para agregar el detalle\n";
+      }
+      if (idAre === 0) {
+        advertenciaDetalleRequisicion +=
+          "Debe asignar un area para agregar el detalle\n";
+      }
+      if (cantidadRequisicion <= 0) {
+        advertenciaDetalleRequisicion +=
+          "Debe proporcionar una cantidad mayor a 0 para agregar el detalle\n";
+      }
+
+      // mostramos el feedback
       setfeedbackMessages({
         style_message: "warning",
-        feedback_description_error: "Asegurese de llenar los datos requeridos",
+        feedback_description_error: advertenciaDetalleRequisicion,
       });
       handleClickFeeback();
     }
   };
 
   // eliminar un detalle
-  const handleDeleteItemRequisicionProduccion = (idItem) => {
+  const handleDeleteItemRequisicionProduccion = (idItem, index) => {
     // filtramos el elemento eliminado
     const dataDetalleRequisicionProduccion = reqDetProdc.filter((element) => {
-      if (element.idProd !== idItem) {
-        return true;
-      } else {
+      if (element.idProd === idItem && element.indexProdFin === index) {
         return false;
+      } else {
+        return true;
       }
     });
 
@@ -302,10 +328,10 @@ export const CrearProduccionLote = () => {
   };
 
   // editar un detalle
-  const handleEditItemRequisicionProduccion = ({ target }, idItem) => {
+  const handleEditItemRequisicionProduccion = ({ target }, idItem, index) => {
     const { value } = target;
     const editFormDetalle = reqDetProdc.map((element) => {
-      if (element.idProd === idItem) {
+      if (element.idProd === idItem && element.indexProdFin === index) {
         return {
           ...element,
           canReqProdLot: value,
@@ -331,7 +357,7 @@ export const CrearProduccionLote = () => {
       if (itemFound) {
         setfeedbackMessages({
           style_message: "warning",
-          feedback_description_error: "Ya se agrego este producto",
+          feedback_description_error: "Ya se agrego este producto a la orden",
         });
         handleClickFeeback();
       } else {
@@ -339,10 +365,9 @@ export const CrearProduccionLote = () => {
         const resultPeticion = await getFormulaProductoDetalleByProducto(
           idProdFin
         );
-        console.log(resultPeticion);
         const { message_error, description_error, result } = resultPeticion;
         if (message_error.length === 0) {
-          const { id, idProdFin, nomProd, simMed, reqDet } = result[0]; // obtenemos la requisicion
+          const { idProdFin, nomProd, simMed, reqDet } = result[0]; // obtenemos la requisicion
           let equivalenteKilogramos = 0;
           // buscamos la requisicion de materia prima
           reqDet.forEach((element) => {
@@ -428,7 +453,6 @@ export const CrearProduccionLote = () => {
                 return;
               }
             });
-            console.log(detalleRequisicionesFormula);
 
             const detalleRequisicion = [
               ...reqDetProdc,
@@ -451,10 +475,20 @@ export const CrearProduccionLote = () => {
         }
       }
     } else {
+      let advertenciaPresentacionFinal = "";
+      if (idProdFin === 0) {
+        advertenciaPresentacionFinal +=
+          "Se debe proporcionar una presentacion final para agregar a la orden\n";
+      }
+      if (cantidadDeLote <= 0.0 || cantidadDeProducto <= 0) {
+        advertenciaPresentacionFinal +=
+          "Se debe proporcionar una cantidad mayor a 0 para agregar a la orden\n";
+      }
+
+      // mostramos el mensaje de error
       setfeedbackMessages({
         style_message: "warning",
-        feedback_description_error:
-          "Asegurese de eligir un producto y una cantidad",
+        feedback_description_error: advertenciaPresentacionFinal,
       });
       handleClickFeeback();
     }
@@ -476,8 +510,6 @@ export const CrearProduccionLote = () => {
         }
       }
     );
-
-    console.log(totalKlgProductoFinal, totalUnidadesProductoFinal);
 
     const dataDetalleRequisicionProduccion = reqDetProdc.filter((element) => {
       if (element.idProdFin !== idItem) {
@@ -508,7 +540,6 @@ export const CrearProduccionLote = () => {
 
   // CREAR LOTE DE PRODUCCION
   const crearProduccionLote = async () => {
-    console.log(produccionLote);
     const resultPeticion = await createProduccionLoteWithRequisiciones(
       produccionLote
     );
@@ -534,6 +565,7 @@ export const CrearProduccionLote = () => {
   const handleSubmitProduccionLote = (e) => {
     e.preventDefault();
     if (
+      codLotProd.length === 0 ||
       idProdt === 0 ||
       idProdTip === 0 ||
       klgLotProd <= 0 ||
@@ -542,49 +574,74 @@ export const CrearProduccionLote = () => {
       fecProdFinProg.length === 0 ||
       fecVenLotProd.length === 0
     ) {
+      let advertenciaOrdenProduccion = "";
+      if (codLotProd.length === 0) {
+        advertenciaOrdenProduccion +=
+          "No se ha proporcionado el codigo de lote\n";
+      }
+      if (idProdt === 0) {
+        advertenciaOrdenProduccion += "No se ha proporcionado el subproducto\n";
+      }
+      if (idProdTip === 0) {
+        advertenciaOrdenProduccion +=
+          "No se ha proporcionado el tipo de produccion\n";
+      }
+      if (klgLotProd <= 0) {
+        advertenciaOrdenProduccion +=
+          "Se debe proporcionar un peso mayor a 0 para buscar la formula\n";
+      }
+      if (canLotProd <= 0) {
+        advertenciaOrdenProduccion +=
+          "Se debe proporcionar una cantidad mayor a 0\n";
+      }
+      if (fecVenLotProd.length === 0) {
+        advertenciaOrdenProduccion +=
+          "Se debe proporcionar una fecha de vencimiento del lote\n";
+      }
       if (fecProdIniProg.length === 0) {
+        advertenciaOrdenProduccion +=
+          "Se debe proporcionar una fecha de inicio programado\n";
+      }
+      if (fecProdFinProg.length === 0) {
+        advertenciaOrdenProduccion +=
+          "Se debe proporcionar una fecha de fin programado\n";
+      }
+
+      // Mostramos el feedback
+      setfeedbackMessages({
+        style_message: "warning",
+        feedback_description_error: advertenciaOrdenProduccion,
+      });
+      handleClickFeeback();
+    } else {
+      let advertenciaSubProductos = "";
+      // solo los lotes de subproductos no tienen detalle de presentaciones finales
+      if (
+        idProdTip !== 5 &&
+        (prodDetProdc.length === 0 || reqDetProdc.length === 0)
+      ) {
+        advertenciaSubProductos +=
+          "Solo los lotes de subproducto no pueden tener detalle de presentaciones finales\n";
+
+        // Mostramos el feedback
         setfeedbackMessages({
           style_message: "warning",
-          feedback_description_error: "Ingrese una fecha de inicio programado",
+          feedback_description_error: advertenciaSubProductos,
         });
         handleClickFeeback();
       } else {
-        if (fecProdFinProg.length === 0) {
-          setfeedbackMessages({
-            style_message: "warning",
-            feedback_description_error: "Ingrese una fecha de fin programado",
-          });
-          handleClickFeeback();
-        } else {
-          if (fecVenLotProd.length === 0) {
-            setfeedbackMessages({
-              style_message: "warning",
-              feedback_description_error:
-                "Ingrese una fecha de vencimiento del lote",
-            });
-            handleClickFeeback();
-          } else {
-            setfeedbackMessages({
-              style_message: "warning",
-              feedback_description_error:
-                "Asegurate de completar los campos requeridos o validar su integridad",
-            });
-            handleClickFeeback();
-          }
-        }
+        setdisableButton(true);
+        // LLAMAMOS A LA FUNCION CREAR REQUISICION
+        crearProduccionLote();
+        // RESETEAMOS LOS VALORES
       }
-    } else {
-      setdisableButton(true);
-      // LLAMAMOS A LA FUNCION CREAR REQUISICION
-      crearProduccionLote();
-      // RESETEAMOS LOS VALORES
     }
   };
 
   return (
     <>
       <div className="container-fluid mx-3">
-        <h1 className="mt-4 text-center">Crear Produccion Lote</h1>
+        <h1 className="mt-4 text-center">Crear orden de produccion</h1>
 
         <div className="row mt-4 mx-4">
           {/* Datos de produccion */}
@@ -607,9 +664,9 @@ export const CrearProduccionLote = () => {
                     />
                   </div>
                   {/* PRODUCTO */}
-                  <div className="col-md-4 me-4">
+                  <div className="col-md-6 me-4">
                     <label htmlFor="nombre" className="form-label">
-                      <b>Producto</b>
+                      <b>Subproducto</b>
                     </label>
                     <FilterProductoProduccion
                       onNewInput={onAddProductoProduccion}
@@ -629,7 +686,7 @@ export const CrearProduccionLote = () => {
                     />
                   </div>
                   {/* CANTIDAD DE LOTE */}
-                  <div className="col-md-2">
+                  <div className="col-md-1">
                     <label htmlFor="nombre" className="form-label">
                       <b>Cantidad</b>
                     </label>
@@ -697,22 +754,25 @@ export const CrearProduccionLote = () => {
           </div>
           {/* DATOS DE PRODUCTOS FINALES O LOTES DE SUBPRODUCTOS*/}
           <div className="card d-flex mt-4">
-            <h6 className="card-header">Detalle lote produccion</h6>
+            <h6 className="card-header">
+              Detalle presentaciones finales{" "}
+              <b className="text text-danger">
+                (no aplica a lotes de subproducto)
+              </b>
+            </h6>
             <div className="card-body">
               <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
                 {/* AGREGAR PRODUCTO */}
                 <div className="col-md-5">
-                  <label className="form-label">
-                    Producto terminado o sub producto
-                  </label>
+                  <label className="form-label">Presentacion final</label>
                   {/* <FilterAllProductos onNewInput={onProductoId} /> */}
-                  <FilterAllProductos
+                  <FilterPresentacionFinal
                     onNewInput={onAddProductoFinalLoteProduccion}
                   />
                 </div>
                 {/* KILOGRAMOS DE LOTE ASIGNADOS */}
                 <div className="col-md-2">
-                  <label className="form-label">Cantidad de lote (kg)</label>
+                  <label className="form-label">Cantidad lote (KG)</label>
                   <TextField
                     type="number"
                     autoComplete="off"
@@ -822,7 +882,9 @@ export const CrearProduccionLote = () => {
               <form className="row mb-4 mt-4 d-flex flex-row justify-content-start align-items-end">
                 {/* AGREGAR PRODUCTO */}
                 <div className="col-md-5">
-                  <label className="form-label">Producto</label>
+                  <label className="form-label">
+                    Envases, embalajes u otros materiales
+                  </label>
                   {/* <FilterAllProductos onNewInput={onProductoId} /> */}
                   <FilterAllProductos
                     onNewInput={onAddProductoRequisicionLoteProduccion}
@@ -884,11 +946,8 @@ export const CrearProduccionLote = () => {
                             <TableCell align="left" width={20}>
                               <b>Item</b>
                             </TableCell>
-                            <TableCell align="left" width={200}>
+                            <TableCell align="left" width={230}>
                               <b>Nombre</b>
-                            </TableCell>
-                            <TableCell align="left" width={150}>
-                              <b>Almacen</b>
                             </TableCell>
                             <TableCell align="left" width={20}>
                               <b>U.M</b>
@@ -896,7 +955,7 @@ export const CrearProduccionLote = () => {
                             <TableCell align="left" width={20}>
                               <b>Unidad</b>
                             </TableCell>
-                            <TableCell align="left" width={150}>
+                            <TableCell align="left" width={120}>
                               <b>Total</b>
                             </TableCell>
                             <TableCell align="left" width={150}>
@@ -909,7 +968,7 @@ export const CrearProduccionLote = () => {
                             if (row.idAre === 5) {
                               return (
                                 <RowEditDetalleRequisicionProduccion
-                                  key={row.idProd}
+                                  key={`${row.idProd}-${i}`}
                                   detalle={row}
                                   onDeleteItemRequisicion={
                                     handleDeleteItemRequisicionProduccion
@@ -946,11 +1005,8 @@ export const CrearProduccionLote = () => {
                             <TableCell align="left" width={20}>
                               <b>Item</b>
                             </TableCell>
-                            <TableCell align="left" width={200}>
+                            <TableCell align="left" width={230}>
                               <b>Nombre</b>
-                            </TableCell>
-                            <TableCell align="left" width={150}>
-                              <b>Almacen</b>
                             </TableCell>
                             <TableCell align="left" width={20}>
                               <b>U.M</b>
@@ -958,7 +1014,7 @@ export const CrearProduccionLote = () => {
                             <TableCell align="left" width={20}>
                               <b>Unidad</b>
                             </TableCell>
-                            <TableCell align="left" width={150}>
+                            <TableCell align="left" width={120}>
                               <b>Total</b>
                             </TableCell>
                             <TableCell align="left" width={150}>
@@ -971,7 +1027,7 @@ export const CrearProduccionLote = () => {
                             if (row.idAre === 6) {
                               return (
                                 <RowEditDetalleRequisicionProduccion
-                                  key={row.idProd}
+                                  key={`${row.idProd}-${i}`}
                                   detalle={row}
                                   onDeleteItemRequisicion={
                                     handleDeleteItemRequisicionProduccion
@@ -1025,7 +1081,9 @@ export const CrearProduccionLote = () => {
           severity={style_message}
           sx={{ width: "100%" }}
         >
-          {feedback_description_error}
+          <Typography whiteSpace={"pre-line"}>
+            {feedback_description_error}
+          </Typography>
         </Alert>
       </Snackbar>
 

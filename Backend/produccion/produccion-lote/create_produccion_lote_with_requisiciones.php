@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
 
-    $idProdt = $data["idProdt"]; // producto
+    $idProdt = $data["idProdt"]; // subproducto
     $idProdTip = $data["idProdTip"]; // tipo de produccion
     $codTipProd = $data["codTipProd"]; // codigo de tipo de produccion
     $codLotProd = $data["codLotProd"]; // codigo de lote de produccion
@@ -27,185 +27,186 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
     if ($pdo) {
-        /* CONDICION:
-            1.- EL CODIGO DE LOTE NO DEBE SER REPETIDO DURANTE TODO EL AÑO DE PRODUCCION
-            2.- OTHER RULES ...
-        */
-        $year = date("Y"); // obtenemos el año actual
-        $sql = "SELECT * FROM produccion WHERE codLotProd = ? AND fecProdIni REGEXP '^$year-*'";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(1, $codLotProd, PDO::PARAM_STR);
-        $stmt->execute();
-        $countRows = $stmt->rowCount();
 
-        if ($countRows > 0) {
-            $message_error = "REGISTRO EXISTENTE";
-            $description_error = "Ya existe una produccion lote con ese codigo";
-        } else {
-            // CALCULAMOS EL ESTADO DE LA PRODUCCION
-            $idProdEst = 1; // iniciado
+        // ****** PRIMERO DEBEMOS BUSCAR SI EXISTE UNA FORMULA ADECUADA ********
+        $idFor = 0; // inicializamos
+        $sql_select_formula =
+            "SELECT f.id
+        FROM formula f WHERE lotKgrFor = $klgLotProd AND idProd = ?";
+        $stmt_select_formula = $pdo->prepare($sql_select_formula);
+        $stmt_select_formula->bindParam(1, $idProdt, PDO::PARAM_INT);
+        $stmt_select_formula->execute();
 
-            // CALCULAMOS EL ESTADO DE LA PRODUCCION SEGUN SU PROGRAMACION DE INICIO
-            $idProdIniProgEst = 0; // valor nulo
-            $fechaIniciadoProgramacion = strtotime(explode(" ", $fecProdIniProg)[0]);
-            $fechaIniciadoActual = strtotime(date("Y-m-d"));
+        // si existe una formula adecuada
+        if ($stmt_select_formula->rowCount() === 1) {
+            while ($row = $stmt_select_formula->fetch(PDO::FETCH_ASSOC)) {
+                $idFor = $row["id"];
+            }
 
-            /* 
-                1. A tiempo
-                2. Atrasado
-                3. Adelantado
+            // ahora consultamos el detalle de la formula para obtener la requisicion de materia prima
+            $sql_consult_formula_detalle =
+                "SELECT
+            fd.id,
+            fd.idFor,
+            fd.idMatPri,
+            fd.idAre,
+            fd.canMatPriFor
+            FROM formula_detalle fd
+            WHERE fd.idFor = ?";
+            $stmt_consult_formula_detalle = $pdo->prepare($sql_consult_formula_detalle);
+            $stmt_consult_formula_detalle->bindParam(1, $idFor, PDO::PARAM_INT);
+            $stmt_consult_formula_detalle->execute();
+
+            while ($row_detalle = $stmt_consult_formula_detalle->fetch(PDO::FETCH_ASSOC)) {
+                // la agregamos a la requisicion detalle
+                array_push($reqDetProdc, $row_detalle);
+            }
+
+            // ****** CREAMOS LAS INSERCIONES CORRESPONDIENTES *******
+            /* CONDICION:
+                1.- EL CODIGO DE LOTE NO DEBE SER REPETIDO DURANTE TODO EL AÑO DE PRODUCCION
             */
-            if ($fechaIniciadoProgramacion > $fechaIniciadoActual) {
-                $idProdIniProgEst = 2; // inicio atrasado
+            $year = date("Y"); // obtenemos el año actual
+            $sql = "SELECT * FROM produccion WHERE codLotProd = ? AND fecProdIni REGEXP '^$year-*'";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(1, $codLotProd, PDO::PARAM_STR);
+            $stmt->execute();
+            $countRows = $stmt->rowCount();
+
+            if ($countRows > 0) {
+                $message_error = "REGISTRO EXISTENTE";
+                $description_error = "Ya existe una produccion lote con ese codigo";
             } else {
-                if ($fechaIniciadoProgramacion == $fechaIniciadoActual) {
-                    $idProdIniProgEst = 1; // inicio a tiempo
+                // CALCULAMOS EL ESTADO DE LA PRODUCCION
+                $idProdEst = 1; // iniciado
+
+                // CALCULAMOS EL ESTADO DE LA PRODUCCION SEGUN SU PROGRAMACION DE INICIO
+                $idProdIniProgEst = 0; // valor nulo
+                $fechaIniciadoProgramacion = strtotime(explode(" ", $fecProdIniProg)[0]);
+                $fechaIniciadoActual = strtotime(date("Y-m-d"));
+
+                /* 
+                    1. A tiempo
+                    2. Atrasado
+                    3. Adelantado
+                */
+                if ($fechaIniciadoProgramacion > $fechaIniciadoActual) {
+                    $idProdIniProgEst = 2; // inicio atrasado
                 } else {
-                    $idProdIniProgEst = 3; // inicio adelantado
-                }
-            }
-
-            // CALCULAMOS EL ESTADO DE LA PRODUCCION SEGUN SU PROGRAMACION DE FIN
-            $idProdFinProgEst = 0;
-            /* 
-                1. A tiempo
-                2. Atrasado
-                3. Adelantado
-            */
-            if ($idProdIniProgEst == 2) {
-                $idProdFinProgEst = 2; // fin atrasado
-            } else {
-                if ($idProdIniProgEst == 3) {
-                    $idProdFinProgEst = 3; // fin adelantado
-                } else {
-                    $idProdFinProgEst = 1; // fin a tiempo
-                }
-            }
-
-            // PARA COMPLETAR EL CODIGO NUMÉRICO PRIMERO DEBEMOS CONSULTAR LA ULTIMA INSERCION
-            $sql_consult_produccion =
-                "SELECT SUBSTR(codProd,5,8) AS numberCodProd FROM produccion ORDER BY id DESC LIMIT 1";
-
-            $stmt_consult_produccion = $pdo->prepare($sql_consult_produccion);
-            $stmt_consult_produccion->execute();
-
-            $numberProduccion = 0;
-            $codProd = ""; // CODIGO DE PRODUCCION
-
-            if ($stmt_consult_produccion->rowCount() !== 1) {
-                // nueva insercion
-                $codProd = "PL" . $codTipProd . "00000001";
-            } else {
-                while ($row = $stmt_consult_produccion->fetch(PDO::FETCH_ASSOC)) {
-                    $numberProduccion = intval($row["numberCodProd"]) + 1; // el siguiente numeral
-                }
-                $codProd = "PL" . $codTipProd . str_pad(strval($numberProduccion), 8, "0", STR_PAD_LEFT);
-            }
-
-            $idLastInsert = 0;
-
-            $sql_insert_produccion =
-                "INSERT INTO
-                produccion
-                (idProdt, 
-                idProdEst, 
-                idProdTip, 
-                idProdFinProgEst, 
-                idProdIniProgEst,
-                codProd, 
-                codLotProd,
-                klgLotProd, 
-                canLotProd,
-                obsProd,
-                fecProdIniProg,
-                fecProdFinProg,
-                fecVenLotProd)
-                VALUES (?,?,?,?,?,?,?,$klgLotProd,$canLotProd,?,?,?,?);
-                ";
-            try {
-                // PREPARAMOS LA CONSULTA
-                $stmt_insert_produccion = $pdo->prepare($sql_insert_produccion);
-                $stmt_insert_produccion->bindParam(1, $idProdt, PDO::PARAM_INT);
-                $stmt_insert_produccion->bindParam(2, $idProdEst, PDO::PARAM_INT);
-                $stmt_insert_produccion->bindParam(3, $idProdTip, PDO::PARAM_INT);
-                $stmt_insert_produccion->bindParam(4, $idProdFinProgEst, PDO::PARAM_INT);
-                $stmt_insert_produccion->bindParam(5, $idProdIniProgEst, PDO::PARAM_INT);
-                $stmt_insert_produccion->bindParam(6, $codProd, PDO::PARAM_STR);
-                $stmt_insert_produccion->bindParam(7, $codLotProd, PDO::PARAM_STR);
-                $stmt_insert_produccion->bindParam(8, $obsProd, PDO::PARAM_STR);
-                $stmt_insert_produccion->bindParam(9, $fecProdIniProg, PDO::PARAM_STR);
-                $stmt_insert_produccion->bindParam(10, $fecProdFinProg, PDO::PARAM_STR);
-                $stmt_insert_produccion->bindParam(11, $fecVenLotProd, PDO::PARAM_STR);
-                $stmt_insert_produccion->execute();
-
-                // verificamos si se realizo la insercion del lote de produccion
-                if ($stmt_insert_produccion->rowCount() === 1) {
-
-                    $idLastInsert = $pdo->lastInsertId(); // le asignamos el id de lote produccion
-
-                    // ******* AHORA DEBEMOS AGREGAR LOS PRODUCTO FINALES ESPERADOS A UN LOTE DE PRODUCCION *****
-
-                    $sql_insert_producto_lote_produccion = "";
-                    $idProdcProdtFinEst = 1; // creado
-                    foreach ($prodDetProdc as $rowProdDet) {
-                        //datos necesarios
-                        $idProdtFinProdc = $rowProdDet["idProdFin"]; // producto final
-                        $canTotProgProdFin = $rowProdDet["canUnd"]; // cantidad programada
-
-                        //sentencia sql
-                        $sql_insert_producto_lote_produccion =
-                            "INSERT INTO 
-                        produccion_producto_final
-                        (idProdc,
-                        idProdcProdtFinEst,
-                        idProdt,
-                        canTotProgProdFin)
-                        VALUES (?,?,?,$canTotProgProdFin)";
-
-                        $stmt_insert_producto_lote_produccion = $pdo->prepare($sql_insert_producto_lote_produccion);
-                        $stmt_insert_producto_lote_produccion->bindParam(1, $idLastInsert, PDO::PARAM_INT);
-                        $stmt_insert_producto_lote_produccion->bindParam(2, $idProdcProdtFinEst, PDO::PARAM_INT);
-                        $stmt_insert_producto_lote_produccion->bindParam(3, $idProdtFinProdc, PDO::PARAM_INT);
-                        $stmt_insert_producto_lote_produccion->execute();
+                    if ($fechaIniciadoProgramacion == $fechaIniciadoActual) {
+                        $idProdIniProgEst = 1; // inicio a tiempo
+                    } else {
+                        $idProdIniProgEst = 3; // inicio adelantado
                     }
+                }
 
-                    // ******** AHORA DEBEMOS GENERAR LAS REQUISICIONES CORRESPONDIENTES A CADA AREA *******
+                // CALCULAMOS EL ESTADO DE LA PRODUCCION SEGUN SU PROGRAMACION DE FIN
+                $idProdFinProgEst = 0;
+                /* 
+                    1. A tiempo
+                    2. Atrasado
+                    3. Adelantado
+                */
+                if ($idProdIniProgEst == 2) {
+                    $idProdFinProgEst = 2; // fin atrasado
+                } else {
+                    if ($idProdIniProgEst == 3) {
+                        $idProdFinProgEst = 3; // fin adelantado
+                    } else {
+                        $idProdFinProgEst = 1; // fin a tiempo
+                    }
+                }
 
-                    // primero consultamos la formula adecuada para el lote
-                    $idFor = 0; // inicializamos
+                // PARA COMPLETAR EL CODIGO NUMÉRICO PRIMERO DEBEMOS CONSULTAR LA ULTIMA INSERCION
+                $sql_consult_produccion =
+                    "SELECT SUBSTR(codProd,5,8) AS numberCodProd FROM produccion ORDER BY id DESC LIMIT 1";
 
-                    // echo "PESO: $klgLotProd, ID PRODUCTO: $idProdt";
-                    $sql_select_formula =
-                        "SELECT f.id
-                    FROM formula f WHERE lotKgrFor = $klgLotProd AND idProd = ?";
-                    $stmt_select_formula = $pdo->prepare($sql_select_formula);
-                    $stmt_select_formula->bindParam(1, $idProdt, PDO::PARAM_INT);
-                    $stmt_select_formula->execute();
+                $stmt_consult_produccion = $pdo->prepare($sql_consult_produccion);
+                $stmt_consult_produccion->execute();
 
-                    if ($stmt_select_formula->rowCount() === 1) {
-                        while ($row = $stmt_select_formula->fetch(PDO::FETCH_ASSOC)) {
-                            $idFor = $row["id"];
+                $numberProduccion = 0;
+                $codProd = ""; // CODIGO DE PRODUCCION
+
+                if ($stmt_consult_produccion->rowCount() !== 1) {
+                    // nueva insercion
+                    $codProd = "PL" . $codTipProd . "00000001";
+                } else {
+                    while ($row = $stmt_consult_produccion->fetch(PDO::FETCH_ASSOC)) {
+                        $numberProduccion = intval($row["numberCodProd"]) + 1; // el siguiente numeral
+                    }
+                    $codProd = "PL" . $codTipProd . str_pad(strval($numberProduccion), 8, "0", STR_PAD_LEFT);
+                }
+
+                $idLastInsert = 0;
+
+                $sql_insert_produccion =
+                    "INSERT INTO
+                    produccion
+                    (idProdt, 
+                    idProdEst, 
+                    idProdTip, 
+                    idProdFinProgEst, 
+                    idProdIniProgEst,
+                    codProd, 
+                    codLotProd,
+                    klgLotProd, 
+                    canLotProd,
+                    obsProd,
+                    fecProdIniProg,
+                    fecProdFinProg,
+                    fecVenLotProd)
+                    VALUES (?,?,?,?,?,?,?,$klgLotProd,$canLotProd,?,?,?,?);
+                    ";
+                try {
+                    // PREPARAMOS LA CONSULTA
+                    $stmt_insert_produccion = $pdo->prepare($sql_insert_produccion);
+                    $stmt_insert_produccion->bindParam(1, $idProdt, PDO::PARAM_INT);
+                    $stmt_insert_produccion->bindParam(2, $idProdEst, PDO::PARAM_INT);
+                    $stmt_insert_produccion->bindParam(3, $idProdTip, PDO::PARAM_INT);
+                    $stmt_insert_produccion->bindParam(4, $idProdFinProgEst, PDO::PARAM_INT);
+                    $stmt_insert_produccion->bindParam(5, $idProdIniProgEst, PDO::PARAM_INT);
+                    $stmt_insert_produccion->bindParam(6, $codProd, PDO::PARAM_STR);
+                    $stmt_insert_produccion->bindParam(7, $codLotProd, PDO::PARAM_STR);
+                    $stmt_insert_produccion->bindParam(8, $obsProd, PDO::PARAM_STR);
+                    $stmt_insert_produccion->bindParam(9, $fecProdIniProg, PDO::PARAM_STR);
+                    $stmt_insert_produccion->bindParam(10, $fecProdFinProg, PDO::PARAM_STR);
+                    $stmt_insert_produccion->bindParam(11, $fecVenLotProd, PDO::PARAM_STR);
+                    $stmt_insert_produccion->execute();
+
+                    // verificamos si se realizo la insercion del lote de produccion
+                    if ($stmt_insert_produccion->rowCount() === 1) {
+
+                        $idLastInsert = $pdo->lastInsertId(); // le asignamos el id de lote produccion
+
+                        // ******* AHORA DEBEMOS AGREGAR LOS PRODUCTO FINALES ESPERADOS A UN LOTE DE PRODUCCION *****
+
+                        $sql_insert_producto_lote_produccion = "";
+                        $idProdcProdtFinEst = 1; // creado
+                        foreach ($prodDetProdc as $rowProdDet) {
+                            //datos necesarios
+                            $idProdtFinProdc = $rowProdDet["idProdFin"]; // producto final
+                            $canTotProgProdFin = $rowProdDet["canUnd"]; // cantidad programada
+
+                            //sentencia sql
+                            $sql_insert_producto_lote_produccion =
+                                "INSERT INTO 
+                            produccion_producto_final
+                            (idProdc,
+                            idProdcProdtFinEst,
+                            idProdt,
+                            canTotProgProdFin)
+                            VALUES (?,?,?,$canTotProgProdFin)";
+
+                            $stmt_insert_producto_lote_produccion = $pdo->prepare($sql_insert_producto_lote_produccion);
+                            $stmt_insert_producto_lote_produccion->bindParam(1, $idLastInsert, PDO::PARAM_INT);
+                            $stmt_insert_producto_lote_produccion->bindParam(2, $idProdcProdtFinEst, PDO::PARAM_INT);
+                            $stmt_insert_producto_lote_produccion->bindParam(3, $idProdtFinProdc, PDO::PARAM_INT);
+                            $stmt_insert_producto_lote_produccion->execute();
                         }
 
-                        // ahora consultamos el detalle de la formula para obtener la requisicion de materia prima
-                        $sql_consult_formula_detalle =
-                            "SELECT
-                        fd.id,
-                        fd.idFor,
-                        fd.idMatPri,
-                        fd.idAre,
-                        fd.canMatPriFor
-                        FROM formula_detalle fd
-                        WHERE fd.idFor = ?";
-                        $stmt_consult_formula_detalle = $pdo->prepare($sql_consult_formula_detalle);
-                        $stmt_consult_formula_detalle->bindParam(1, $idFor, PDO::PARAM_INT);
-                        $stmt_consult_formula_detalle->execute();
+                        // ******** AHORA DEBEMOS GENERAR LAS REQUISICIONES CORRESPONDIENTES A CADA AREA *******
 
-                        while ($row_detalle = $stmt_consult_formula_detalle->fetch(PDO::FETCH_ASSOC)) {
-                            array_push($reqDetProdc, $row_detalle);
-                        }
-
-                        // AHORA DEBEMOS SEPARAR LA DATA RESPECTIVAMENT
+                        // AHORA DEBEMOS SEPARAR LA DATA RESPECTIVAMENTE
                         $reqDetMatPri = []; // detalle de requisicion de materia prima
                         $reqDetEnv = []; // detalle de requisicion de envasado
                         $reqDetEnc = []; // detalle de requisicion de encajonado
@@ -256,9 +257,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             //requisicion de materia prima
                             $sql_insert_requisicion_materia_prima =
                                 "INSERT INTO
-                            requisicion
-                            (idProdc, idReqEst, idAre)
-                            VALUES (?, ?, ?)";
+                                requisicion
+                                (idProdc, idReqEst, idAre)
+                                VALUES (?, ?, ?)";
                             try {
                                 $pdo->beginTransaction(); // iniciamos una transaccion
                                 $stmt_insert_requisicion_materia_prima = $pdo->prepare($sql_insert_requisicion_materia_prima);
@@ -281,9 +282,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         // generamos la query
                                         $sql_insert_requisicion_materia_prima_detalle =
                                             "INSERT INTO
-                                        requisicion_detalle
-                                        (idProdt, idReq, idReqDetEst, canReqDet)
-                                        VALUES (?, ?, ?, $canReqDet)";
+                                            requisicion_detalle
+                                            (idProdt, idReq, idReqDetEst, canReqDet)
+                                            VALUES (?, ?, ?, $canReqDet)";
 
                                         $stmt_insert_requisicion_materia_prima_detalle = $pdo->prepare($sql_insert_requisicion_materia_prima_detalle);
                                         $stmt_insert_requisicion_materia_prima_detalle->bindParam(1, $idProdtMatPri, PDO::PARAM_INT);
@@ -312,9 +313,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             // requisicion de envasado
                             $sql_insert_requisicion_envasado =
                                 "INSERT INTO
-                            requisicion
-                            (idProdc, idReqEst, idAre)
-                            VALUES (?, ?, ?)";
+                                requisicion
+                                (idProdc, idReqEst, idAre)
+                                VALUES (?, ?, ?)";
                             try {
                                 $pdo->beginTransaction(); // iniciamos una transaccion
                                 $stmt_insert_requisicion_envasado = $pdo->prepare($sql_insert_requisicion_envasado);
@@ -337,9 +338,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         // generamos la query
                                         $sql_insert_requisicion_envasado_detalle =
                                             "INSERT INTO
-                                        requisicion_detalle
-                                        (idProdt, idReq, idReqDetEst, canReqDet)
-                                        VALUES (?, ?, ?, $canReqDet)";
+                                            requisicion_detalle
+                                            (idProdt, idReq, idReqDetEst, canReqDet)
+                                            VALUES (?, ?, ?, $canReqDet)";
 
                                         $stmt_insert_requisicion_envasado_detalle = $pdo->prepare($sql_insert_requisicion_envasado_detalle);
                                         $stmt_insert_requisicion_envasado_detalle->bindParam(1, $idProdtEnv, PDO::PARAM_INT);
@@ -368,9 +369,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             // requisicion de envasado
                             $sql_insert_requisicion_encajonado =
                                 "INSERT INTO
-                            requisicion
-                            (idProdc, idReqEst, idAre)
-                            VALUES (?, ?, ?)";
+                                requisicion
+                                (idProdc, idReqEst, idAre)
+                                VALUES (?, ?, ?)";
                             try {
                                 $pdo->beginTransaction(); // iniciamos una transaccion
                                 $stmt_insert_requisicion_encajonado = $pdo->prepare($sql_insert_requisicion_encajonado);
@@ -393,9 +394,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         // generamos la query
                                         $sql_insert_requisicion_encajonado_detalle =
                                             "INSERT INTO
-                                        requisicion_detalle
-                                        (idProdt, idReq, idReqDetEst, canReqDet)
-                                        VALUES (?, ?, ?, $canReqDet)";
+                                            requisicion_detalle
+                                            (idProdt, idReq, idReqDetEst, canReqDet)
+                                            VALUES (?, ?, ?, $canReqDet)";
 
                                         $stmt_insert_requisicion_encajonado_detalle = $pdo->prepare($sql_insert_requisicion_encajonado_detalle);
                                         $stmt_insert_requisicion_encajonado_detalle->bindParam(1, $idProdtEnc, PDO::PARAM_INT);
@@ -416,17 +417,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             }
                         }
                     } else {
-                        $message_error = "NO SE ENCONTRO NINGUNA FORMULA";
-                        $description_error = "No se encontro ninguna formula asociada al peso (kg) y subproducto elegido";
+                        $message_error = "NO SE PUDO INSERTAR EL LOTE DE PRODUCCION";
+                        $description_error = "No se pudo insertar el lote de produccion";
                     }
-                } else {
-                    $message_error = "NO SE PUDO INSERTAR EL LOTE DE PRODUCCION";
-                    $description_error = "No se pudo insertar el lote de produccion";
+                } catch (PDOException $e) {
+                    $message_error = "ERROR INTERNO SERVER: fallo en insercion de maestro requisicion molienda";
+                    $description_error = $e->getMessage();
                 }
-            } catch (PDOException $e) {
-                $message_error = "ERROR INTERNO SERVER: fallo en insercion de maestro requisicion molienda";
-                $description_error = $e->getMessage();
             }
+        } else {
+            $message_error = "NO SE ENCONTRO NINGUNA FORMULA";
+            $description_error = "No se encontro ninguna formula asociada al peso (kg) y subproducto elegido";
         }
     } else {
         $message_error = "Error con la conexion a la base de datos";

@@ -249,31 +249,12 @@ export const ListProduccionLote = () => {
 
   // ******** ACTUALIZACION DE FECHAS ********
   const onUpdateDatesProduccion = async (id, body) => {
-    console.log(body);
     const resultPeticion = await updateFechasProduccion(id, body);
-    console.log(resultPeticion);
     const { message_error, description_error } = resultPeticion;
     if (message_error.length === 0) {
       // cerramos el modal
       closeOpcionesProduccionLote();
       // Actualizamos la data
-      // const updateDatosProduccion = dataProduccionLote.map((element) => {
-      //   if (element.id === id) {
-      //     return {
-      //       ...element,
-      //       fecFinMolProd: body.fecFinMolProd,
-      //       fecFinEnvProd: body.fecFinEnvProd,
-      //       fecFinEncProd: body.fecFinEncProd,
-      //       fecProdFin: body.fecProdFin,
-      //     };
-      //   } else {
-      //     return element;
-      //   }
-      // });
-      // // actualizamos el filtro
-      // setdataProduccionLote(updateDatosProduccion);
-      // // actualizamos la data
-      // setdataProduccionLoteTemp(updateDatosProduccion);
       obtenerDataProduccionLote();
     } else {
       setfeedbackMessages({
@@ -490,7 +471,6 @@ export const ListProduccionLote = () => {
                         <TableCell align="left">
                           <div className="btn-toolbar">
                             <button
-                              disabled={row.idProdEst < 3 ? true : false}
                               onClick={() => {
                                 showOpcionesProduccionLote(i);
                               }}
@@ -508,7 +488,12 @@ export const ListProduccionLote = () => {
                                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
                               </svg>
                             </button>
-                            <button className="btn btn-warning btn">
+                            <button
+                              className="btn btn-warning btn"
+                              onClick={() => {
+                                window.alert("Funcion por evaluarse");
+                              }}
+                            >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="16"

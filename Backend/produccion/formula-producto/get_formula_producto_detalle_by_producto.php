@@ -35,44 +35,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bindParam(1, $idProdFin, PDO::PARAM_INT);
             $stmt->execute();
 
-            $sql_detalle = "";
+            if ($stmt->rowCount() === 1) {
+                $sql_detalle = "";
 
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $idForProdFin = $row["id"];
-                $row["reqDet"] = [];
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $idForProdFin = $row["id"];
+                    $row["reqDet"] = [];
 
-                $sql_detalle =
-                    "SELECT
-                fptd.id,
-                fptd.idForProdFin,
-                fptd.idProd,
-                p.nomProd,
-                me.simMed,
-                fptd.idAre,
-                ar.desAre,
-                fptd.idAlm,
-                al.nomAlm,
-                fptd.canForProDet
-                FROM formula_producto_terminado_detalle fptd
-                JOIN producto as p on p.id = fptd.idProd
-                JOIN medida as me on me.id = p.idMed
-                JOIN area as ar on ar.id = fptd.idAre
-                JOIN almacen as al on al.id = fptd.idAlm
-                WHERE fptd.idForProdFin = ?
-                ";
+                    $sql_detalle =
+                        "SELECT
+                    fptd.id,
+                    fptd.idForProdFin,
+                    fptd.idProd,
+                    p.nomProd,
+                    me.simMed,
+                    fptd.idAre,
+                    ar.desAre,
+                    fptd.idAlm,
+                    al.nomAlm,
+                    fptd.canForProDet
+                    FROM formula_producto_terminado_detalle fptd
+                    JOIN producto as p on p.id = fptd.idProd
+                    JOIN medida as me on me.id = p.idMed
+                    JOIN area as ar on ar.id = fptd.idAre
+                    JOIN almacen as al on al.id = fptd.idAlm
+                    WHERE fptd.idForProdFin = ?
+                    ";
 
-                $stmt_detalle = $pdo->prepare($sql_detalle);
-                $stmt_detalle->bindParam(1, $idForProdFin, PDO::PARAM_INT);
-                $stmt_detalle->execute();
+                    $stmt_detalle = $pdo->prepare($sql_detalle);
+                    $stmt_detalle->bindParam(1, $idForProdFin, PDO::PARAM_INT);
+                    $stmt_detalle->execute();
 
-                while ($row_detalle = $stmt_detalle->fetch(PDO::FETCH_ASSOC)) {
-                    array_push($row["reqDet"], $row_detalle);
+                    while ($row_detalle = $stmt_detalle->fetch(PDO::FETCH_ASSOC)) {
+                        array_push($row["reqDet"], $row_detalle);
+                    }
+                    //AÑADIMOS TODA LA DATA FORMATEADA
+                    array_push($result, $row);
+
+                    // DESCOMENTAR PARA VER LA DATA
+                    //print_r($data_formula);
                 }
-                //AÑADIMOS TODA LA DATA FORMATEADA
-                array_push($result, $row);
-
-                // DESCOMENTAR PARA VER LA DATA
-                //print_r($data_formula);
+            } else {
+                $message_error = "NO SE ENCONTRO LA FORMULA";
+                $description_error = "No existe una formula para la presentacion final elegida";
             }
         } catch (Exception $e) {
             $message_error = "ERROR INTERNO SERVER";

@@ -11,11 +11,6 @@ export const RowEditDetalleRequisicionProduccion = ({
 }) => {
   const [disabledInputs, setdisabledInputs] = useState(true);
 
-  const onChangeInput = ({ target }) => {
-    const { value, name } = target;
-    console.log(value, name);
-  };
-
   return (
     <TableRow
       sx={{
@@ -27,9 +22,6 @@ export const RowEditDetalleRequisicionProduccion = ({
       </TableCell>
       <TableCell component="th" scope="row">
         {detalle.nomProd}
-      </TableCell>
-      <TableCell component="th" scope="row">
-        {detalle.nomAlm}
       </TableCell>
       <TableCell component="th" scope="row">
         {detalle.simMed}
@@ -44,7 +36,7 @@ export const RowEditDetalleRequisicionProduccion = ({
           value={detalle.canReqProdLot}
           name={"canReqProdLot"}
           onChange={(e) => {
-            onChangeItemDetalle(e, detalle.idProd);
+            onChangeItemDetalle(e, detalle.idProd, detalle.indexProdFin);
           }}
         />
       </TableCell>
@@ -69,7 +61,7 @@ export const RowEditDetalleRequisicionProduccion = ({
           </button>
           <button
             onClick={() => {
-              onDeleteItemRequisicion(detalle.idProd);
+              onDeleteItemRequisicion(detalle.idProd, detalle.indexProdFin);
             }}
             className="btn btn-danger"
           >

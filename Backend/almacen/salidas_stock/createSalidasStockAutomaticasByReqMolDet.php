@@ -366,14 +366,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $stmt_update_requisicion_detalle->execute();
 
                             // LUEGO ACTUALIZAMOS EL MAESTRO
-                            $sql_update_requisicion =
-                                "UPDATE requisicion
-                            SET idReqEst = ?
-                            WHERE id = ?";
-                            $stmt_update_requisicion = $pdo->prepare($sql_update_requisicion);
-                            $stmt_update_requisicion->bindParam(1, $idReqEst, PDO::PARAM_INT);
-                            $stmt_update_requisicion->bindParam(2, $idReq, PDO::PARAM_INT);
-                            $stmt_update_requisicion->execute();
+                            if ($idReqEst = 3) {
+                                // obtenemos la fecha actual
+                                $fecEntReq = date('Y-m-d H:i:s');
+                                $sql_update_requisicion_completo =
+                                    "UPDATE requisicion
+                                SET idReqEst = ?, fecEntReq = ?
+                                WHERE id = ?";
+                                $stmt_update_requisicion_completo = $pdo->prepare($sql_update_requisicion_completo);
+                                $stmt_update_requisicion_completo->bindParam(1, $idReqEst, PDO::PARAM_INT);
+                                $stmt_update_requisicion_completo->bindParam(2, $fecEntReq);
+                                $stmt_update_requisicion_completo->bindParam(3, $idReq, PDO::PARAM_INT);
+                                $stmt_update_requisicion_completo->execute();
+                            } else {
+                                $sql_update_requisicion =
+                                    "UPDATE requisicion
+                                SET idReqEst = ?
+                                WHERE id = ?";
+                                $stmt_update_requisicion = $pdo->prepare($sql_update_requisicion);
+                                $stmt_update_requisicion->bindParam(1, $idReqEst, PDO::PARAM_INT);
+                                $stmt_update_requisicion->bindParam(2, $idReq, PDO::PARAM_INT);
+                                $stmt_update_requisicion->execute();
+                            }
 
                             // TERMINAMOS LA TRANSACCION
                             $pdo->commit();
