@@ -366,7 +366,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $stmt_update_requisicion_detalle->execute();
 
                             // LUEGO ACTUALIZAMOS EL MAESTRO
-                            if ($idReqEst = 3) {
+                            if ($idReqEst == 3) {
                                 // obtenemos la fecha actual
                                 $fecEntReq = date('Y-m-d H:i:s');
                                 $sql_update_requisicion_completo =

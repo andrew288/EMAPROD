@@ -1,14 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import logo from "../../assets/logo-oficial.png";
 import { useAuth } from "../../hooks/useAuth";
 
 const NavProduccion = () => {
+  // controlar la visualizacion de componentes
+  const [show, setShow] = useState(false);
+  // logout
   const { logout } = useAuth();
   const logoutUser = () => {
-    // cerramos sesion
     logout();
   };
+
+  // verificamos si el usuario tiene acceso a las formulas
+  const verifyAdminUser = () => {
+    const { idRolUsu } = JSON.parse(localStorage.getItem("user"));
+    // si es un usuario administrador
+    if (idRolUsu === 1) {
+      setShow(true);
+    }
+  };
+
+  useEffect(() => {
+    verifyAdminUser();
+  }, []);
+
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -65,31 +81,36 @@ const NavProduccion = () => {
                 </ul>
               </li>
               {/* FORMULAS */}
-              <li className="nav-item dropdown">
-                <button
-                  className="btn btn-lg dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Formula subproducto
-                </button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to={"/produccion/formula"}>
-                      Administrar
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to={"/produccion/formula/crear"}
-                    >
-                      Crear
-                    </Link>
-                  </li>
-                </ul>
-              </li>
+              {show && (
+                <li className="nav-item dropdown">
+                  <button
+                    className="btn btn-lg dropdown-toggle"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Receta subproducto
+                  </button>
+                  <ul className="dropdown-menu">
+                    <li>
+                      <Link
+                        className="dropdown-item"
+                        to={"/produccion/formula"}
+                      >
+                        Administrar
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="dropdown-item"
+                        to={"/produccion/formula/crear"}
+                      >
+                        Crear
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
+              )}
               {/* FORMULA POR PRODUCTO */}
               <li className="nav-item dropdown">
                 <button

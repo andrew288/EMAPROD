@@ -285,10 +285,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $message_error = "ERROR EN LA CONSULTA DE STOCK ALMACEN DESTINO";
                                 $description_error = $e->getMessage();
                             }
-                        } else {
-                            $message_error = "No hay entradas suficientes";
-                            $description_error = "No hay entradas suficientes del producto para cumplir con la salida";
                         }
+                    } else {
+                        $message_error = "No hay entradas suficientes";
+                        $description_error = "No hay entradas suficientes del producto para cumplir con la salida";
                     }
                 } else {
                     $message_error = "No hay entradas disponibles";
